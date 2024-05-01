@@ -1,0 +1,42 @@
+.card {
+    padding: 2em;
+  }
+  
+  .read-the-docs {
+    color: #888;
+  }
+  .flex {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .shopping-card {
+    justify-content: space-between;
+    background-color: rgb(15, 9, 1);
+    padding: 20px 30px;
+    color: white;
+    height: 50px;
+    max-width: 1080px;
+    margin: 0 auto;
+    border-radius: 40px;
+    padding: auto;
+    align-content: center;
+
+  }
+  
+  .product-item {
+    color: black;
+    padding: 20px;
+  }
+  .shopping {
+    font-size: 18px;
+}
+.shopping:hover{
+    color: aquamarine;
+}
+.cartlist {
+    color: black;
+}
+.btn {
+    color: aqua;
+}
