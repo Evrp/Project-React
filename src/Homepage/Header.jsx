@@ -1,4 +1,4 @@
-import './Food.css';
+import './Shop';
 import { BsBag } from 'react-icons/bs';
 
 function Header(props) {

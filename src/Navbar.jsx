@@ -17,13 +17,10 @@ const Navbar = () => {
                     </div>
                     <ul className={click ? 'menu active':'menu'}>
                         <li className='menu-link' onClick={closeMobileMenu}>
-                            <Link to='/random'>RANDOM</Link>
+                            <Link to='/food'>SHOP</Link>
                         </li>
                         <li className='menu-link' onClick={closeMobileMenu}>
-                            <Link to='/food'>FOOD</Link>
-                        </li>
-                        <li className='menu-link' onClick={closeMobileMenu}>
-                            <Link to='/restuarant'>RESTUARANT</Link>
+                            <Link to='/restuarant'>CONTACT</Link>
                         </li>
                         <li className='menu-link' onClick={closeMobileMenu}>
                             <Link to='/login'>LOGIN</Link>

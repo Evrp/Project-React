@@ -7,7 +7,7 @@ function Home() {
         <div className="container">
             <div className="home-con">
                 <div className="home-text">
-                    <h1>Welcome to FoodLand</h1>
+                    <h1>Welcome to Shops</h1>
                 </div>
             </div>
         </div>

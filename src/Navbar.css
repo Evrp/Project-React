@@ -2,10 +2,6 @@
     max-width: 1080px;
     margin: 0 auto;
 }
-.navbar {
-    background-color: rgb(15, 9, 1);
-    height: 80px;
-}
 .navbar-con {
     display: flex;
     justify-content: space-between;
@@ -18,11 +14,13 @@
     text-decoration: none;
     font-weight: bold;
     font-size: 3rem;
+    margin: 0 2rem;
 }
 .menu{
     display: flex;
     list-style-type: none;
 }
+
 .BagShopping {
     background-color: bisque;
     width: 90px; 
@@ -40,7 +38,7 @@
 }
 
 .menu li {
-    padding-right: 1rem;
+    padding-right: 4rem;
     height: 100%;
     display: flex;
     align-items: center;
@@ -52,14 +50,13 @@
     font-size: 16px;
     color: white;
     font-weight: 600;
+    margin: 0 1rem;
 }
 .menu li a:hover {
-    background-color: white;
-    color: rgb(15, 9, 1);
-    height: 80px;
-    align-content: center;
+    color: black;
+    text-decoration: underline;
+    margin: 0 1rem;
 
-    
 }
 .mobile-menu {
     display: none;
@@ -69,7 +66,7 @@
         display: block;
         color: white;
         font-size: 3rem;
-    }
+    }ma
     .header {
         padding: 0 2rem;
     }

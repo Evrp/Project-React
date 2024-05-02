@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import './Food.css';
+import './Shop.css';
 
 function CartList({ cart }) {
 
@@ -10,13 +10,17 @@ function CartList({ cart }) {
     }, [cart])
 
     return (
-        <div className='cartlist'>
+        <>
+         <div>
             {
                 CART?.map((cartItem, cartindex) => {
                     return (
-                        <div>
-                            <img src={cartItem.url} width={40} />
-                            <span> {cartItem.name} </span>
+                        <>
+                            <div className='cartlist'>
+                                <div className="cartimage">
+                                     <img src={cartItem.url} width={200} />
+                                </div>
+                            <div className="cartname"><span> {cartItem.name}  </span>
                             <button
                                 onClick={() => {
                                     const _CART = CART.map((item, index) => {
@@ -34,18 +38,29 @@ function CartList({ cart }) {
                                     setCART(_CART)
                                 }}
                             >+</button>
-                            <span> Rs. {cartItem.price * cartItem.quantity} </span>
+                            <span>   ฿ {cartItem.price * cartItem.quantity.toLocaleString()}</span>
+                            <button
+                                        onClick={() => {
+                                            alert(`Stock left: ${cartItem.stock - cartItem.quantity}`);
+                                        }}
+                                    >Buy</button>
+                            </div>
                         </div>
+                        </>
+                        
                     )
                 })
             }
-
-            <p> Total  <span></span>
+            <div className="total">
+            <p> Total amount :  <span></span>
                 {
                     CART.map(item => item.price * item.quantity).reduce((total, value) => total + value, 0)
                 }
             </p>
-        </div >
+            </div>
+
+        </div ></>
+       
     )
 }
 
