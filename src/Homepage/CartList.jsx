@@ -1,9 +1,28 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import './Shop.css';
 
-function CartList({ cart }) {
+const tokenLine = 'YOUR_LINE_NOTIFY_TOKEN'; // ใส่ Token ของคุณที่นี่
 
-    const [CART, setCART] = useState([])
+export const notifyLine = async (message) => {
+    try {
+        const response = await axios({
+            method: 'POST',
+            url: 'https://notify-api.line.me/api/notify',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': 'Bearer ' + tokenLine
+            },
+            data: `message=${message}`,
+        });
+        console.log("notify response ", response);
+    } catch (err) {
+        console.error('Error sending notification:', err);
+    }
+};
+
+function CartList({ cart }) {
+    const [CART, setCART] = useState([]);
 
     useEffect(() => {
         setCART(cart)
@@ -11,57 +30,57 @@ function CartList({ cart }) {
 
     return (
         <>
-         <div>
-            {
-                CART?.map((cartItem, cartindex) => {
-                    return (
-                        <>
-                            <div className='cartlist'>
+            <div>
+                {
+                    CART?.map((cartItem, cartindex) => {
+                        return (
+                            <div key={cartindex} className='cartlist'>
                                 <div className="cartimage">
-                                     <img src={cartItem.url} width={200} />
+                                    <img src={cartItem.url} width={200} alt={cartItem.name} />
                                 </div>
-                            <div className="cartname"><span> {cartItem.name}  </span>
-                            <button
-                                onClick={() => {
-                                    const _CART = CART.map((item, index) => {
-                                        return cartindex === index ? { ...item, quantity: item.quantity > 0 ? item.quantity - 1 : 0 } : item
-                                    })
-                                    setCART(_CART)
-                                }}
-                            >-</button>
-                            <span> {cartItem.quantity} </span>
-                            <button
-                                onClick={() => {
-                                    const _CART = CART.map((item, index) => {
-                                        return cartindex === index ? { ...item, quantity: item.quantity + 1 } : item
-                                    })
-                                    setCART(_CART)
-                                }}
-                            >+</button>
-                            <span>   ฿ {cartItem.price * cartItem.quantity.toLocaleString()}</span>
-                            <button
+                                <div className="cartname">
+                                    <span> {cartItem.name}  </span>
+                                    <button
                                         onClick={() => {
-                                            alert(`Stock left: ${cartItem.stock - cartItem.quantity}`);
+                                            const _CART = CART.map((item, index) => {
+                                                return cartindex === index ? { ...item, quantity: item.quantity > 0 ? item.quantity - 1 : 0 } : item
+                                            })
+                                            setCART(_CART)
+                                        }}
+                                    >-</button>
+                                    <span> {cartItem.quantity} </span>
+                                    <button
+                                        onClick={() => {
+                                            const _CART = CART.map((item, index) => {
+                                                return cartindex === index ? { ...item, quantity: item.quantity + 1 } : item
+                                            })
+                                            setCART(_CART)
+                                        }}
+                                    >+</button>
+                                    <span>   ฿ {cartItem.price * cartItem.quantity.toLocaleString()}</span>
+                                    <button
+                                        onClick={() => {
+                                            const stockLeft = cartItem.stock - cartItem.quantity;
+                                            alert(`Stock left: ${stockLeft}`);
+                                            const text = `Stock left for ${cartItem.name}: ${stockLeft}`;
+                                            notifyLine(text);
                                         }}
                                     >Buy</button>
+                                </div>
                             </div>
-                        </div>
-                        </>
-                        
-                    )
-                })
-            }
-            <div className="total">
-            <p> Total amount :  <span></span>
-                {
-                    CART.map(item => item.price * item.quantity).reduce((total, value) => total + value, 0)
+                        )
+                    })
                 }
-            </p>
+                <div className="total">
+                    <p> Total amount :  <span>
+                        {
+                            CART.map(item => item.price * item.quantity).reduce((total, value) => total + value, 0)
+                        }
+                    </span></p>
+                </div>
             </div>
-
-        </div ></>
-       
+        </>
     )
 }
 
-export default CartList
+export default CartList;

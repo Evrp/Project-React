@@ -20,9 +20,6 @@ const Navbar = () => {
                             <Link to='/food'>SHOP</Link>
                         </li>
                         <li className='menu-link' onClick={closeMobileMenu}>
-                            <Link to='/restuarant'>CONTACT</Link>
-                        </li>
-                        <li className='menu-link' onClick={closeMobileMenu}>
                             <Link to='/login'>LOGIN</Link>
                         </li>
                     </ul>

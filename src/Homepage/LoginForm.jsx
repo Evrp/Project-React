@@ -1,36 +1,45 @@
-import React from 'react'
-import { RiUserFill } from "react-icons/ri";
-import { FaLock } from "react-icons/fa";
-import './Login1.css'
+import React from 'react';
+import { Link,} from 'react-router-dom';
+import './Login.css';
+
 const LoginForm = () => {
+  const handleLoginHeaderClick = () => {
+    const wrapper = document.querySelector('.wrapper');
+    wrapper.classList.add('active');
+  };
+
+  const handleSignupHeaderClick = () => {
+    const wrapper = document.querySelector('.wrapper');
+    wrapper.classList.remove('active');
+  };
+
   return (
     <div className="wrapper">
-    <form action="#">
-        <h1>Welcome</h1>
-        <div className="input-box">
-            <RiUserFill className="icon"/>
-            <input type="email" id='email' placeholder="Username" required/>
-            <i className='bx bxs-user'></i>
-        </div>
+      <div className="form signup">
+        <header onClick={handleSignupHeaderClick}>Sign up</header>
+        <form action="#">
+          <input type="text" placeholder="Username" required />
+          <input type="text" placeholder="Email" required />
+          <input type="password" placeholder="Password" required />
+          <div className="checkbox">
+            <input type="checkbox" id="signupCheck" />
+            <label htmlFor="signupCheck">I accept all terms & conditions</label>
+          </div>
+          <input type="submit" value="Signup" />
+        </form>
+      </div>
 
-        <div className="input-box">
-            <FaLock className="icon"/>
-            <input type="password" placeholder="Password" required/>
-            <i className='bx bxs-lock-alt'></i>
-        </div>
+      <div className="form login">
+        <header onClick={handleLoginHeaderClick}>Login</header>
+        <form action="#">
+          <input type="text" placeholder="Email" required />
+          <input type="password" placeholder="Password" required />
+          <Link to="/forgot-password">Forgot password?</Link>
+          <input type="submit" value="Login" />
+        </form>
+      </div>
+    </div>
+  );
+};
 
-        <div className="input-box1 mx-2">
-            <a href="#" className='Forgot'></a>
-            <input type="Forgot Password?" placeholder="Forgot Password?" required/>
-        </div>
-        
-        <button type="submit" className='Login'>Login</button>
-        <p>Don't have an account? <a href="#" className='Sign-up'>Sign up</a></p>
-    </form>
-</div>
-
-
-  )
-}
-
-export default LoginForm
+export default LoginForm;
