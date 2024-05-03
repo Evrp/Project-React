@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Shop.css';
 
-const tokenLine = 'YOUR_LINE_NOTIFY_TOKEN'; // ใส่ Token ของคุณที่นี่
+const tokenLine = '63ZCi6LuRy1vZL0dWmQs6DuESp6Jxdpg6j3lyUrOrCF';
 
 export const notifyLine = async (message) => {
     try {
@@ -10,11 +10,11 @@ export const notifyLine = async (message) => {
             method: 'POST',
             url: 'https://notify-api.line.me/api/notify',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                'Content-Type': 'application/x-www-form-urlencodedORmultipart/form-data',
                 'Authorization': 'Bearer ' + tokenLine
             },
             data: `message=${message}`,
-        });
+        }); 
         console.log("notify response ", response);
     } catch (err) {
         console.error('Error sending notification:', err);

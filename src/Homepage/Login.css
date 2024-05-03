@@ -176,7 +176,13 @@ a {
   
   a.logout-button {
     margin-top: 20px;
+    color: #333;
   }
+  a.logout-button:hover {
+    margin-top: 20px;
+    color: whitesmoke;
+  }
+  
   
   a:hover {
     text-decoration: underline;

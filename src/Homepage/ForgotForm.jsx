@@ -11,7 +11,7 @@ const ForgotPassword = () => {
           <input type="text" placeholder="Email" required />
           <input type="submit" value="Reset Password" />
         </form>
-        <Link to="/login">Back to Login</Link>
+        <Link to="/login" className='logout-button'>Back to Login</Link>
         <Link to="/login" className="logout-button">Logout</Link>
       </div>
     </div>
