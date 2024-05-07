@@ -1,4 +1,4 @@
-import './Shop.css';
+import './Food.css';
 
 function ProductList({ product,addToCart }) {
     return (
@@ -11,10 +11,9 @@ function ProductList({ product,addToCart }) {
                                 <img src={productItem.url} width="100%" />
                                 <p>{productItem.name}<br/>{productItem.category} </p>
                                 <p> ฿ {productItem.price}</p>
-                                <p>Quantity: {productItem.stock} </p>
                                 <button
                                     onClick={() => addToCart(productItem)}
-                                >Add To Cart</button>
+                                >Pick Up Order</button>
                             </div>
                         </div>
                     )

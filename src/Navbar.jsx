@@ -17,7 +17,10 @@ const Navbar = () => {
                     </div>
                     <ul className={click ? 'menu active':'menu'}>
                         <li className='menu-link' onClick={closeMobileMenu}>
-                            <Link to='/food'>SHOP</Link>
+                            <Link to='/food'>Food</Link>
+                        </li>
+                        <li className='menu-link' onClick={closeMobileMenu}>
+                            <Link to='/randDom'>Random</Link>
                         </li>
                         <li className='menu-link' onClick={closeMobileMenu}>
                             <Link to='/login'>LOGIN</Link>

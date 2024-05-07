@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import './Shop.css';
+import './Food.css';
 
 const tokenLine = '63ZCi6LuRy1vZL0dWmQs6DuESp6Jxdpg6j3lyUrOrCF';
 
@@ -65,7 +65,7 @@ function CartList({ cart }) {
                                             const text = `Stock left for ${cartItem.name}: ${stockLeft}`;
                                             notifyLine(text);
                                         }}
-                                    >Buy</button>
+                                    >Order</button>
                                 </div>
                             </div>
                         )
