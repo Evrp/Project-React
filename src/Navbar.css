@@ -1,106 +1,88 @@
-.container {
-    max-width: 1080px;
-    margin: 0 auto;
-}
 .navbar-con {
-    display: flex;
-    justify-content: space-between;
-    height: 80px;
-    align-items: stretch;
-    font-size: 18px;
-}
-.logo-con {
-    color: aqua;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 3rem;
-    margin: 0 2rem;
-}
-.menu{
-    display: flex;
-    list-style-type: none;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  width: 250px;
+  flex-direction: column; /* ทำให้เป็นแนวตั้ง */
+  justify-content: flex-start; /* จัดให้อยู่ด้านบน */
+  min-height: 100vh; /* ให้ความสูงเต็มหน้าจอ */
+  align-items: flex-start;
+  /* position: fixed; ทำให้เมนูอยู่คงที่ฝั่งซ้าย */
+  top: 0;
 }
 
-.BagShopping {
-    background-color: bisque;
-    width: 90px; 
-    height: 90px;
-    border-radius: 50%; 
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    margin-bottom: 60px; 
-    margin-right: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transform: translate(50%, 50%);
+.logo-con {
+
+  font-size: 60px;
+  margin: 1rem;
 }
+.menu {
+  display: flex;
+  flex-direction: column; /* ทำให้เมนูแสดงในแนวตั้ง */
+  list-style-type: none;
+  padding: 0;
+}
+
 
 .menu li {
-    padding-right: 4rem;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    justify-content: space-between;
+  padding: 1rem 2rem; /* เพิ่มระยะห่างในเมนู */
+  width: 100%; /* ให้เมนูขยายเต็มความกว้าง */
+  display: flex;
+  flex-direction: column; /* ทำให้เมนูแสดงในแนวตั้ง */
+  align-items: center;
 }
+
 .menu li a {
-    text-decoration: none;
-    font-size: 16px;
-    color: white;
-    font-weight: 600;
-    margin: 0 1rem;
+  font-size: 24px;
+  font-weight: 600;
 }
 .menu li a:hover {
-    color: black;
-    text-decoration: underline;
-    margin: 0 1rem;
-
+  color: black;
+  text-decoration: none;
 }
 .mobile-menu {
-    display: none;
+  display: none;
 }
 @media screen and (max-width: 480px) {
-    .mobile-menu{
-        display: block;
-        color: white;
-        font-size: 3rem;
-    }ma
-    .header {
-        padding: 0 2rem;
-    }
-    .menu li:hover{
-        background-color: none;
-    }
-    .menu {
-        width: 100%;
-        height: auto;
-        display: flex;
-        position: absolute;
-        flex-direction: column;
-        top: 80px;
-        transition: 0.8s ease;
-        align-items: center;
-        left: -100%;
-    }
-    .menu.active{
-        background: rgb(214, 136, 190);
-        left: 0;
-        opacity: 1;
-        z-index: 1;
-        align-content: center;
-        transition: 0.8s ease;
-    }
-    .menu-link{
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 10vw;
-        padding: 10px 0;
-    }
-    .wrapper {
-        align-content: center;
-        background-color: transparent;
-    }
+  .mobile-menu {
+    display: block;
+    color: white;
+    font-size: 3rem;
+  }
+
+  .menu {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 80px;
+    left: -100%; /* ซ่อนเมนู */
+    transition: 0.8s ease;
+    align-items: center;
+    background-color: #333; /* เพิ่มพื้นหลังเมนู */
+  }
+
+  .menu.active {
+    left: 0;
+    opacity: 1;
+    z-index: 1;
+    transition: 0.8s ease;
+  }
+
+  .menu-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 10vw;
+    padding: 10px 0;
+  }
+}
+.menu-link {
+  font-size: 1.25rem; /* ปรับขนาดตัวอักษร */
+  gap: 20px; /* เว้นระยะระหว่างไอคอนกับข้อความ */
+}
+
+.menu-link svg {
+  color: black; /* เปลี่ยนสีของไอคอนเป็นขาว */
+  font-size: 3rem; /* ปรับขนาดไอคอนให้ใหญ่ขึ้น */
 }

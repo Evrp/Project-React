@@ -1,47 +1,44 @@
 .card {
-    padding: 2em;
-  }
-  
-  .read-the-docs {
-    color: #888;
-  }
-  .flex {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  
-  .shopping-card {
-    justify-content: space-between;
-    background-color: black;
-    padding: 20px 30px;
-    color: rgb(255, 255, 255);
-    height: 50px;
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: auto;
-    align-content: center;
-    max-width: 1600px;
-    margin: 0 auto;
-
-  }
-  
-  .product-item {
-    color: black;
-    padding: 20px;
-  }
-
-  .shopping {
-    font-size: 18px;
+  padding: 2em;
 }
-.shopping:hover{
-    color: aquamarine;
+
+.read-the-docs {
+  color: #888;
+}
+.flex {
+  display: flex;
+  margin-top: 0;
+  flex-wrap: wrap;
+}
+
+.shopping-card {
+  justify-content: space-between;
+  background-color: black;
+  padding: 20px 30px;
+  color: rgb(255, 255, 255);
+  height: 50px;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: auto;
+  align-content: center;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.product-item {
+  color: black;
+  padding: 20px;
+}
+
+.shopping {
+  font-size: 18px;
+}
+.shopping:hover {
+  color: aquamarine;
 }
 
 .btn {
-    color: aqua;
-}
-.navbar-con{
-  background-color: black;
+  color: aqua;
 }
 
 .cartlist {

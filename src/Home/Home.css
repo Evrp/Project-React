@@ -1,0 +1,16 @@
+.home-bg {
+  background: linear-gradient(100deg, #000000, #3533cd);
+  width: 100%;
+}
+.home-con {
+  display: flex;
+  align-items: flex-end;
+  justify-content:center;
+  color: aliceblue;
+  height: 100vh;
+  padding-left: 8rem;
+  padding-bottom: 8rem;
+}
+.home-text h1 {
+  font-size: 128px;
+}

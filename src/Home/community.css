@@ -1,0 +1,122 @@
+.community {
+  display: flex;
+  justify-content: start; /* จัดกึ่งกลางแนวนอน */
+  margin: auto;
+  align-items: flex-start;
+}
+.community .com-img {
+  position: sticky;
+  top: 50%; /* ให้อยู่กึ่งกลางแนวตั้ง */
+  left: 35%;
+  transform: translate(-50%, -50%); /* จัดให้อยู่ตรงกลาง */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: fit-content;
+  min-height: fit-content;
+  z-index: 1; /* ทำให้ภาพอยู่ด้านบน */
+}
+.community .com-img button {
+  margin-top: 2rem;
+  height: 80px;
+  width: 280px;
+  border-radius: 4rem;
+  background-color: #0d4f83;
+  font-size: 40px;
+  font-weight: bold;
+  color: white;
+  border: none; /* ลบขอบออก */
+  outline: none; /* กันขอบเวลา focus */
+}
+.community .com-img button:hover{
+  background-color: white;
+  color: #0d4f83;
+}
+
+.community .room {
+  display: flex;
+  flex-direction: column; /* จัดเรียงแนวตั้ง */
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  width: 700px;
+  min-height: 90vh; /* กำหนดความสูงขั้นต่ำ */
+  height: auto; /* ให้ขยายตามเนื้อหา */
+
+  margin-left: 2rem;
+  background-color: #0d4f83;
+  padding: 2rem;
+  border-radius: 2rem;
+}
+
+.community .room .name {
+  padding-bottom: 2rem;
+  padding-top: 1rem;
+  color: white;
+  font-size: 48;
+  font-weight: bold;
+}
+.community .room .divjob {
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+}
+
+.community .room p {
+  font-weight: bold;
+  font-size: 20px;
+  color: white;
+}
+.community .room .box {
+  height: 280px;
+  width: 100%;
+  background-color: white;
+  border-radius: 2rem;
+  display: flex;
+  align-items: flex-start;
+  padding: 2rem;
+  margin-top: 2rem;
+  color: black;
+}
+.community .room .box p{
+  color: black;
+  font-size: 28px;
+  font-weight: bold;
+}
+.community .search-room {
+  background-color: white;
+  height: 48px;
+  width: 100%;
+  border-radius: 2rem;
+  color: black;
+  justify-content: space-between;
+  display: flex;
+  align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+  padding: 2rem;
+}
+
+.community .search-room svg {
+  flex-shrink: 0; /* กันไอคอนไม่ให้ยืดหด */
+  font-size: 1.5rem; /* ปรับขนาดไอคอน */
+}
+
+.community .search-room p {
+  color: black;
+  font-size: 28px;
+  font-weight: bold;
+  opacity: 0.5;
+}
+.community .room .filter button {
+  height: 48px;
+  width: 81px;
+  border-radius: 2rem;
+  background-color: white;
+  /* justify-content: space-between;
+  display: flex;
+  align-items: center; 
+  flex-direction: row; */
+  padding: 1rem;
+  
+  margin-top: 1rem;
+  border: none; 
+  outline: none; 
+}

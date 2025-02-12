@@ -1,0 +1,51 @@
+.profile {
+    display: flex;
+    justify-content: center; /* จัดกึ่งกลางแนวนอน */
+    align-items: center; /* จัดกึ่งกลางแนวตั้ง */
+  
+    margin: auto; /* ทำให้กึ่งกลางใน container */
+  }
+  .profile img {
+    width: fit-content;
+    min-height: fit-content;
+  }
+  .profile .cardname {
+    display: flex;
+    justify-content: baseline;
+    align-items: flex-start;
+    flex-direction: column;
+    width: 700px;
+    height: 710px;
+    margin-left: 10rem;
+    background-color: #0d4f83;
+    padding: 2rem;
+    border-radius: 2rem;
+  }
+  .profile .cardname .name {
+    padding-bottom: 2rem;
+    padding-top: 1rem;
+    color: white;
+    font-size: 48;
+    font-weight: bold;
+  }
+  .profile .cardname .divjob {
+    padding-bottom: 1rem;
+    padding-top: 1rem;
+  }
+  
+  .profile .cardname p {
+    font-weight: bold;
+    font-size: 20px;
+    color: white;
+  }
+  .profile .cardname .box {
+    height: 100%;
+    width: 100%;
+    background-color: white;
+    border-radius: 2rem;
+    display: flex;
+    align-items: flex-start;
+    padding: 2rem;
+    color: black;
+  }
+  
