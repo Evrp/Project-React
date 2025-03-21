@@ -33,22 +33,31 @@ const Community = () => {
       </div>
       <div className="room">
         <div className="search-room">
-          <p>ค้นหา</p>
+          <input type="text" placeholder="ค้นหาห้อง..." />
           <IoSearch />
         </div>
-        <div className="filter">
-          <button></button>
-          <button></button>
-          <button></button>
-          <button></button>
-          <button></button>
-          <button></button>
+
+        <div className="container_filter">
+          <div className="filter">
+            <button>เกมส์</button>
+            <button>ฟุตบอล</button>
+            <button>เต้น</button>
+            <button>ชมรม</button>
+            <button>ปิงปอง</button>
+            <button>แบตมินตัน</button>
+            <button>เทนนิส</button>
+            <button>เปตอง</button>
+            <button>ฟุตซอล</button>
+            <button>บาสเกสบอล</button>
+          </div>
         </div>
+
         {room.map((msg, index) => (
-          <div className="box" key={index}>
+          <div className="NameRoom" key={index}>
             <p>{msg}</p>
           </div>
         ))}
+       
       </div>
     </div>
   );
