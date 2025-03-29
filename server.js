@@ -4,8 +4,8 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
-import { Product } from "./models/Product.js";
-import { User } from "./models/User.js";
+import { Product } from "./models/product.js";
+import { User } from "./models/user.js";
 
 const app = express();
 const port = 8080;
@@ -52,9 +52,8 @@ app.get("/api/scrape-amazon", async (req, res) => {
       link: AMAZON_URL,
     });
 
-    res.json(product);
     await product.save(); // ✅ บันทึกลง MongoDB
-    res.json(product);
+    res.json(product); // ✅ ส่งข้อมูลกลับไปที่ Client
   } catch (error) {
     console.error("เกิดข้อผิดพลาดในการดึงข้อมูล Amazon:", error);
     res.status(500).json({ error: "ไม่สามารถดึงข้อมูลจาก Amazon ได้" });

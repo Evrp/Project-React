@@ -18,20 +18,20 @@ export default function InterestForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     try {
       // ✅ 📌 1️⃣ ดึงข้อมูลจาก Amazon + เก็บลง Database
       const amazonResponse = await fetch("http://localhost:8080/api/scrape-amazon");
       const amazonData = await amazonResponse.json();
-  
+
       console.log("ข้อมูล Amazon:", amazonData);
-  
+
       // ✅ 📌 2️⃣ รวมข้อมูล User + Amazon แล้วบันทึกลง Database + ส่งไป Make.com
       const payload = {
         userData: formData,
         amazonData: amazonData
       };
-  
+
       const makeResponse = await fetch("http://localhost:8080/api/send-to-make-combined", {
         method: "POST",
         headers: {
@@ -39,14 +39,16 @@ export default function InterestForm() {
         },
         body: JSON.stringify(payload),
       });
-  
+
       console.log("ตอบกลับจาก Make.com:", await makeResponse.json());
-  
+
+      // แสดงผลกิจกรรมที่ได้จาก Amazon
+      setEvents([amazonData]);  // อัพเดทข้อมูลใน state
+
     } catch (error) {
       console.error("เกิดข้อผิดพลาด:", error);
     }
   };
-  
 
   return (
     <div className="max-w-md mx-auto p-4 bg-white rounded-xl shadow-md">
@@ -86,9 +88,9 @@ export default function InterestForm() {
           <ul className="mt-4">
             {events.map((event, index) => (
               <li key={index} className="mb-4">
-                <h4 className="text-md font-bold">{event.title}</h4>
-                <p>{event.location}</p>
-                <p>{event.date}</p>
+                <h4 className="text-md font-bold">{event.name}</h4>
+                <p>ราคา: {event.price}</p>
+                <p>ลิงค์: <a href={event.link} target="_blank" rel="noopener noreferrer">ดูสินค้า</a></p>
               </li>
             ))}
           </ul>
