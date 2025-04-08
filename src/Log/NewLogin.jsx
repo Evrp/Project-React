@@ -1,32 +1,63 @@
-import React, { useState } from "react";
-import { auth, provider, signInWithPopup } from "../firebase/firebase"; // นำเข้าจาก firebase.js
+import React, { useState, useEffect } from "react";
+import { auth, provider, signInWithPopup } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
-import "./NewLogin.css"; // ใส่ไฟล์ CSS สำหรับ UI
+import "./NewLogin.css";
 
 const NewLogin = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
 
-  // ฟังก์ชันสำหรับการลงชื่อเข้าใช้ผ่าน Google
+  // 👉 handle animation switching
+  useEffect(() => {
+    const container = document.getElementById("container");
+    const registerButton = document.getElementById("register");
+    const loginButton = document.getElementById("login");
+
+    if (registerButton && loginButton && container) {
+      registerButton.addEventListener("click", () => {
+        container.classList.add("active");
+      });
+
+      loginButton.addEventListener("click", () => {
+        container.classList.remove("active");
+      });
+    }
+
+    return () => {
+      if (registerButton && loginButton && container) {
+        registerButton.removeEventListener("click", () => {});
+        loginButton.removeEventListener("click", () => {});
+      }
+    };
+  }, []);
+
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
-      // เก็บชื่อและรูปโปรไฟล์ไว้ใน localStorage
-      localStorage.setItem("userName", user.displayName);
-      localStorage.setItem("userPhoto", user.photoURL);
-
-      navigate("/home"); // หรือ "/profile"
+  
+      // เช็กว่า email ลงท้ายด้วย @bumail.net หรือไม่
+      if (user.email && user.email.endsWith("@bumail.net")) {
+        // ผ่าน ✅ -> เก็บข้อมูลและไปหน้า /home
+        localStorage.setItem("userName", user.displayName);
+        localStorage.setItem("userPhoto", user.photoURL);
+        navigate("/home");
+      } else {
+        // ไม่ผ่าน ❌ -> ล็อกเอาท์ออก และแสดงข้อความ error
+        setError("คุณต้องใช้บัญชี @bumail.net เท่านั้น");
+        await auth.signOut();
+      }
     } catch (error) {
       setError("เกิดข้อผิดพลาดในการล็อกอิน");
       console.error(error);
     }
   };
+  
 
   return (
     <div className="page-wrapper">
       <div className="container" id="container">
+        {/* Sign In Form */}
         <div className="form-container sign-in">
           <form>
             <h1>Sign In</h1>
@@ -34,32 +65,36 @@ const NewLogin = () => {
               <a href="#" className="icon" onClick={handleGoogleSignIn}>
                 <i className="fa-brands fa-google-plus-g"></i>
               </a>
-              <a href="#" className="icon">
-                <i className="fa-brands fa-facebook-f"></i>
-              </a>
-              <a href="#" className="icon">
-                <i className="fa-brands fa-github"></i>
-              </a>
-              <a href="#" className="icon">
-                <i className="fa-brands fa-linkedin-in"></i>
-              </a>
             </div>
             <span>or use your email password</span>
             <input type="email" placeholder="Email" />
             <input type="password" placeholder="Password" />
             <a href="#">Forget Your Password?</a>
-            <button
-              type="button"
-              
-              className="google-btn"
-            >
+            <button type="button" className="google-btn">
               Sign In
-            </button>{" "}
-            {/* ปุ่ม Sign In with Google */}
+            </button>
             {error && <p className="error-message">{error}</p>}
           </form>
         </div>
 
+        {/* Sign Up Form */}
+        <div className="form-container sign-up">
+          <form>
+            <h1>Create Account</h1>
+            <div className="social-icons">
+              <a href="#" className="icon">
+                <i className="fa-brands fa-google-plus-g"></i>
+              </a>
+            </div>
+            <span>or use your email to register</span>
+            <input type="text" placeholder="Name" />
+            <input type="email" placeholder="Email" />
+            <input type="password" placeholder="Password" />
+            <button>Sign Up</button>
+          </form>
+        </div>
+
+        {/* Toggle panel */}
         <div className="toggle-container">
           <div className="toggle">
             <div className="toggle-panel toggle-left">
