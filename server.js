@@ -20,8 +20,8 @@ const MAKE_WEBHOOK_URL =
 const uri =
   "mongodb+srv://Peerapat:hmcSoODK3PW81gIm@projecttest1.53764sf.mongodb.net/?"; // คัดลอกจาก MongoDB Atlas
 mongoose.connect(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  // useNewUrlParser: true,
+  // useUnifiedTopology: true,
 });
 const db = mongoose.connection;
 db.once("open", () => {

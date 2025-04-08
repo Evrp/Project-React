@@ -21,6 +21,7 @@
     "concurrently": "^9.1.2",
     "cors": "^2.8.5",
     "express": "^4.21.2",
+    "firebase": "^9.23.0",
     "mongoose": "^8.13.1",
     "puppeteer": "^24.4.0",
     "react": "^18.2.0",

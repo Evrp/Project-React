@@ -1,7 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
 .navbar-con {
   background: rgba(0, 0, 0, 0.7);
   display: flex;
-  width: 250px;
+  width: 8%;
   flex-direction: column; /* ทำให้เป็นแนวตั้ง */
   justify-content: flex-start; /* จัดให้อยู่ด้านบน */
   min-height: 100vh; /* ให้ความสูงเต็มหน้าจอ */
@@ -12,10 +14,10 @@
 
 .logo-con {
 
-  font-size: 60px;
+  font-size: 20px;
   margin: 1rem;
 }
-.menu {
+.menu-bar {
   display: flex;
   flex-direction: column; /* ทำให้เมนูแสดงในแนวตั้ง */
   list-style-type: none;
@@ -23,7 +25,7 @@
 }
 
 
-.menu li {
+.menu-bar li {
   padding: 1rem 2rem; /* เพิ่มระยะห่างในเมนู */
   width: 100%; /* ให้เมนูขยายเต็มความกว้าง */
   display: flex;
@@ -31,25 +33,25 @@
   align-items: center;
 }
 
-.menu li a {
-  font-size: 24px;
-  font-weight: 600;
+.menu-bar li a {
+  font-size: 12px;
+  font-weight: bold;
 }
-.menu li a:hover {
+.menu-bar li a:hover {
   color: black;
   text-decoration: none;
 }
-.mobile-menu {
+.mobile-menu-bar {
   display: none;
 }
 @media screen and (max-width: 480px) {
-  .mobile-menu {
+  .mobile-menu-bar {
     display: block;
     color: white;
     font-size: 3rem;
   }
 
-  .menu {
+  .menu-bar {
     width: 100%;
     height: auto;
     display: flex;
@@ -77,11 +79,21 @@
     padding: 10px 0;
   }
 }
-.menu-link {
-  font-size: 1.25rem; /* ปรับขนาดตัวอักษร */
-  gap: 20px; /* เว้นระยะระหว่างไอคอนกับข้อความ */
+.menu-link a,
+.menu-link .logout-link {
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  padding: 10px 20px;
+  display: block;
+  transition: background-color 0.3s ease;
 }
 
+.menu-link a:hover,
+.menu-link .logout-link:hover {
+  
+  border-radius: 5px;
+}
 .menu-link svg {
   color: black; /* เปลี่ยนสีของไอคอนเป็นขาว */
   font-size: 3rem; /* ปรับขนาดไอคอนให้ใหญ่ขึ้น */

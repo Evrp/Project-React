@@ -91,6 +91,14 @@ export default function InterestForm() {
                 <h4 className="text-md font-bold">{event.name}</h4>
                 <p>ราคา: {event.price}</p>
                 <p>ลิงค์: <a href={event.link} target="_blank" rel="noopener noreferrer">ดูสินค้า</a></p>
+                {/* แสดงรูปภาพจากข้อมูล Amazon */}
+                {event.image && (
+                  <img
+                    src={event.image}
+                    alt={event.name}
+                    className="w-full mt-4 rounded-md"
+                  />
+                )}
               </li>
             ))}
           </ul>
