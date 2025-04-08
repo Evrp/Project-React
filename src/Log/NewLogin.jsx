@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { auth, provider, signInWithPopup } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';  // Add this import
 import "./NewLogin.css";
 
 const NewLogin = () => {
   const navigate = useNavigate();
   const [error, setError] = useState("");
+  
 
   // 👉 handle animation switching
   useEffect(() => {
@@ -35,12 +37,24 @@ const NewLogin = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-  
+    
       // เช็กว่า email ลงท้ายด้วย @bumail.net หรือไม่
       if (user.email && user.email.endsWith("@bumail.net")) {
-        // ผ่าน ✅ -> เก็บข้อมูลและไปหน้า /home
+        // ส่งข้อมูลผู้ใช้ไปยัง backend (MongoDB)
+        const response = await axios.post("http://localhost:8080/api/login", {
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL
+        });
+  
+        // ตรวจสอบว่าได้ส่งข้อมูลสำเร็จ
+        console.log("Response from backend:", response.data);
+  
+        // เก็บข้อมูลลง localStorage
         localStorage.setItem("userName", user.displayName);
         localStorage.setItem("userPhoto", user.photoURL);
+  
+        // ไปหน้า /home
         navigate("/home");
       } else {
         // ไม่ผ่าน ❌ -> ล็อกเอาท์ออก และแสดงข้อความ error
@@ -51,8 +65,7 @@ const NewLogin = () => {
       setError("เกิดข้อผิดพลาดในการล็อกอิน");
       console.error(error);
     }
-  };
-  
+  };  
 
   return (
     <div className="page-wrapper">

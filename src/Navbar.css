@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 .navbar-con {
-  background: rgba(0, 0, 0, 0.7);
+  background: rgb(255, 255, 255);
   display: flex;
-  width: 8%;
+  width: 18vh;
   flex-direction: column; /* ทำให้เป็นแนวตั้ง */
   justify-content: flex-start; /* จัดให้อยู่ด้านบน */
   min-height: 100vh; /* ให้ความสูงเต็มหน้าจอ */
@@ -15,14 +15,15 @@
 .logo-con {
   font-size: 20px;
   margin: 1rem;
+  color: black;
 }
+
 .menu-bar {
   display: flex;
   flex-direction: column; /* ทำให้เมนูแสดงในแนวตั้ง */
   list-style-type: none;
   padding: 0;
 }
-
 
 .menu-bar li {
   padding: 1rem 2rem; /* เพิ่มระยะห่างในเมนู */
@@ -33,23 +34,31 @@
 }
 
 .menu-bar li a {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
-}
-.menu-bar li a:hover {
-  color: black;
   text-decoration: none;
+  color: black;
+  transition: color 0.3s ease;
 }
-.mobile-menu-bar {
+
+.menu-bar li a:hover {
+  color: #333; /* เปลี่ยนสีเมื่อ hover */
+}
+
+.mobile-menu{
   display: none;
 }
-@media screen and (max-width: 480px) {
-  .mobile-menu-bar {
-    display: block;
-    color: white;
-    font-size: 3rem;
+@media screen and (max-width: 768px) {
+  .navbar-con {
+    width: 28%; /* เปลี่ยนขนาด navbar ให้เต็มหน้าจอมือถือ */
   }
-
+  .mobile-menu{
+    display: block;
+    margin-left: 40%;
+   
+    font-size: 1.8rem;
+    
+  }
   .menu-bar {
     width: 100%;
     height: auto;
@@ -58,30 +67,49 @@
     position: absolute;
     top: 80px;
     left: -100%; /* ซ่อนเมนู */
-    transition: 0.8s ease;
+    transition: left 0.3s ease;
     align-items: center;
     background-color: #333; /* เพิ่มพื้นหลังเมนู */
+    z-index: 1;
+  }
+
+  .menu-bar li {
+    padding: 1rem;
+    width: 100%;
   }
 
   .menu.active {
     left: 0;
     opacity: 1;
     z-index: 1;
-    transition: 0.8s ease;
+    transition: left 0.3s ease;
   }
 
-  .menu-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 10vw;
-    padding: 10px 0;
+  .menu-link a,
+  .menu-link .logout-link {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    display: block;
+    transition: background-color 0.3s ease;
+  }
+
+  .menu-link a:hover,
+  .menu-link .logout-link:hover {
+    background-color: #444;
+    border-radius: 5px;
+  }
+
+  .menu-link svg {
+    color: white; /* เปลี่ยนสีของไอคอน */
+    font-size: 2rem; /* ปรับขนาดไอคอน */
   }
 }
 .menu-link a,
 .menu-link .logout-link {
   text-decoration: none;
-  color: white;
+  color: black;
   font-weight: bold;
   padding: 10px 20px;
   display: block;

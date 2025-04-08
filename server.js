@@ -83,3 +83,33 @@ app.post("/api/send-to-make-combined", async (req, res) => {
 app.listen(port, () => {
   console.log(`Express.js รันที่ http://localhost:${port}`);
 });
+
+app.post("/api/login", async (req, res) => {
+  try {
+    const { displayName, email, photoURL } = req.body;
+
+    console.log("Received login data:", { displayName, email, photoURL });
+
+    // ตรวจสอบว่ามีผู้ใช้นี้ในฐานข้อมูลแล้วหรือยัง
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // ถ้ายังไม่มี สร้างใหม่
+      user = new User({ displayName, email, photoURL });
+      console.log("Creating new user:", user);
+    } else {
+      // ถ้ามีอยู่แล้ว อัปเดตข้อมูล
+      user.displayName = displayName;
+      user.photoURL = photoURL;
+      console.log("Updating existing user:", user);
+    }
+
+    await user.save(); // บันทึกลง MongoDB
+
+    console.log("User saved to MongoDB:", user);
+    res.status(200).json({ message: "Login บันทึกลง MongoDB เรียบร้อยแล้ว" });
+  } catch (error) {
+    console.error("Error saving login to MongoDB:", error);
+    res.status(500).json({ message: "ไม่สามารถบันทึกข้อมูลผู้ใช้ได้" });
+  }
+});

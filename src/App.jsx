@@ -4,7 +4,7 @@ import Navbar from "./Navbar";
 import Profile from "./Home/Profile";
 import LoginForm from "./Log/NewLogin";
 import Community from "./Home/Newcommu";
-import Home from "./Home/Home";
+import Home from "./Home/Newcommu";
 import { Route, Routes, useLocation } from "react-router-dom";
 // import ForgotPassword from "./Log/ForgotForm";
 
@@ -17,7 +17,7 @@ function App() {
       {location.pathname !== "/login" && <Navbar />}
 
       <Routes>
-        <Route path="/hone" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/login" element={<LoginForm />} />
 
         {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}

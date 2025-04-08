@@ -19,7 +19,7 @@ const Navbar = () => {
     // <div className="nav">
     <div className="navbar-con">
       <div className="logo-con">
-        <Link to="/hone">
+        <Link to="/home">
           <h3>Find</h3>
           <h3>Friend</h3>
         </Link>
