@@ -144,3 +144,15 @@ app.get("/api/users", async (req, res) => {
 server.listen(port, () => {
   console.log(`🚀 Server ready at http://localhost:${port}`);
 });
+
+// 📌 5️⃣ API สำหรับลบผู้ใช้เมื่อ Logout
+app.post("/api/logout", async (req, res) => {
+  try {
+    const { email } = req.body;
+    await Gmail.deleteOne({ email });
+    res.status(200).json({ message: "ลบผู้ใช้ออกจาก MongoDB เรียบร้อยแล้ว" });
+  } catch (error) {
+    console.error("❌ Error deleting user:", error);
+    res.status(500).json({ message: "ไม่สามารถลบข้อมูลผู้ใช้ได้" });
+  }
+});

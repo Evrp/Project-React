@@ -11,7 +11,7 @@ const Profile = () => {
   const userPhoto = localStorage.getItem("userPhoto");
 
   const navigate = useNavigate();
-  const { setEvents } = useContext(EventContext); // ✅ ตอนนี้อยู่ใน component แล้ว
+  const { setEvents } = useContext(EventContext);
 
   const [formData, setFormData] = useState({
     interest: "",
@@ -47,16 +47,30 @@ const Profile = () => {
 
       console.log("✅ ตอบกลับจาก Make.com:", await makeResponse.json());
 
-      // ส่งข้อมูลไปยัง Context แบบงดงาม
+      // ส่งข้อมูลไปยัง Context
       setEvents([amazonData]);
 
-      // เปลี่ยนหน้าไป Home อย่างราบรื่น
-      navigate("/hoe");
+      // เปลี่ยนหน้าไป Home
+      navigate("/home");
 
     } catch (error) {
       console.error("🚨 เกิดข้อผิดพลาดขณะดึงข้อมูล:", error);
     }
   };
+
+  // ✅ ตรวจสอบว่า login อยู่ไหม
+  if (!userName || !userPhoto) {
+    return (
+      <div className="container-profile">
+        <div className="text-center mt-8">
+          <h2 className="text-xl font-semibold">กรุณาเข้าสู่ระบบก่อนดูโปรไฟล์</h2>
+          <Button className="mt-4" onClick={() => navigate("/login")}>
+             ไปหน้าเข้าสู่ระบบ
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container-profile">

@@ -5,6 +5,7 @@ import Profile from "./Home/Profile";
 import Freind from "./Home/friend";
 import LoginForm from "./Log/NewLogin";
 import Community from "./Home/Newcommu";
+import Setup from "./Home/setup";
 import Home from "./Home/Newcommu";
 import { Route, Routes, useLocation } from "react-router-dom";
 // import ForgotPassword from "./Log/ForgotForm";
@@ -19,8 +20,10 @@ function App() {
 
       <Routes>
         <Route path="/home" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/friend" element={<Freind />} />
+        <Route path="/setup" element={<Setup />} />
 
         {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
         <Route path="/profile" element={<Profile />} />

@@ -107,14 +107,15 @@
 .menu-link {
   display: flex;
   align-items: center;
-  padding: 10px 15px;
+  margin: 1rem 1rem;
+  margin-top: 1rem;
   transition: all 0.3s ease;
   cursor: pointer;
   border-radius: 12px;
 }
 
 .menu-link:hover {
-  background: rgb(0, 0, 0,0.1); /* สีพื้นหลังเมื่อ hover */
+  background: rgb(0, 0, 0,0.1); 
   border-radius: 12px;
 }
 
