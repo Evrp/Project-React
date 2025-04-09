@@ -138,3 +138,51 @@ body {
     flex-direction: column;
     justify-content: center;
 }
+.container-profile {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f7f8fc;
+  }
+  
+  /* กล่องข้อความเมื่อผู้ใช้ไม่ได้ล็อกอิน */
+  .text-center {
+    text-align: center;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  /* ข้อความหัวข้อ */
+  .text-center h2 {
+    font-size: 1.6rem;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+  
+  /* ปุ่มไปที่หน้าเข้าสู่ระบบ */
+  .text-center button {
+    background-color: #3498db;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.3s;
+    width: 100%;
+    margin-top: 15px;
+  }
+  
+  .text-center button:hover {
+    background-color: #2980b9;
+  }
+  
+  .text-center button:active {
+    transform: scale(0.98);
+  }
