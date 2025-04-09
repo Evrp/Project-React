@@ -37,7 +37,7 @@ const NewLogin = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-    
+      
       // เช็กว่า email ลงท้ายด้วย @bumail.net หรือไม่
       if (user.email && user.email.endsWith("@bumail.net")) {
         // ส่งข้อมูลผู้ใช้ไปยัง backend (MongoDB)
@@ -46,14 +46,14 @@ const NewLogin = () => {
           email: user.email,
           photoURL: user.photoURL
         });
-  
+    
         // ตรวจสอบว่าได้ส่งข้อมูลสำเร็จ
         console.log("Response from backend:", response.data);
-  
+    
         // เก็บข้อมูลลง localStorage
         localStorage.setItem("userName", user.displayName);
         localStorage.setItem("userPhoto", user.photoURL);
-  
+    
         // ไปหน้า /home
         navigate("/home");
       } else {
@@ -65,7 +65,8 @@ const NewLogin = () => {
       setError("เกิดข้อผิดพลาดในการล็อกอิน");
       console.error(error);
     }
-  };  
+  };
+  
 
   return (
     <div className="page-wrapper">

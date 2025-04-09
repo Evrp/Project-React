@@ -2,6 +2,7 @@ import React from "react";
 import "./App.css";
 import Navbar from "./Navbar";
 import Profile from "./Home/Profile";
+import Freind from "./Home/friend";
 import LoginForm from "./Log/NewLogin";
 import Community from "./Home/Newcommu";
 import Home from "./Home/Newcommu";
@@ -19,6 +20,7 @@ function App() {
       <Routes>
         <Route path="/home" element={<Home />} />
         <Route path="/login" element={<LoginForm />} />
+        <Route path="/friend" element={<Freind />} />
 
         {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
         <Route path="/profile" element={<Profile />} />

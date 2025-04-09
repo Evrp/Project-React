@@ -29,26 +29,16 @@ const Navbar = () => {
           <i className="fas fa-users"></i>
           <Link to="/community">Community</Link>
         </li>
-        {/* <li className="menu-link" onClick={closeMobileMenu}>
-            <BsPinAngle />
-            <Link to="/buildCom">Build Community</Link>
-          </li> */}
-        {/* <li className="menu-link" onClick={closeMobileMenu}>
-            <BsChatText />
-            <Link to="/chat">Chat</Link>
-          </li> */}
+
         <li className="menu-link" onClick={closeMobileMenu}>
           <i className="fas fa-user"></i>
           <Link to="/profile">Profile</Link>
         </li>
         <li className="menu-link" onClick={closeMobileMenu}>
           <i className="fas fa-user-friends"></i>
-          <Link to="/profile">Friend</Link>
+          <Link to="/friend">Friend</Link>
         </li>
-        {/* <li className="menu-link" onClick={closeMobileMenu}>
-            <AiOutlineGlobal />
-            <Link to="/newrelease">New Release</Link>
-          </li> */}
+       
         <li className="menu-link" onClick={closeMobileMenu}>
           <i className="fas fa-cog"></i>
           <Link to="/setup">Setup</Link>

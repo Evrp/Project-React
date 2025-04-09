@@ -7,7 +7,7 @@
   flex-direction: column; /* ทำให้เป็นแนวตั้ง */
   justify-content: flex-start; /* จัดให้อยู่ด้านบน */
   min-height: 100vh; /* ให้ความสูงเต็มหน้าจอ */
-  align-items: flex-start;
+  align-items: center;
   /* position: fixed; ทำให้เมนูอยู่คงที่ฝั่งซ้าย */
   top: 0;
 }
@@ -21,8 +21,6 @@
 .menu-bar {
   display: flex;
   flex-direction: column; /* ทำให้เมนูแสดงในแนวตั้ง */
-  list-style-type: none;
-  padding: 0;
 }
 
 .menu-bar li {
@@ -106,22 +104,36 @@
     font-size: 2rem; /* ปรับขนาดไอคอน */
   }
 }
-.menu-link a,
-.menu-link .logout-link {
-  text-decoration: none;
-  color: black;
-  font-weight: bold;
-  padding: 10px 20px;
-  display: block;
-  transition: background-color 0.3s ease;
+.menu-link {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: 12px;
 }
 
-.menu-link a:hover,
-.menu-link .logout-link:hover {
-  
-  border-radius: 5px;
+.menu-link:hover {
+  background: rgb(0, 0, 0,0.1); /* สีพื้นหลังเมื่อ hover */
+  border-radius: 12px;
 }
-.menu-link svg {
-  color: black; /* เปลี่ยนสีของไอคอนเป็นขาว */
-  font-size: 3rem; /* ปรับขนาดไอคอนให้ใหญ่ขึ้น */
+
+.menu-link a,
+.menu-link .logout-link {
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
 }
+
+.menu-link i {
+  margin-right: 12px;
+  width: 20px;
+  transition: color 0.3s ease;
+}
+
+/* เปลี่ยนสีไอคอนและข้อความเมื่อ hover */
+/* .menu-link:hover a,
+.menu-link:hover .logout-link,
+.menu-link:hover i {
+  color: #007bff; 
+} */
