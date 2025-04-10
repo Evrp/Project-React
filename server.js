@@ -1,3 +1,4 @@
+
 // ✅ เพิ่ม Socket.IO และ dotenv
 import express from "express";
 import cors from "cors";
@@ -42,23 +43,31 @@ db.on("error", (err) => {
   console.error("❌ MongoDB Error:", err);
 });
 
-let onlineUsers = new Map();
+let onlineUsers = new Map(); // เก็บสถานะออนไลน์ของผู้ใช้ตามอีเมล
 
-// ✅ Socket.IO Setup
+// เมื่อผู้ใช้เชื่อมต่อ
 io.on("connection", (socket) => {
   console.log("🟢 New client connected", socket.id);
 
+  // เมื่อมีการแจ้งว่า user ออนไลน์
   socket.on("user-online", (user) => {
-    onlineUsers.set(socket.id, user);
-    io.emit("update-users", Array.from(onlineUsers.values()));
+    onlineUsers.set(user.email, true); // เก็บสถานะออนไลน์
+    io.emit("update-users", Array.from(onlineUsers.keys())); // แจ้งให้ทุกคนรู้ว่ามีผู้ใช้ใหม่ออนไลน์
   });
 
+  // เมื่อผู้ใช้ดิสคอนเน็ค
   socket.on("disconnect", () => {
     console.log("🔴 Client disconnected", socket.id);
-    onlineUsers.delete(socket.id);
-    io.emit("update-users", Array.from(onlineUsers.values()));
+    // ลบสถานะออนไลน์ของผู้ใช้ที่ดิสคอนเน็ค
+    onlineUsers.forEach((_, email) => {
+      if (onlineUsers.get(email) === socket.id) {
+        onlineUsers.delete(email);
+      }
+    });
+    io.emit("update-users", Array.from(onlineUsers.keys())); // แจ้งให้ทุกคนรู้ว่าผู้ใช้ได้ออกจากระบบ
   });
 });
+
 
 // 📌 1️⃣ API ดึงข้อมูลจาก Amazon + บันทึกลง Database
 app.get("/api/scrape-amazon", async (req, res) => {
@@ -150,6 +159,18 @@ app.post("/api/logout", async (req, res) => {
   try {
     const { email } = req.body;
     await Gmail.deleteOne({ email });
+    res.status(200).json({ message: "ลบผู้ใช้ออกจาก MongoDB เรียบร้อยแล้ว" });
+  } catch (error) {
+    console.error("❌ Error deleting user:", error);
+    res.status(500).json({ message: "ไม่สามารถลบข้อมูลผู้ใช้ได้" });
+  }
+});
+// 📌 5️⃣ API สำหรับลบผู้ใช้เมื่อ Logout (ทำงานแบบ real-time)
+app.post("/api/logout", async (req, res) => {
+  try {
+    const { email } = req.body;
+    await Gmail.deleteOne({ email });
+    io.emit("user-logout", email); // แจ้งทุกคนว่าผู้ใช้ได้ออกจากระบบแล้ว
     res.status(200).json({ message: "ลบผู้ใช้ออกจาก MongoDB เรียบร้อยแล้ว" });
   } catch (error) {
     console.error("❌ Error deleting user:", error);

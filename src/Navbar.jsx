@@ -1,32 +1,29 @@
 import React, { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "./Navbar.css";
 import { useAuth } from "./firebase/Authcontext";
 import { FaUsers, FaUser, FaUserFriends, FaCog } from "react-icons/fa";
 
 const Navbar = () => {
   const [click, setClick] = useState(false);
+  const location = useLocation(); // <-- ตรงนี้สำคัญ!
+  const { user, logout } = useAuth();
+
   const handleClick = () => setClick(!click);
   const closeMobileMenu = () => setClick(false);
-  const { user, logout } = useAuth();
+
   const handleLogout = async () => {
     if (user && user.email) {
       try {
-        // เรียก API เพื่อลบข้อมูลใน MongoDB
         await fetch("http://localhost:8080/api/logout", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email: user.email }),
         });
 
-        // ลบ localStorage
         localStorage.removeItem("userName");
         localStorage.removeItem("userPhoto");
-
-        // logout จาก Firebase context
         logout();
       } catch (error) {
         console.error("❌ Logout failed:", error);
@@ -34,6 +31,8 @@ const Navbar = () => {
     }
     closeMobileMenu();
   };
+
+  const isActive = (path) => location.pathname === path ? "active" : "";
 
   return (
     <div className="navbar-con">
@@ -45,28 +44,28 @@ const Navbar = () => {
       </div>
 
       <ul className={click ? "menu active" : "menu-bar"}>
-        <Link to="/community" onClick={closeMobileMenu} className="menu-link">
+        <Link to="/community" onClick={closeMobileMenu} className={`menu-link ${isActive("/community")}`}>
           <li>
             <FaUsers className="icon" />
             <span>Community</span>
           </li>
         </Link>
 
-        <Link to="/profile" onClick={closeMobileMenu} className="menu-link">
+        <Link to="/profile" onClick={closeMobileMenu} className={`menu-link ${isActive("/profile")}`}>
           <li>
             <FaUser className="icon" />
             <span>Profile</span>
           </li>
         </Link>
 
-        <Link to="/friend" onClick={closeMobileMenu} className="menu-link">
+        <Link to="/friend" onClick={closeMobileMenu} className={`menu-link ${isActive("/friend")}`}>
           <li>
             <FaUserFriends className="icon" />
             <span>Friend</span>
           </li>
         </Link>
 
-        <Link to="/setup" onClick={closeMobileMenu} className="menu-link">
+        <Link to="/setup" onClick={closeMobileMenu} className={`menu-link ${isActive("/setup")}`}>
           <li>
             <FaCog className="icon" />
             <span>Setup</span>
@@ -74,11 +73,11 @@ const Navbar = () => {
         </Link>
 
         {user ? (
-          <li className="menu-link" onClick={handleLogout}>
-            <span className="logout-link">LOGOUT</span>
+          <li className="logout-link" onClick={handleLogout}>
+            <span>LOGOUT</span>
           </li>
         ) : (
-          <Link to="/login" onClick={closeMobileMenu} className="menu-link">
+          <Link to="/login" onClick={closeMobileMenu} className={`menu-link ${isActive("/login")}`}>
             <li>
               <span>LOGIN</span>
             </li>

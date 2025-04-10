@@ -1,0 +1,104 @@
+/* ตั้งค่าเบื้องต้น */
+* {
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .fr-container {
+    background-color: #f7f8fc;
+    min-height: 100vh; /* ให้ความสูงเต็มหน้าจอ */
+    width: 100%; /* ขยายให้เต็มความกว้าง */
+    padding-top: 2rem; /* ลบ padding */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* ตั้งตำแหน่งเนื้อหาขึ้นบนสุด */
+  }
+  
+  
+  .Freind {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  /* ช่องค้นหาชื่อเพื่อน */
+  .search-input {
+    padding: 10px;
+    margin-bottom: 20px;
+    width: 80%;
+    max-width: 400px;
+    border-radius: 25px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+  
+  .search-input:focus {
+    border-color: #6c63ff;
+  }
+  
+  /* รายการเพื่อนออนไลน์ */
+  .friend-list {
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+    max-width: 500px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
+  
+  /* รายการเพื่อนแต่ละคน */
+  .friend-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+    cursor: pointer;
+  }
+  
+  .friend-item:hover {
+    background-color: #f1f5f9;
+  }
+  
+  /* รูปโปรไฟล์ของเพื่อน */
+  .friend-photo {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+  }
+  
+  /* ชื่อของเพื่อน */
+  .friend-name {
+    margin-left: 12px;
+    font-size: 1.1rem;
+    color: #555;
+    font-weight: 500;
+  }
+  
+  /* หากไม่มีเพื่อนออนไลน์ */
+  .no-friends {
+    color: #ccc;
+    text-align: center;
+  }
+  .status {
+    font-size: 0.9rem;
+    margin-left: 10px;
+    font-weight: bold;
+  }
+  
+  .online {
+    color: #4caf50; /* สีเขียวสำหรับออนไลน์ */
+  }
+  
+  .offline {
+    color: #f44336; /* สีแดงสำหรับออฟไลน์ */
+  }
+  

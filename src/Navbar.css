@@ -131,6 +131,20 @@
   width: 20px;
   transition: color 0.3s ease;
 }
+.logout-link:hover{
+  background: rgb(0, 0, 0,0.1); 
+  border-radius: 20px;
+}
+.menu-link.active {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+.menu-link.active a,
+.menu-link.active i {
+  color: #007bff; /* หรือสีที่ต้องการ */
+}
+
 
 /* เปลี่ยนสีไอคอนและข้อความเมื่อ hover */
 /* .menu-link:hover a,
