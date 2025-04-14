@@ -2,12 +2,15 @@ import React from "react";
 import "./Home.css";
 import { useContext } from "react";
 import { EventContext } from "../context/eventcontext";
+<<<<<<< HEAD
 // useEffect(() => {
 //   fetch("http://localhost:8080/api/events")
 //     .then((res) => res.json())
 //     .then((data) => setEvents(data))
 //     .catch((err) => console.error(err));
 // }, []);
+=======
+>>>>>>> 6f3a3802bfdad2dcaef48205cba8b3ff5f02c697
 
 function Home() {
   const { events } = useContext(EventContext);
