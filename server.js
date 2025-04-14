@@ -188,6 +188,7 @@ app.post("/api/update-genres", async (req, res) => {
 
 // 📌 7️⃣ API บันทึก Event จาก Make.com
 app.post("/api/save-event", async (req, res) => {
+  console.log("📥 Received payload:", req.body);
   try {
     const {
       title,
@@ -198,11 +199,13 @@ app.post("/api/save-event", async (req, res) => {
       imageUrl,
       link,
     } = req.body;
+    // ตรวจสอบจำนวน event ปัจจุบัน
+    const allEventsBefore = await Event.find({});
+    console.log("📦 Events before deleting:", allEventsBefore.length);
 
-    if (!title || !genre || !location || !date) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-
+    // ลบ event ทั้งหมด
+    const deleteResult = await Event.deleteMany({});
+    console.log("🧹 Deleted count:", deleteResult.deletedCount);
     const newEvent = new Event({
       title,
       genre,
