@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { auth, provider, signInWithPopup } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 import axios from "axios";
+=======
+import axios from "axios"; // Add this import
+>>>>>>> 6f3a3802bfdad2dcaef48205cba8b3ff5f02c697
 import "./NewLogin.css";
 
 const NewLogin = () => {
@@ -31,7 +35,10 @@ const NewLogin = () => {
       }
     };
   }, []);
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6f3a3802bfdad2dcaef48205cba8b3ff5f02c697
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
@@ -44,12 +51,19 @@ const NewLogin = () => {
         photoURL: user.photoURL,
       });
 
+<<<<<<< HEAD
+=======
+      // ตรวจสอบว่าได้ส่งข้อมูลสำเร็จ
+>>>>>>> 6f3a3802bfdad2dcaef48205cba8b3ff5f02c697
       console.log("Response from backend:", response.data);
 
       // เก็บข้อมูลลง localStorage
       localStorage.setItem("userName", user.displayName);
       localStorage.setItem("userPhoto", user.photoURL);
+<<<<<<< HEAD
       localStorage.setItem("userEmail", user.email); // ✅ เพิ่มบรรทัดนี้
+=======
+>>>>>>> 6f3a3802bfdad2dcaef48205cba8b3ff5f02c697
 
       // ไปหน้า /home
       navigate("/home");
@@ -59,6 +73,43 @@ const NewLogin = () => {
     }
   };
 
+<<<<<<< HEAD
+=======
+  // const handleGoogleSignIn = async () => {
+  //   try {
+  //     const result = await signInWithPopup(auth, provider);
+  //     const user = result.user;
+
+  //     // เช็กว่า email ลงท้ายด้วย @bumail.net หรือไม่
+  //     if (user.email && user.email.endsWith("@bumail.net")) {
+  //       // ส่งข้อมูลผู้ใช้ไปยัง backend (MongoDB)
+  //       const response = await axios.post("http://localhost:8080/api/login", {
+  //         displayName: user.displayName,
+  //         email: user.email,
+  //         photoURL: user.photoURL
+  //       });
+
+  //       // ตรวจสอบว่าได้ส่งข้อมูลสำเร็จ
+  //       console.log("Response from backend:", response.data);
+
+  //       // เก็บข้อมูลลง localStorage
+  //       localStorage.setItem("userName", user.displayName);
+  //       localStorage.setItem("userPhoto", user.photoURL);
+
+  //       // ไปหน้า /home
+  //       navigate("/home");
+  //     } else {
+  //       // ไม่ผ่าน ❌ -> ล็อกเอาท์ออก และแสดงข้อความ error
+  //       setError("คุณต้องใช้บัญชี @bumail.net เท่านั้น");
+  //       await auth.signOut();
+  //     }
+  //   } catch (error) {
+  //     setError("เกิดข้อผิดพลาดในการล็อกอิน");
+  //     console.error(error);
+  //   }
+  // };
+
+>>>>>>> 6f3a3802bfdad2dcaef48205cba8b3ff5f02c697
   return (
     <div className="page-wrapper">
       <div className="container" id="container">
@@ -95,11 +146,19 @@ const NewLogin = () => {
             <input type="text" placeholder="Name" />
             <input type="email" placeholder="Email" />
             <input type="password" placeholder="Password" />
+<<<<<<< HEAD
             <button type="button">Sign Up</button>
           </form>
         </div>
 
         {/* Toggle Panel */}
+=======
+            <button>Sign Up</button>
+          </form>
+        </div>
+
+        {/* Toggle panel */}
+>>>>>>> 6f3a3802bfdad2dcaef48205cba8b3ff5f02c697
         <div className="toggle-container">
           <div className="toggle">
             <div className="toggle-panel toggle-left">
