@@ -10,7 +10,7 @@ const Newcommu = () => {
   return (
     <div className="main-content">
       <div className="header">
-        <h1>Hello Boss!</h1>
+        <h1></h1>
         <div className="profile-section">
           <span className="bell-icon">&#128276;</span>
           <span className="divider">|</span>

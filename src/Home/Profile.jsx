@@ -1,27 +1,20 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import "./Profile.css";
-import { Button, Input, Select } from "@/components/ui";
+import { Button } from "@/components/ui";
 import { EventContext } from "../context/eventcontext.jsx";
 import { useNavigate } from "react-router-dom";
 
-const interests = ["คอนเสิร์ต", "กีฬา", "เพลง", "ศิลปิน"];
-const genreOptions = ["Pop", "Rock", "Jazz", "Classical", "Hip-Hop","Indy","EDM","K-POP","R&B","Metal","Reggae","Soul","Vocal"];
+const genreOptions = [
+  "Pop", "Rock", "Jazz", "Classical", "Hip-Hop", "Indy",
+  "EDM", "K-POP", "R&B", "Metal", "Reggae", "Soul", "Vocal"
+];
 
 const Profile = () => {
   const userName = localStorage.getItem("userName");
   const userPhoto = localStorage.getItem("userPhoto");
-
   const navigate = useNavigate();
   const { setEvents } = useContext(EventContext);
 
-  const [formData, setFormData] = useState({
-    interest: "",
-    location: "",
-    date: "",
-    budget: "",
-  });
-
-  const [editing, setEditing] = useState(false);
   const [selectedGenres, setSelectedGenres] = useState(
     JSON.parse(localStorage.getItem("selectedGenres")) || []
   );
@@ -34,62 +27,57 @@ const Profile = () => {
     }
   );
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const [editingGenres, setEditingGenres] = useState(false);
+  const [editingField, setEditingField] = useState(null); // ช่องที่กำลังแก้ไข
+
+  const [tempInfo, setTempInfo] = useState({ ...userInfo }); // เก็บค่าที่แก้ไว้ชั่วคราว
+
+  const toggleGenre = (genre) => {
+    setSelectedGenres((prev) =>
+      prev.includes(genre)
+        ? prev.filter((g) => g !== genre)
+        : [...prev, genre]
+    );
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setUserInfo((prev) => ({ ...prev, [name]: value }));
+    setTempInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  const toggleGenre = (genre) => {
-    setSelectedGenres((prevGenres) =>
-      prevGenres.includes(genre)
-        ? prevGenres.filter((g) => g !== genre)
-        : [...prevGenres, genre]
-    );
+  const handleSaveInfo = () => {
+    setUserInfo(tempInfo);
+    localStorage.setItem("userInfo", JSON.stringify(tempInfo));
+    setEditingField(null);
   };
 
-  const handleEditOrSave = async () => {
+  const handleEditGenres = async () => {
     const email = localStorage.getItem("userEmail");
 
-    if (editing) {
-      localStorage.setItem("userInfo", JSON.stringify(userInfo));
-      localStorage.setItem("selectedGenres", JSON.stringify(selectedGenres));
-
-      if (!email) {
-        console.error("ไม่พบอีเมลผู้ใช้");
-        return;
-      } else {
-        console.log("อีเมลผู้ใช้:", email);
-      }
-
-      try {
-        const response = await fetch("http://localhost:8080/api/update-genres", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email,
-            genres: selectedGenres,
-          }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log("🎶 อัปเดตแนวเพลงสำเร็จ:", data);
-        } else {
-          console.error("❌ เกิดข้อผิดพลาดในการบันทึกแนวเพลง");
-        }
-      } catch (error) {
-        console.error("🚨 เกิดข้อผิดพลาด:", error);
-      }
+    if (!email) {
+      console.error("ไม่พบอีเมลผู้ใช้");
+      return;
     }
 
-    setEditing(!editing);
+    try {
+      const response = await fetch("http://localhost:8080/api/update-genres", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, genres: selectedGenres }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("🎶 อัปเดตแนวเพลงสำเร็จ:", data);
+        localStorage.setItem("selectedGenres", JSON.stringify(selectedGenres));
+      } else {
+        console.error("❌ เกิดข้อผิดพลาดในการบันทึกแนวเพลง");
+      }
+    } catch (error) {
+      console.error("🚨 เกิดข้อผิดพลาด:", error);
+    }
+
+    setEditingGenres(false);
   };
 
   if (!userName || !userPhoto) {
@@ -112,10 +100,12 @@ const Profile = () => {
         <h2>{`🎉 Welcome, ${userName}`}</h2>
 
         <div className="info-wrapper">
+
+          {/* 🎵 แนวเพลง */}
           <div className="info-box">
-            <h3>ข้อมูล</h3>
-            {editing ? (
-              <div className="flex flex-wrap gap-2 mt-4">
+            <h3>แนวเพลงที่ชอบ</h3>
+            {editingGenres ? (
+              <div className="filter-genres">
                 {genreOptions.map((genre) => (
                   <button
                     key={genre}
@@ -127,51 +117,65 @@ const Profile = () => {
                 ))}
               </div>
             ) : (
-              <div className="mt-4">
-                <p>{selectedGenres.length > 0 ? selectedGenres.join(", ") : "ยังไม่ได้เลือกแนวเพลง"}</p>
+              <div className="filter-genres">
+                {selectedGenres.length > 0 ? (
+                  selectedGenres.map((genre) => (
+                    <span key={genre} className="genre-button selected">
+                      {genre}
+                    </span>
+                  ))
+                ) : (
+                  <p>ยังไม่ได้เลือกแนวเพลง</p>
+                )}
               </div>
             )}
-            <Button onClick={handleEditOrSave} className="mt-4">
-              {editing ? "💾 บันทึก" : "✏️ แก้ไข"}
-            </Button>
+
+            <div className="center-wrapper">
+              <Button onClick={() => {
+                if (editingGenres) handleEditGenres();
+                else setEditingGenres(true);
+              }} className="edit-button">
+                {editingGenres ? "💾 บันทึก" : "✏️ แก้ไข"}
+              </Button>
+            </div>
           </div>
 
-          <div className="info-box">
-            <h3>ข้อมูล</h3>
-            {editing ? (
-              <textarea
-                name="detail"
-                value={userInfo.detail}
-                onChange={handleInputChange}
-              />
-            ) : (
-              <p>{userInfo.detail}</p>
-            )}
-          </div>
-          <div className="info-box">
-            <h3>คำอธิบาย</h3>
-            {editing ? (
-              <textarea
-                name="description"
-                value={userInfo.description}
-                onChange={handleInputChange}
-              />
-            ) : (
-              <p>{userInfo.description}</p>
-            )}
-          </div>
-          <div className="info-box">
-            <h3>ข้อมูลเพิ่มเติม</h3>
-            {editing ? (
-              <textarea
-                name="extra"
-                value={userInfo.extra}
-                onChange={handleInputChange}
-              />
-            ) : (
-              <p>{userInfo.extra}</p>
-            )}
-          </div>
+          {/* 📝 ช่องข้อมูล */}
+          {["detail", "description", "extra"].map((field) => (
+            <div className="info-box" key={field}>
+              <h3>
+                {field === "detail"
+                  ? "ข้อมูล"
+                  : field === "description"
+                  ? "คำอธิบาย"
+                  : "ข้อมูลเพิ่มเติม"}
+              </h3>
+              {editingField === field ? (
+                <textarea
+                  name={field}
+                  value={tempInfo[field]}
+                  onChange={handleInputChange}
+                  rows={3}
+                />
+              ) : (
+                <p onClick={() => {
+                  setEditingField(field);
+                  setTempInfo({ ...userInfo });
+                }}>
+                  {userInfo[field]}
+                </p>
+              )}
+            </div>
+          ))}
+
+          {/* ✅ ปุ่มบันทึก */}
+          {editingField && (
+            <div className="center-wrapper mt-4">
+              <Button onClick={handleSaveInfo} className="save-button">
+                💾 บันทึกข้อมูล
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>
