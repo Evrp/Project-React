@@ -188,24 +188,23 @@ app.post("/api/update-genres", async (req, res) => {
 
 // 📌 7️⃣ API บันทึก Event จาก Make.com
 app.post("/api/save-event", async (req, res) => {
-  console.log("📥 Received payload:", req.body);
-  try {
-    const {
-      title,
-      genre,
-      location,
-      date,
-      description,
-      imageUrl,
-      link,
-    } = req.body;
-    // ตรวจสอบจำนวน event ปัจจุบัน
-    const allEventsBefore = await Event.find({});
-    console.log("📦 Events before deleting:", allEventsBefore.length);
+  const {
+    title,
+    genre,
+    location,
+    date,
+    description,
+    imageUrl,
+    link,
+    isFirst, // จาก Make.com กำหนดใน HTTP Body
+  } = req.body;
 
-    // ลบ event ทั้งหมด
-    const deleteResult = await Event.deleteMany({});
-    console.log("🧹 Deleted count:", deleteResult.deletedCount);
+  try {
+    if (isFirst) {
+      const deleted = await Event.deleteMany({});
+      console.log("🧹 Deleted all events:", deleted.deletedCount);
+    }
+
     const newEvent = new Event({
       title,
       genre,
@@ -218,12 +217,13 @@ app.post("/api/save-event", async (req, res) => {
     });
 
     await newEvent.save();
-    res.status(201).json({ message: "Event saved successfully", event: newEvent });
+    res.status(201).json({ message: "Event saved", event: newEvent });
   } catch (error) {
     console.error("❌ Error saving event:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 // 📌 8️⃣ API ดึง Event ไปแสดงใน React
 app.get("/api/events", async (req, res) => {
@@ -239,4 +239,15 @@ app.get("/api/events", async (req, res) => {
 // ✅ Start Server
 server.listen(port, () => {
   console.log(`🚀 Server ready at http://localhost:${port}`);
+});
+///////////ลบ event
+
+
+app.delete("/api/delete-events", async (req, res) => {
+  try {
+    const result = await Event.deleteMany({});
+    res.json({ message: "All events deleted", deleted: result.deletedCount });
+  } catch (err) {
+    res.status(500).json({ message: "Delete failed" });
+  }
 });

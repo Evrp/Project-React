@@ -5,7 +5,7 @@ import { EventContext } from "../context/eventcontext.jsx";
 import { useNavigate } from "react-router-dom";
 
 const interests = ["คอนเสิร์ต", "กีฬา", "เพลง", "ศิลปิน"];
-const genreOptions = ["Pop", "Rock", "Jazz", "Classical", "Hip-Hop"];
+const genreOptions = ["Pop", "Rock", "Jazz", "Classical", "Hip-Hop","Indy","EDM","K-POP","R&B","Metal","Reggae","Soul","Vocal"];
 
 const Profile = () => {
   const userName = localStorage.getItem("userName");
