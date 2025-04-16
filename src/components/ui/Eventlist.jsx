@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "../ui/Eventlist.css";
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
@@ -20,42 +21,27 @@ const EventList = () => {
     fetchEvents();
   }, []);
 
-  if (loading) return <p className="text-center text-gray-600 mt-10">กำลังโหลด...</p>;
+  if (loading) return <p className="loading-text">กำลังโหลด...</p>;
 
   return (
-    <div className="min-h-screen p-6 bg-gray-50">
-      <h2 className="">
-        🎤 กิจกรรมที่น่าสนใจ
-      </h2>
+    <div className="event-container">
+      <h2 className="event-title">🎤 กิจกรรมที่น่าสนใจ</h2>
+
       {events.length === 0 ? (
-        <p className="text-center text-gray-500">ยังไม่มีกิจกรรม</p>
+        <p className="empty-text">ยังไม่มีกิจกรรม</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="event-list">
           {events.map((event) => (
-            <div
-              key={event._id}
-              className="bg-white rounded-2xl shadow-md hover:shadow-lg transition p-5"
-            >
-              <img
-                src={event.imageUrl}
-                alt={event.title}
-                className="w-full h-48 object-cover rounded-xl mb-3"
-              />
-              <h3 className="text-lg font-bold text-gray-900 mb-1 bg-white p-2 rounded">
-                {event.title}
-              </h3>
-              <p className="text-sm text-gray-500 mb-1">{event.genre}</p>
-              <p className="text-sm text-gray-700 mb-1">{event.location}</p>
-              <p className="text-sm text-gray-700 mb-2">{event.date}</p>
-              <p className="text-sm text-gray-600 mb-3">
-                {event.description}
-              </p>
-              <a
-                href={event.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-blue-600 hover:underline"
-              >
+            <div key={event._id} className="event-card">
+              <img src={event.imageUrl} alt={event.title} className="event-image" />
+              <h3 className="event-name">{event.title}</h3>
+              <div className="event-info">
+                <p>🎵 หมวดหมู่: {event.genre}</p>
+                <p>📍 สถานที่: {event.location}</p>
+                <p>🗓️ วันที่: {event.date}</p>
+              </div>
+              <p className="event-description">{event.description}</p>
+              <a href={event.link} target="_blank" rel="noopener noreferrer" className="event-link">
                 ดูรายละเอียดเพิ่มเติม
               </a>
             </div>
