@@ -37,10 +37,9 @@ const Newcommu = () => {
         {/* บล็อกข้าง */}
         <div className="side-block"></div>
       </div>
- 
+      <div className="event-list">
         <EventList />
-
-     
+      </div>
     </div>
   );
 };

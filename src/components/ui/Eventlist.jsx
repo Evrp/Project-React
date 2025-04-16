@@ -24,7 +24,7 @@ const EventList = () => {
 
   return (
     <div className="min-h-screen p-6 bg-gray-50">
-      <h2 className="text-2xl font-semibold mb-6 text-gray-900 text-center">
+      <h2 className="">
         🎤 กิจกรรมที่น่าสนใจ
       </h2>
       {events.length === 0 ? (
