@@ -17,7 +17,7 @@
     "axios": "^1.8.4",
     "axois": "^0.0.1-security",
     "bootstrap": "^5.3.3",
-    "cheerio": "^1.0.0",
+
     "concurrently": "^9.1.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -25,7 +25,7 @@
     "firebase": "^9.23.0",
     "lucide-react": "^0.487.0",
     "mongoose": "^8.13.2",
-    "puppeteer": "^24.6.1",
+   
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.1.0",
