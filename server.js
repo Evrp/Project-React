@@ -2,7 +2,7 @@
 import express from "express";
 import cors from "cors";
 import axios from "axios";
-import * as cheerio from "cheerio";
+// import * as cheerio from "cheerio";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
@@ -63,33 +63,33 @@ io.on("connection", (socket) => {
 });
 
 // 📌 1️⃣ API ดึงข้อมูลจาก Amazon + บันทึกลง MongoDB
-app.get("/api/scrape-amazon", async (req, res) => {
-  try {
-    const headers = {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-    };
+// app.get("/api/scrape-amazon", async (req, res) => {
+//   try {
+//     const headers = {
+//       "User-Agent":
+//         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+//     };
 
-    const { data } = await axios.get(AMAZON_URL, { headers });
-    const $ = cheerio.load(data);
+//     const { data } = await axios.get(AMAZON_URL, { headers });
+//     const $ = cheerio.load(data);
 
-    const product = new Product({
-      name: $("#productTitle").text().trim(),
-      image: $("#landingImage").attr("src"),
-      price:
-        $(".a-price-whole").first().text().replace(/\D/g, "") +
-        "." +
-        $(".a-price-fraction").first().text(),
-      link: AMAZON_URL,
-    });
+//     const product = new Product({
+//       name: $("#productTitle").text().trim(),
+//       image: $("#landingImage").attr("src"),
+//       price:
+//         $(".a-price-whole").first().text().replace(/\D/g, "") +
+//         "." +
+//         $(".a-price-fraction").first().text(),
+//       link: AMAZON_URL,
+//     });
 
-    await product.save();
-    res.json(product);
-  } catch (error) {
-    console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูล Amazon:", error);
-    res.status(500).json({ error: "ไม่สามารถดึงข้อมูลจาก Amazon ได้" });
-  }
-});
+//     await product.save();
+//     res.json(product);
+//   } catch (error) {
+//     console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูล Amazon:", error);
+//     res.status(500).json({ error: "ไม่สามารถดึงข้อมูลจาก Amazon ได้" });
+//   }
+// });
 
 // 📌 2️⃣ API รับข้อมูล User + Amazon → บันทึกลง Database + ส่งไป Make.com
 app.post("/api/send-to-make-combined", async (req, res) => {
