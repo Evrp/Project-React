@@ -10,7 +10,8 @@ const eventSchema = new mongoose.Schema({
   description: String,
   imageUrl: String,
   link: String,
-  createdByAI: Boolean
+  createdByAI: Boolean,
+  email: String,
 });
 
 export const Event = mongoose.model("Event", eventSchema);

@@ -5,11 +5,13 @@ import "../ui/Eventlist.css";
 const EventList = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const email = localStorage.getItem("userEmail");
+  const user = { email };
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/events");
+        const res = await axios.get(`http://localhost:8080/api/events?email=${user.email}`);
         setEvents(res.data);
       } catch (error) {
         console.error("❌ Error fetching events:", error);
