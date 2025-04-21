@@ -196,7 +196,8 @@ app.post("/api/save-event", async (req, res) => {
     description,
     imageUrl,
     link,
-    isFirst, // จาก Make.com กำหนดใน HTTP Body
+    isFirst,
+    email, 
   } = req.body;
 
   try {
@@ -214,6 +215,7 @@ app.post("/api/save-event", async (req, res) => {
       imageUrl,
       link,
       createdByAI: true,
+      email,
     });
 
     await newEvent.save();
@@ -227,8 +229,10 @@ app.post("/api/save-event", async (req, res) => {
 
 // 📌 8️⃣ API ดึง Event ไปแสดงใน React
 app.get("/api/events", async (req, res) => {
+  const email = req.query.email;
+
   try {
-    const events = await Event.find().sort({ date: 1 }); // เรียงตามวันที่
+    const events = await Event.find({ email }).sort({ date: 1 }); // เรียงตามวันที่
     res.json(events);
   } catch (error) {
     console.error("❌ Error fetching events:", error);
