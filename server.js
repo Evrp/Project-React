@@ -2,13 +2,11 @@
 import express from "express";
 import cors from "cors";
 import axios from "axios";
-// import * as cheerio from "cheerio";
 import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
-import { Product } from "./src/model/product.js";
 import { User } from "./src/model/user.js";
 import { Gmail } from "./src/model/gmail.js";
 import { Filter } from "./src/model/filter.js";
@@ -20,15 +18,17 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
+    origin: ["https://your-firebase-project.web.app", "https://project-react-4h0g.onrender.com"],
+  methods: ["GET", "POST"]
   },
 });
 
+dotenv.config(); // ต้องอยู่ก่อนใช้ process.env
+
 const port = process.env.PORT || 8080;
-const AMAZON_URL = "https://www.amazon.com/MSI-Codex-Gaming-Desktop-A8NUE-274US/dp/B0DGHPPL1M/";
-const MAKE_WEBHOOK_URL = "https://hook.eu2.make.com/6f59e6trmyro1tcn6ridueeluiutsz3j";
 const MONGO_URI = process.env.MONGO_URI;
+const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL;
+
 
 // ✅ Middleware
 app.use(cors());
@@ -61,35 +61,6 @@ io.on("connection", (socket) => {
     io.emit("update-users", Array.from(onlineUsers.keys())); // แจ้งให้ทุกคนรู้ว่าผู้ใช้ได้ออกจากระบบ
   });
 });
-
-// 📌 1️⃣ API ดึงข้อมูลจาก Amazon + บันทึกลง MongoDB
-// app.get("/api/scrape-amazon", async (req, res) => {
-//   try {
-//     const headers = {
-//       "User-Agent":
-//         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-//     };
-
-//     const { data } = await axios.get(AMAZON_URL, { headers });
-//     const $ = cheerio.load(data);
-
-//     const product = new Product({
-//       name: $("#productTitle").text().trim(),
-//       image: $("#landingImage").attr("src"),
-//       price:
-//         $(".a-price-whole").first().text().replace(/\D/g, "") +
-//         "." +
-//         $(".a-price-fraction").first().text(),
-//       link: AMAZON_URL,
-//     });
-
-//     await product.save();
-//     res.json(product);
-//   } catch (error) {
-//     console.error("❌ เกิดข้อผิดพลาดในการดึงข้อมูล Amazon:", error);
-//     res.status(500).json({ error: "ไม่สามารถดึงข้อมูลจาก Amazon ได้" });
-//   }
-// });
 
 // 📌 2️⃣ API รับข้อมูล User + Amazon → บันทึกลง Database + ส่งไป Make.com
 app.post("/api/send-to-make-combined", async (req, res) => {
@@ -246,12 +217,18 @@ server.listen(port, () => {
 });
 ///////////ลบ event
 
+// 📌 ลบ Event รายการเดียว
+app.delete("/api/detele-events/:id", async (req, res) => {
+  const { id } = req.params;
 
-app.delete("/api/delete-events", async (req, res) => {
   try {
-    const result = await Event.deleteMany({});
-    res.json({ message: "All events deleted", deleted: result.deletedCount });
+    const deleted = await Event.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+    res.json({ message: "Event deleted", deleted });
   } catch (err) {
     res.status(500).json({ message: "Delete failed" });
   }
 });
+

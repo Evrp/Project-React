@@ -23,6 +23,18 @@ const EventList = () => {
     fetchEvents();
   }, []);
 
+  const handleDelete = async (id) => {
+    const confirm = window.confirm("คุณแน่ใจว่าต้องการลบกิจกรรมนี้หรือไม่?");
+    if (!confirm) return;
+
+    try {
+      await axios.delete(`http://localhost:8080/api/detele-events/${id}`);
+      setEvents((prevEvents) => prevEvents.filter((event) => event._id !== id));
+    } catch (error) {
+      console.error("❌ Error deleting event:", error);
+    }
+  };
+
   if (loading) return <p className="loading-text">กำลังโหลด...</p>;
 
   return (
@@ -46,6 +58,9 @@ const EventList = () => {
               <a href={event.link} target="_blank" rel="noopener noreferrer" className="event-link">
                 ดูรายละเอียดเพิ่มเติม
               </a>
+              <button onClick={() => handleDelete(event._id)} className="delete-button">
+                🗑️ ลบกิจกรรม
+              </button>
             </div>
           ))}
         </div>

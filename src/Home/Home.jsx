@@ -21,22 +21,7 @@ const Newcommu = () => {
           />
         </div>
       </div>
-      <div className="content-area">
-        {/* บล็อกด้านบน */}
-        <div className="top-block">
-          <span>ชื่อห้อง</span>
-          <i className="fas fa-edit"></i>
-        </div>
-
-        {/* บล็อกด้านล่าง */}
-        <div className="bottom-blocks">
-          <div className="small-block"></div>
-          <div className="small-block"><i className="fas fa-image"></i></div>
-        </div>
-
-        {/* บล็อกข้าง */}
-        <div className="side-block"></div>
-      </div>
+    
       <div className="event-list">
         <EventList />
       </div>
