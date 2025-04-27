@@ -2,6 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";  // นำเข้า Authentication
 import { getAnalytics } from "firebase/analytics";
+import { getFirestore } from "firebase/firestore";
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -18,8 +19,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app); // เริ่มต้นการใช้งาน Firebase Authentication
 const provider = new GoogleAuthProvider(); // ใช้ GoogleAuthProvider สำหรับการลงชื่อเข้าใช้งานผ่าน Google
+const db = getFirestore(app);
 
 // ใช้ analytics หากต้องการ
 const analytics = getAnalytics(app);
 
-export { auth, provider, signInWithPopup };  // ส่งออกสิ่งที่ใช้จาก Firebase
+export { auth, provider, signInWithPopup, db };  // ส่งออกสิ่งที่ใช้จาก Firebase

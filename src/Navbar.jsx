@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import "./Navbar.css";
 import { useAuth } from "./firebase/Authcontext";
 import { FaUsers, FaUser, FaUserFriends, FaCog } from "react-icons/fa";
+import { BsFillChatLeftDotsFill } from "react-icons/bs";
 
 const Navbar = () => {
   const [click, setClick] = useState(false);
@@ -65,6 +66,12 @@ const Navbar = () => {
           </li>
         </Link>
 
+        <Link to="/chat" onClick={closeMobileMenu} className={`menu-link ${isActive("/setup")}`}>
+          <li>
+          <BsFillChatLeftDotsFill className="icon"/>
+            <span>Chat</span>
+          </li>
+        </Link>
         <Link to="/setup" onClick={closeMobileMenu} className={`menu-link ${isActive("/setup")}`}>
           <li>
             <FaCog className="icon" />

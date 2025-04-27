@@ -1,291 +1,314 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
 
 * {
-    /* margin: 0;
+  /* margin: 0;
     padding: 0; */
-    box-sizing: border-box;
-    font-family: 'Montserrat', sans-serif;
+  box-sizing: border-box;
+  font-family: "Montserrat", sans-serif;
 }
 
 body {
-    /* display: flex;
+  /* display: flex;
     margin: 0; */
-    font-family: Arial, sans-serif;
+  font-family: Arial, sans-serif;
 }
 
 .container-profile {
-    display: flex;
-    width: 100%;
+  display: flex;
+  width: 100%;
 }
 
-.profile-image {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    margin-bottom: 10px;
-}
+/* .profile-image {
+  width:max-content;
+  height:max-content;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 10px;
+} */
 
 .sidebar {
-    width: 200px;
-    background: #f5f5f5;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    height: 100vh;
+  width: 200px;
+  background: #f5f5f5;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100vh;
 }
 
 .menu {
-    list-style: none;
-    padding: 0;
-    width: 100%;
-    margin: 0;
+  list-style: none;
+  padding: 0;
+  width: 100%;
+  margin: 0;
 }
 
 .menu li {
-    display: flex;
-    padding: 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-size: 12px;
-    width: 25%;
+  display: flex;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  width: 25%;
 }
 
 .menu li i {
-    font-size: 14px;
-    color: #555;
-    padding: 5px;
-    width: 25%;
+  font-size: 14px;
+  color: #555;
+  padding: 5px;
+  width: 25%;
 }
 
 .create-btn {
-    margin-top: auto;
-    padding: 10px;
-    background: rgb(111, 43, 238);
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-
+  margin-top: auto;
+  padding: 10px;
+  background: rgb(111, 43, 238);
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
 }
 
 .main-content {
-    flex-grow: 1;
-    padding: 20px;
-    background: #f0f0f0;
+  flex-grow: 1;
+  padding: 20px;
+  background: #f0f0f0;
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .profile-section {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .profile-pic {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-left: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-left: 10px;
 }
 
 .data-blocks {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 20px;
 }
 
 .main-content {
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-    overflow: hidden;
-    padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  padding: 20px;
 }
-
 
 .profile-container {
-    flex-grow: 1;
-    overflow-y: auto;
-    max-height: calc(100vh - 100px);
-    padding: 20px;
-    text-align: center;
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 100px);
+  padding: 20px;
+  text-align: center;
 }
-
 
 .profile-image {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  margin-bottom: 10px;
 }
-
 
 .info-wrapper {
-    width: 100%;
-    padding-right: 10px;
+  width: 100%;
+  padding-right: 10px;
 }
 
-
 .info-box {
-    width: 80%;
-    height: fit-content;
-    max-width: 600px;
-    background: white;
-    padding: 20px;
-    margin: 10px auto;
-    border-radius: 15px;
-    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    min-height: 120px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  width: 80%;
+  height: fit-content;
+  max-width: 600px;
+  background: white;
+  padding: 20px;
+  margin: 10px auto;
+  border-radius: 15px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .container-profile {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #f7f8fc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f7f8fc;
 }
 
 /* กล่องข้อความเมื่อผู้ใช้ไม่ได้ล็อกอิน */
 .text-center {
-    text-align: center;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    width: 100%;
-    max-width: 400px;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  width: 100%;
+  max-width: 400px;
 }
 
 /* ข้อความหัวข้อ */
 .text-center h2 {
-    font-size: 1.6rem;
-    color: #333;
-    font-weight: 600;
-    margin-bottom: 20px;
+  font-size: 1.6rem;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 20px;
 }
 
 /* ปุ่มไปที่หน้าเข้าสู่ระบบ */
 .text-center button {
-    background-color: #3498db;
-    color: white;
-    padding: 12px 30px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    transition: background-color 0.3s;
-    width: 100%;
-    margin-top: 15px;
+  background-color: #3498db;
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: background-color 0.3s;
+  width: 100%;
+  margin-top: 15px;
 }
 
 .text-center button:hover {
-    background-color: #2980b9;
+  background-color: #2980b9;
 }
 
 .text-center button:active {
-    transform: scale(0.98);
+  transform: scale(0.98);
 }
 
 .genre-button {
-    padding: 8px 16px;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    background-color: #f0f0f0;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.3s ease;
-  }
-  
-  .genre-button:hover {
-    background-color: #ddd;
-  }
-  
-  .genre-button.selected {
-    background-color: #6f2bee;
-    color: white;
-    border-color: #6f2bee;
-    font-weight: 600;
-    box-shadow: 0 0 5px rgba(111, 43, 238, 0.5);
-  }
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.genre-button:hover {
+  background-color: #ddd;
+}
+
+.genre-button.selected {
+  background-color: #6f2bee;
+  color: white;
+  border-color: #6f2bee;
+  font-weight: 600;
+  box-shadow: 0 0 5px rgba(111, 43, 238, 0.5);
+}
 .flex-wrap {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  .gap-2 {
-    gap: 10px;
-  }
+  display: flex;
+  flex-wrap: wrap;
+}
+.gap-2 {
+  gap: 10px;
+}
 .filter-genres {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin: 1rem 0;
-  }
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 1rem 0;
+}
 .edit-button {
-    padding: 2px 20px;
-    border: 1px solid #ccc;
-    width: 100px;
-    text-align: center;
-    border-radius: 20px;
-    background-color: #f0f0f0;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.3s ease;
-  }
-  
-  .edit-button:hover {
+  padding: 2px 20px;
+  border: 1px solid #ccc;
+  width: 100px;
+  text-align: center;
+  border-radius: 20px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #ddd;
+}
+
+.edit-button.selected {
+  background-color: #6f2bee;
+  color: white;
+  border-color: #6f2bee;
+  font-weight: 600;
+  box-shadow: 0 0 5px rgba(111, 43, 238, 0.5);
+}
+.center-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px;
+  font-size: 14px;
+  font-family: "Montserrat", sans-serif;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  resize: vertical; /* ให้ขยายได้แนวตั้ง */
+  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.05);
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+textarea:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 3px rgba(111, 43, 238, 0.3);
+}
+
+textarea::placeholder {
+  color: #aaa;
+  font-style: italic;
+}
+.save-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.save-button {
+  padding: 2px 20px;
+  border: 1px solid #ccc;
+  width: 100%;
+  text-align: center;
+  border-radius: 20px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.save-button:hover {
     background-color: #ddd;
+}
+.cancel-button {
+    margin-left: 10px;
+    background-color: #ccc;
+    color: #333;
   }
-  
-  .edit-button.selected {
-    background-color: #6f2bee;
-    color: white;
-    border-color: #6f2bee;
-    font-weight: 600;
-    box-shadow: 0 0 5px rgba(111, 43, 238, 0.5);
-  }
-  .center-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  textarea {
-    width: 100%;
-    min-height: 100px;
-    padding: 10px;
-    font-size: 14px;
-    font-family: 'Montserrat', sans-serif;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    resize: vertical; /* ให้ขยายได้แนวตั้ง */
-    box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.05);
-    outline: none;
-    transition: border 0.2s ease;
-  }
-  
-  textarea:focus {
-    border-color: #6c63ff;
-    box-shadow: 0 0 3px rgba(111, 43, 238, 0.3);
-  }
-  
-  textarea::placeholder {
-    color: #aaa;
-    font-style: italic; 
-  }  
-  

@@ -5,8 +5,19 @@ import { EventContext } from "../context/eventcontext.jsx";
 import { useNavigate } from "react-router-dom";
 
 const genreOptions = [
-  "Pop", "Rock", "Jazz", "Classical", "Hip-Hop", "Indy",
-  "EDM", "K-POP", "R&B", "Metal", "Reggae", "Soul", "Vocal"
+  "Arts",
+  "Movie",
+  "Music",
+  "Party",
+  "Concert",
+  "Golf",
+  "Snooker",
+  "Football",
+  "Muaythai",
+  "Book",
+  "Game",
+  "Food",
+  "Vocal",
 ];
 
 const Profile = () => {
@@ -14,6 +25,7 @@ const Profile = () => {
   const userPhoto = localStorage.getItem("userPhoto");
   const navigate = useNavigate();
   const { setEvents } = useContext(EventContext);
+  const [originalGenres, setOriginalGenres] = useState([]);
 
   const [selectedGenres, setSelectedGenres] = useState(
     JSON.parse(localStorage.getItem("selectedGenres")) || []
@@ -34,9 +46,7 @@ const Profile = () => {
 
   const toggleGenre = (genre) => {
     setSelectedGenres((prev) =>
-      prev.includes(genre)
-        ? prev.filter((g) => g !== genre)
-        : [...prev, genre]
+      prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]
     );
   };
 
@@ -50,7 +60,6 @@ const Profile = () => {
     localStorage.setItem("userInfo", JSON.stringify(tempInfo));
     setEditingField(null);
   };
-
   const handleEditGenres = async () => {
     const email = localStorage.getItem("userEmail");
 
@@ -84,7 +93,9 @@ const Profile = () => {
     return (
       <div className="container-profile">
         <div className="text-center mt-8">
-          <h2 className="text-xl font-semibold">กรุณาเข้าสู่ระบบก่อนดูโปรไฟล์</h2>
+          <h2 className="text-xl font-semibold">
+            กรุณาเข้าสู่ระบบก่อนดูโปรไฟล์
+          </h2>
           <Button className="mt-4" onClick={() => navigate("/login")}>
             ไปหน้าเข้าสู่ระบบ
           </Button>
@@ -97,20 +108,51 @@ const Profile = () => {
     <div className="container-profile">
       <div className="profile-container">
         <img src={userPhoto} alt="Profile" className="profile-image" />
-        <h2>{`🎉 Welcome, ${userName}`}</h2>
+        <h2>{`${userName}`}</h2>
 
         <div className="info-wrapper">
+          {/* 📝 ช่องข้อมูล */}
+          <div className="info-box">
+            <h3>About Me</h3>
+            {editingField === "detail" ? (
+              <textarea
+                name="detail"
+                value={tempInfo.detail}
+                onChange={handleInputChange}
+                rows={3}
+              />
+            ) : (
+              <p
+                onClick={() => {
+                  setEditingField("detail");
+                  setTempInfo({ ...userInfo });
+                }}
+              >
+                {userInfo.detail}
+              </p>
+            )}
+            {/* ✅ ปุ่มบันทึก */}
+            {editingField && (
+              <div className="save-button-container">
+                <Button onClick={handleSaveInfo} className="save-button">
+                  แก้ไขรายละเอียด
+                </Button>
+              </div>
+            )}
+          </div>
 
           {/* 🎵 แนวเพลง */}
           <div className="info-box">
-            <h3>แนวเพลงที่ชอบ</h3>
+            <h3>Activities</h3>
             {editingGenres ? (
               <div className="filter-genres">
                 {genreOptions.map((genre) => (
                   <button
                     key={genre}
                     onClick={() => toggleGenre(genre)}
-                    className={`genre-button ${selectedGenres.includes(genre) ? "selected" : ""}`}
+                    className={`genre-button ${
+                      selectedGenres.includes(genre) ? "selected" : ""
+                    }`}
                   >
                     {genre}
                   </button>
@@ -131,51 +173,37 @@ const Profile = () => {
             )}
 
             <div className="center-wrapper">
-              <Button onClick={() => {
-                if (editingGenres) handleEditGenres();
-                else setEditingGenres(true);
-              }} className="edit-button">
-                {editingGenres ? "💾 บันทึก" : "✏️ แก้ไข"}
-              </Button>
-            </div>
-          </div>
-
-          {/* 📝 ช่องข้อมูล */}
-          {["detail", "description", "extra"].map((field) => (
-            <div className="info-box" key={field}>
-              <h3>
-                {field === "detail"
-                  ? "ข้อมูล"
-                  : field === "description"
-                  ? "คำอธิบาย"
-                  : "ข้อมูลเพิ่มเติม"}
-              </h3>
-              {editingField === field ? (
-                <textarea
-                  name={field}
-                  value={tempInfo[field]}
-                  onChange={handleInputChange}
-                  rows={3}
-                />
+              {editingGenres ? (
+                <>
+                  <Button onClick={handleEditGenres} className="edit-button">
+                    บันทึก
+                  </Button>
+                  {JSON.stringify(originalGenres) !==
+                    JSON.stringify(selectedGenres) && (
+                    <Button
+                      onClick={() => {
+                        setSelectedGenres(originalGenres);
+                        setEditingGenres(false);
+                      }}
+                      className="edit-button cancel-button"
+                    >
+                      ย้อนกลับ
+                    </Button>
+                  )}
+                </>
               ) : (
-                <p onClick={() => {
-                  setEditingField(field);
-                  setTempInfo({ ...userInfo });
-                }}>
-                  {userInfo[field]}
-                </p>
+                <Button
+                  onClick={() => {
+                    setOriginalGenres([...selectedGenres]);
+                    setEditingGenres(true);
+                  }}
+                  className="edit-button"
+                >
+                  ✏️ แก้ไข
+                </Button>
               )}
             </div>
-          ))}
-
-          {/* ✅ ปุ่มบันทึก */}
-          {editingField && (
-            <div className="center-wrapper mt-4">
-              <Button onClick={handleSaveInfo} className="save-button">
-                💾 บันทึกข้อมูล
-              </Button>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
