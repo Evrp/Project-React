@@ -11,6 +11,8 @@ import { User } from "./src/model/user.js";
 import { Gmail } from "./src/model/gmail.js";
 import { Filter } from "./src/model/filter.js";
 import { Event } from "./src/model/event.js";
+import Friend from "./src/model/Friend.js";
+
 
 dotenv.config();
 
@@ -18,12 +20,11 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["https://your-firebase-project.web.app", "https://project-react-4h0g.onrender.com"],
+    origin: ["http://localhost:5173"],
   methods: ["GET", "POST"]
   },
 });
 
-dotenv.config(); // ต้องอยู่ก่อนใช้ process.env
 
 const port = process.env.PORT || 8080;
 const MONGO_URI = process.env.MONGO_URI;
@@ -53,14 +54,75 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("🔴 Client disconnected", socket.id);
-    onlineUsers.forEach((_, email) => {
-      if (onlineUsers.get(email) === socket.id) {
-        onlineUsers.delete(email);
-      }
-    });
+    onlineUsers.delete(socket.email); 
     io.emit("update-users", Array.from(onlineUsers.keys())); // แจ้งให้ทุกคนรู้ว่าผู้ใช้ได้ออกจากระบบ
   });
 });
+
+// API สำหรับเพิ่มเพื่อน
+app.post('/api/add-friend', async (req, res) => {
+  const { userEmail, friendEmail } = req.body;
+  console.log(userEmail, friendEmail);
+
+  if (!userEmail || !friendEmail) {
+    return res.status(400).json({ error: "Both userEmail and friendEmail are required." });
+  }
+
+  try {
+    const updateResult = await Gmail.updateOne(
+      { email: userEmail },
+      { $addToSet: { friends: friendEmail } } // เพิ่มเพื่อนเข้า array ถ้าไม่ซ้ำ
+    );
+
+    if (updateResult.modifiedCount > 0) {
+      // อัปเดตสำเร็จ
+      return res.status(200).json({ message: "Friend added successfully." });
+    } else {
+      // หา user ไม่เจอ หรือไม่มีการเปลี่ยนแปลง
+      return res.status(404).json({ error: "User not found or friend already added." });
+    }
+  } catch (error) {
+    console.error("Error while adding friend:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
+
+
+
+// ดึงรายชื่อเพื่อนทั้งหมดของ user คนหนึ่ง
+app.get('/api/friends/:email', async (req, res) => {
+  const { email } = req.params;
+
+  try {
+    // ค้นหาเพื่อนจาก email ของผู้ใช้
+    const user = await Friend.findOne({ email });
+
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    // ส่งข้อมูลของเพื่อนกลับไป
+    res.json(user.friends);
+  } catch (error) {
+    console.error('Error fetching friends:', error);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
+// API สำหรับดึงข้อมูลเพื่อน
+app.get("/api/friends", async (req, res) => {
+  try {
+    const friends = await Friend.find();
+    res.json(friends);
+  } catch (error) {
+    console.error("Error fetching friends:", error);
+    res.status(500).json({ message: "Failed to fetch friends" });
+  }
+});
+
 
 // 📌 2️⃣ API รับข้อมูล User + Amazon → บันทึกลง Database + ส่งไป Make.com
 app.post("/api/send-to-make-combined", async (req, res) => {
@@ -113,6 +175,26 @@ app.get("/api/users", async (req, res) => {
     res.status(500).json({ error: "ไม่สามารถโหลดผู้ใช้ได้" });
   }
 });
+
+// Express route สำหรับดึงข้อมูลเพื่อน
+app.get('/api/usersfriends', async (req, res) => {
+  try {
+    // รับข้อมูล emails ที่ส่งมาจาก query string และ parse มันให้เป็น array
+    const email = JSON.parse(decodeURIComponent(req.query.emails));
+    console.log('Decoded emails:', email); // ดีบักค่า emails ที่รับมา
+
+    // ค้นหาผู้ใช้งานที่มี email ตรงกับรายการใน array `emails`
+    const users = await Gmail.find({ emails: { $in: email } });
+
+    // ส่งข้อมูลผู้ใช้งานที่ค้นพบกลับไป
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Server error');
+  }
+});
+
+
 
 // 📌 5️⃣ API สำหรับลบผู้ใช้เมื่อ Logout (ทำงานแบบ real-time)
 app.post("/api/logout", async (req, res) => {
@@ -229,6 +311,28 @@ app.delete("/api/detele-events/:id", async (req, res) => {
     res.json({ message: "Event deleted", deleted });
   } catch (err) {
     res.status(500).json({ message: "Delete failed" });
+  }
+});
+
+app.delete("/api/remove-friend", async (req, res) => {
+  const { userEmail, friendEmail } = req.body;
+
+  if (!userEmail || !friendEmail) {
+    return res.status(400).json({ error: "Both userEmail and friendEmail are required." });
+  }
+
+  try {
+    // ตัวอย่างการลบเพื่อนจากฐานข้อมูล
+    const result = await Friend.removeFriend(userEmail, friendEmail);  // ฟังก์ชัน removeFriend ต้องไปตรวจสอบในโมเดลของคุณ
+
+    if (result) {
+      res.status(200).json({ message: "Friend removed successfully." });
+    } else {
+      res.status(404).json({ error: "Friend not found." });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error." });
   }
 });
 

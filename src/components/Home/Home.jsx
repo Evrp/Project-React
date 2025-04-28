@@ -1,12 +1,11 @@
 import React from 'react';
 import './Home.css';
-import { EventContext } from "../context/eventcontext";
+import { EventContext } from "../../context/eventcontext";
 import { useContext } from "react";
-import EventList from "../components/ui/Eventlist";
+import EventList from "../ui/Eventlist";
 
 const Newcommu = () => {
   const userPhoto = localStorage.getItem("userPhoto");
-  const { events } = useContext(EventContext);
   return (
     <div className="main-content">
       <div className="header">

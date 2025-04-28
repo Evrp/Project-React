@@ -1,0 +1,189 @@
+/* Chat.css */
+
+.chat-container {
+  width: 80%;
+  height: 100%;
+}
+.show-info {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  padding-left: 2rem;
+  justify-content: start;
+  align-items: center;
+  border-bottom: 2px solid #9d9d9d;
+}
+.show-info h2 {
+  margin-left: 1rem;
+}
+
+.chat-profile {
+  width: 61px;
+  height: 61px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  margin: 2rem 0 2rem 0;
+}
+
+.chat-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.chat-box {
+  /* border: 1px solid gray; */
+  height: 680px;
+  overflow-y: scroll;
+  margin: 1rem 2rem 1rem 2rem;
+  scrollbar-width: none; /* สำหรับ Firefox */
+  -ms-overflow-style: none; /* สำหรับ IE และ Edge เก่า */
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  overflow-y: auto;
+}
+.chat::-webkit-scrollbar {
+  display: none; /* สำหรับ Chrome, Safari และ Opera */
+}
+.chat-message {
+  display: flex;
+  align-items: flex-end;
+  margin: 10px 0;
+}
+
+.chat-sender {
+  font-weight: bold;
+}
+
+.chat-input-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 2px solid #9d9d9d;
+}
+.my-message {
+  justify-content: flex-end;  
+  /* flex-direction: row-reverse; */
+}
+
+.chat-input {
+  width: 80%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin: 2rem 0 2rem 2rem;
+}
+
+.chat-send-button {
+  padding: 8px 16px;
+  margin-right: 2rem;
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.chat-send-button:hover {
+  background-color: #005a8c;
+}
+.main-container {
+  display: flex;
+  align-items: start; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+  width: 100%;
+}
+.user-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 30%;
+  height: 100%;
+  background-color: #d7d3d3;
+}
+.chat {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 2px solid #9d9d9d;
+}
+.chat h2 {
+  margin: 2rem 0 2rem 0;
+  font-size: 50px;
+  font-weight: bold;
+  color: #716a6a;
+  align-items: center;
+}
+.list-user {
+  width: 100%;
+  height: 10vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-direction: column;
+  margin-top: 1rem;
+}
+.user-photo {
+  margin: 10px 20px 10px 20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+.user-name {
+  /* margin: 10px 10px 10px 20px; */
+  margin: 10px 10px 5px 0px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+}
+.user-item {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  background-color: #ada9a9;
+  border: 1px solid #b9b6b6;
+}
+.row-name-message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+.last-message-time {
+  margin: 12px 10px 5px 0px;
+}
+.bg {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.other-message {
+  justify-content: flex-start;
+}
+
+.message-photo {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin: 0 10px;
+}
+
+.message-bubble {
+  max-width: 60%;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #f0f0f0;
+  word-break: break-word;
+}
+
+.my-message .message-bubble {
+  background-color: #dcf8c6; /* สีเขียวอ่อนเหมือนในไลน์ */
+}
+
+.other-message .message-bubble {
+  background-color: #ffffff;
+}
