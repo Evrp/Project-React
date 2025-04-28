@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import "./Profile.css";
 import { Button } from "@/components/ui";
-import { EventContext } from "../context/eventcontext.jsx";
+import { EventContext } from "../../context/eventcontext.jsx";
 import { useNavigate } from "react-router-dom";
 
 const genreOptions = [

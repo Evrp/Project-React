@@ -1,6 +1,6 @@
 import React from 'react';
 import './Newcommu.css';
-import { EventContext } from "../context/eventcontext";
+import { EventContext } from "../../context/eventcontext";
 import { useContext } from "react";
 
 const Newcommu = () => {

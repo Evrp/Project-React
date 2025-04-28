@@ -1,13 +1,13 @@
 import React from "react";
 import "./App.css";
 import Navbar from "./Navbar";
-import Profile from "./Home/Profile";
-import Freind from "./Home/friend";
+import Profile from "./components/profile/Profile";
+import Freind from "./components/freind/friend";
 import LoginForm from "./Log/NewLogin";
-import Community from "./Home/Newcommu";
-import Setup from "./Home/setup";
-import Home from "./Home/Home";
-import Chat from "./Home/Chat";
+import Community from "./components/community/Newcommu";
+import Setup from "./components/setting/setup";
+import Home from "./components/Home/Home";
+import Chat from "./components/chat/Chat";
 import { Route, Routes, useLocation } from "react-router-dom";
 // import ForgotPassword from "./Log/ForgotForm";
 
