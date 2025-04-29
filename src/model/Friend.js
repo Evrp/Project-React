@@ -6,26 +6,21 @@ const FriendSchema = new mongoose.Schema({
   friends: [String],
 });
 
-// เพิ่ม static method
+// addFriend: เพิ่มเพื่อน
 FriendSchema.statics.addFriend = async function (userEmail, friendEmail) {
   let user = await this.findOne({ email: userEmail });
-
   if (!user) {
-    // ถ้า user ยังไม่มี, สร้างใหม่
     user = new this({ email: userEmail, friends: [friendEmail] });
   } else {
-    // ถ้ามีแล้ว, เพิ่มเพื่อนเข้าไปถ้ายังไม่มี
     if (!user.friends.includes(friendEmail)) {
       user.friends.push(friendEmail);
     }
   }
-
   await user.save();
   return user;
 };
 
-
-// เพิ่ม static สำหรับลบเพื่อนด้วย
+// removeFriend: ลบเพื่อน
 FriendSchema.statics.removeFriend = async function (userEmail, friendEmail) {
   const user = await this.findOne({ email: userEmail });
   if (!user) throw new Error('User not found');
@@ -35,7 +30,11 @@ FriendSchema.statics.removeFriend = async function (userEmail, friendEmail) {
   return user;
 };
 
-const  Friend = mongoose.model('friend', FriendSchema);
+// ✅ เพิ่ม getAllUsers ตรงนี้
+FriendSchema.statics.getAllUsers = async function () {
+  return await this.find();  // ดึง users ทั้งหมดใน collection 'friends'
+};
 
-// ✅ export แบบ ESModule
+const Friend = mongoose.model('friends', FriendSchema);
+
 export default Friend;
