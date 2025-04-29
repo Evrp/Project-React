@@ -264,5 +264,17 @@ app.post("/api/save-event", async (req, res) => {
   }
 });
 
+// ดึง filter ตาม email
+app.get("/api/filters/:email", async (req, res) => {
+  try {
+    const filter = await Filter.findOne({ email: req.params.email }); // ดึงตาม email
+    if (!filter) return res.status(404).json({ message: "ไม่พบข้อมูล" });
+    res.json(filter);
+  } catch (error) {
+    console.error("Error fetching filter:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // เริ่มต้นเซิร์ฟเวอร์
 server.listen(port, () => console.log(`🚀 Server is running on port ${port}`));
