@@ -51,6 +51,16 @@
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
     padding: 20px;
   }
+  .friend-recommend {
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
+    max-width: 500px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+  }
   
   /* รายการเพื่อนแต่ละคน */
   .friend-item {
