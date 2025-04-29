@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { db, storage } from "../../firebase/firebase";
-import { ref, getDownloadURL } from "firebase/storage";
+// import { ref, getDownloadURL } from "firebase/storage";
 import {
   collection,
   addDoc,
@@ -23,6 +23,15 @@ const Chat = () => {
 
   const messagesRef = collection(db, "messages");
 
+  const endOfMessagesRef = useRef(null);
+  const audioRef = useRef(null);
+
+  const scrollToBottom = () => {
+    if (endOfMessagesRef.current) {
+      endOfMessagesRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   useEffect(() => {
     const q = query(messagesRef, orderBy("timestamp"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -30,6 +39,17 @@ const Chat = () => {
         id: doc.id,
         ...doc.data(),
       }));
+
+      // ถ้ามีข้อความใหม่จากคนอื่น ให้เล่นเสียง
+      const lastMsg = messagesData[messagesData.length - 1];
+      if (
+        lastMsg &&
+        lastMsg.sender !== userName &&
+        lastMsg.text &&
+        lastMsg.receiver === userName
+      ) {
+        audioRef.current?.play().catch(() => {});
+      }
 
       setMessages(messagesData);
 
@@ -43,12 +63,10 @@ const Chat = () => {
       const usersArray = Array.from(users);
       setChatUsers(usersArray);
 
-      // ตั้งค่า activeUser เป็นคนล่าสุดที่คุยด้วย
       if (!activeUser && usersArray.length > 0) {
         setActiveUser(usersArray[usersArray.length - 1]);
       }
 
-      // โหลดรูปโปรไฟล์ของผู้ใช้
       const fetchUserPhotos = async () => {
         let userPhotoURLs = {};
         for (let user of users) {
@@ -70,6 +88,10 @@ const Chat = () => {
 
     return () => unsubscribe();
   }, [userName, activeUser]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, activeUser]);
 
   const handleSend = async () => {
     if (input.trim() === "" || !activeUser) return;
@@ -147,6 +169,7 @@ const Chat = () => {
               </div>
             );
           })}
+          <div ref={endOfMessagesRef} />
         </div>
         <div className="chat-input-container">
           <input
@@ -161,6 +184,9 @@ const Chat = () => {
           </button>
         </div>
       </div>
+
+      {/* 🔊 เสียงแจ้งเตือน */}
+      <audio ref={audioRef} src="/notification.mp3" preload="auto" />
     </div>
   );
 };

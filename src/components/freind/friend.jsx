@@ -29,7 +29,9 @@ const Friend = () => {
 
       const currentUser = allUsers.find((u) => u.email === userEmail);
       if (currentUser && Array.isArray(currentUser.friends)) {
-        const friendEmails = currentUser.friends.map((f) => typeof f === "string" ? f : f.email);
+        const friendEmails = currentUser.friends.map((f) =>
+          typeof f === "string" ? f : f.email
+        );
         const filteredFriends = allUsers
           .filter((user) => friendEmails.includes(user.email))
           .map((user) => ({
@@ -82,19 +84,24 @@ const Friend = () => {
   const handleAddFriend = async (friendEmail) => {
     try {
       setLoadingFriendEmail(friendEmail);
-      await axios.post("http://localhost:8080/api/add-friend", { userEmail, friendEmail });
+      await axios.post("http://localhost:8080/api/add-friend", {
+        userEmail,
+        friendEmail,
+      });
 
       const addedUser = users.find((user) => user.email === friendEmail);
       if (addedUser) {
-        setFriends((prev) => [
-          ...prev,
-          {
-            photoURL: addedUser.photoURL,
-            email: addedUser.email,
-            displayName: addedUser.displayName,
-            isOnline: addedUser.isOnline || false,
-          },
-        ].sort((a, b) => a.displayName.localeCompare(b.displayName)));
+        setFriends((prev) =>
+          [
+            ...prev,
+            {
+              photoURL: addedUser.photoURL,
+              email: addedUser.email,
+              displayName: addedUser.displayName,
+              isOnline: addedUser.isOnline || false,
+            },
+          ].sort((a, b) => a.displayName.localeCompare(b.displayName))
+        );
       }
 
       toast.success("เพิ่มเพื่อนสำเร็จ!");
@@ -109,9 +116,13 @@ const Friend = () => {
   const handleRemoveFriend = async (friendEmail) => {
     try {
       setLoadingFriendEmail(friendEmail);
-      await axios.delete("http://localhost:8080/api/remove-friend", { data: { userEmail, friendEmail } });
+      await axios.delete("http://localhost:8080/api/remove-friend", {
+        data: { userEmail, friendEmail },
+      });
 
-      setFriends((prev) => prev.filter((friend) => friend.email !== friendEmail));
+      setFriends((prev) =>
+        prev.filter((friend) => friend.email !== friendEmail)
+      );
       toast.success("ลบเพื่อนสำเร็จ!");
       handleCloseModal();
     } catch (error) {
@@ -168,28 +179,43 @@ const Friend = () => {
       <h2>เพื่อนทั้งหมด</h2>
       <ul className="friend-list">
         {friends.length > 0 ? (
-          friends.filter((friend) => friend.displayName.toLowerCase().includes(searchTerm)).map((friend, index) => (
-            <li key={index} className="friend-item">
-              <img src={friend.photoURL} alt={friend.displayName} className="friend-photo" />
-              <div className="friend-details">
-                <span className="friend-name">{friend.displayName}</span>
-                <span className="friend-email">{friend.email}</span>
-              </div>
-              <span className={`status ${friend.isOnline ? "online" : "offline"}`}>
-                {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
-              </span>
-              <button className="profile-btn" onClick={() => handleProfileClick(friend)}>
-                ดูโปรไฟล์
-              </button>
-              <button
-                className="remove-friend-btn"
-                onClick={() => handleRemoveFriend(friend.email)}
-                disabled={loadingFriendEmail === friend.email}
-              >
-                {loadingFriendEmail === friend.email ? "กำลังลบ..." : "ลบเพื่อน"}
-              </button>
-            </li>
-          ))
+          friends
+            .filter((friend) =>
+              friend.displayName.toLowerCase().includes(searchTerm)
+            )
+            .map((friend, index) => (
+              <li key={index} className="friend-item">
+                <img
+                  src={friend.photoURL}
+                  alt={friend.displayName}
+                  className="friend-photo"
+                />
+                <div className="friend-details">
+                  <span className="friend-name">{friend.displayName}</span>
+                  <span className="friend-email">{friend.email}</span>
+                </div>
+                <span
+                  className={`status ${friend.isOnline ? "online" : "offline"}`}
+                >
+                  {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
+                </span>
+                <button
+                  className="profile-btn"
+                  onClick={() => handleProfileClick(friend)}
+                >
+                  ดูโปรไฟล์
+                </button>
+                <button
+                  className="remove-friend-btn"
+                  onClick={() => handleRemoveFriend(friend.email)}
+                  disabled={loadingFriendEmail === friend.email}
+                >
+                  {loadingFriendEmail === friend.email
+                    ? "กำลังลบ..."
+                    : "ลบเพื่อน"}
+                </button>
+              </li>
+            ))
         ) : (
           <p>คุณยังไม่มีเพื่อน</p>
         )}
@@ -197,32 +223,52 @@ const Friend = () => {
 
       <h2>แนะนำ</h2>
       <ul className="friend-recommend">
-        {filteredUsers.filter((user) => !isFriend(user.email)).map((user, index) => (
-          <li key={index} className="friend-item">
-            <img src={user.photoURL} alt={user.displayName} className="friend-photo" />
-            <div className="friend-details">
-              <span className="friend-name">{user.displayName}</span>
-              <span className="friend-email">{user.email}</span>
-            </div>
-            <span className={`status ${user.isOnline ? "online" : "offline"}`}>
-              {user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
-            </span>
-            <button
-              className="add-friend-btn"
-              onClick={() => handleAddFriend(user.email)}
-              disabled={loadingFriendEmail === user.email}
+        {filteredUsers
+          .filter((user) => !isFriend(user.email))
+          .map((user, index) => (
+            <li
+              key={index}
+              className="friend-item clickable"
+              onClick={() => handleProfileClick(user)} // ← เปลี่ยนตรงนี้
             >
-              {loadingFriendEmail === user.email ? "กำลังเพิ่ม..." : <IoMdPersonAdd />}
-            </button>
-          </li>
-        ))}
+              <img
+                src={user.photoURL}
+                alt={user.displayName}
+                className="friend-photo"
+              />
+              <div className="friend-details">
+                <span className="friend-name">{user.displayName}</span>
+
+                <span
+                  className={`status ${user.isOnline ? "online" : "offline"}`}
+                >
+                  {user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
+                </span>
+              </div>
+              <button
+                className="add-friend-btn"
+                onClick={() => handleAddFriend(user.email)}
+                disabled={loadingFriendEmail === user.email}
+              >
+                {loadingFriendEmail === user.email ? (
+                  "กำลังเพิ่ม..."
+                ) : (
+                  <IoMdPersonAdd />
+                )}
+              </button>
+            </li>
+          ))}
       </ul>
 
       {isModalOpen && selectedUser && (
         <div className="profile-modal">
           <div className="modal-content" ref={modalRef}>
             <div className="profile-info">
-              <img src={selectedUser.photoURL} alt={selectedUser.displayName} className="profile-photo" />
+              <img
+                src={selectedUser.photoURL}
+                alt={selectedUser.displayName}
+                className="profile-photo"
+              />
               <h2>{selectedUser.displayName}</h2>
               <p>Email: {selectedUser.email}</p>
               <p>สถานะ: {selectedUser.isOnline ? "ออนไลน์" : "ออฟไลน์"}</p>
