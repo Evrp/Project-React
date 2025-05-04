@@ -33,7 +33,7 @@ const EventList = () => {
     } catch (error) {
       console.error("❌ Error deleting event:", error);
     }
-  };
+  };http://localhost:8080/api/detele-events/${id}
 
   if (loading) return <p className="loading-text">กำลังโหลด...</p>;
 

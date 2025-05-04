@@ -249,8 +249,29 @@ body {
 
 .edit-button:hover {
   background-color: #ddd;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* เพิ่มเงา */
+  transition: box-shadow 0.2s ease;
 }
 
+.edit-button-cancel-button {
+  margin-left: 10px;
+  padding: 2px 20px;
+  border: 1px solid #ccc;
+  width:fit-content;
+  text-align: center;
+  border-radius: 20px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.edit-button-cancel-button:hover {
+  background-color: #ddd;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* เพิ่มเงา */
+  transition: box-shadow 0.2s ease;
+  
+}
 .edit-button.selected {
   background-color: #6f2bee;
   color: white;
@@ -312,3 +333,10 @@ textarea::placeholder {
     background-color: #ccc;
     color: #333;
   }
+
+  .word-limit-info {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 4px;
+    text-align: right;
+  }  
