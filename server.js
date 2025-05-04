@@ -11,7 +11,8 @@ import { User } from "./src/model/user.js";
 import { Gmail } from "./src/model/gmail.js";
 import { Filter } from "./src/model/filter.js";
 import { Event } from "./src/model/event.js";
-import Friend from "./src/model/Friend.js";
+import { Info } from "./src/model/info.js";
+// import Friend from "./src/model/Friend.js";
 
 dotenv.config();
 
@@ -57,7 +58,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// API สำหรับเพิ่มเพื่อน
+// 📌 7️⃣ API เพิ่มเพื่อน
 app.post('/api/add-friend', async (req, res) => {
   const { userEmail, friendEmail } = req.body;
   console.log(userEmail, friendEmail);
@@ -80,7 +81,7 @@ app.post('/api/add-friend', async (req, res) => {
   }
 });
 
-// ดึงรายชื่อเพื่อนทั้งหมดของ user คนหนึ่ง
+// 📌 7️⃣ API ดึงข้อมูลเพื่อน
 app.get('/api/friends/:email', async (req, res) => {
   const { email } = req.params;
 
@@ -275,6 +276,69 @@ app.get("/api/filters/:email", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+// 📌 8️⃣ API ดึง Event ไปแสดงใน React
+app.get("/api/events", async (req, res) => {
+  const email = req.query.email;
+
+  try {
+    const events = await Event.find({ email }).sort({ date: 1 }); // เรียงตามวันที่
+    res.json(events);
+  } catch (error) {
+    console.error("❌ Error fetching events:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// 📌 9️⃣ API ลบ Event
+app.delete("/api/detele-events/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deleted = await Event.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+    res.json({ message: "Event deleted", deleted });
+  } catch (err) {
+    res.status(500).json({ message: "Delete failed" });
+  }
+});
+
+// POST /api/save-user-info
+app.post("/api/save-user-info", async (req, res) => {
+  const { email, userInfo } = req.body;
+
+  try {
+    const updatedUser = await Info.findOneAndUpdate(
+      { email },
+      { userInfo },
+      { new: true, upsert: true }
+    );
+
+    res.json({ message: "User info saved", data: updatedUser });
+  } catch (error) {
+    console.error("❌ Error saving user info:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// GET /api/user-info?email=xxx
+app.get("/api/user-info", async (req, res) => {
+  const { email } = req.query;
+
+  try {
+    const user = await Info.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json(user.userInfo || {});
+  } catch (error) {
+    console.error("❌ Error fetching user info:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
 
 // เริ่มต้นเซิร์ฟเวอร์
 server.listen(port, () => console.log(`🚀 Server is running on port ${port}`));

@@ -52,14 +52,61 @@ const Profile = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
+    const wordCount = value.trim().split(/\s+/).length;
+    if (wordCount > 400) return; // ถ้ามากกว่า 400 คำ จะไม่อัปเดตค่า
+
     setTempInfo((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveInfo = () => {
-    setUserInfo(tempInfo);
-    localStorage.setItem("userInfo", JSON.stringify(tempInfo));
-    setEditingField(null);
+  const handleSaveInfo = async () => {
+    const email = localStorage.getItem("userEmail");
+
+    if (!email) {
+      console.error("❌ ไม่พบอีเมลผู้ใช้");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8080/api/save-user-info", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, userInfo: tempInfo }),
+      });
+
+      if (response.ok) {
+        setUserInfo(tempInfo);
+        setEditingField(null);
+        console.log("✅ บันทึกข้อมูลสำเร็จ");
+      } else {
+        console.error("❌ เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      }
+    } catch (error) {
+      console.error("🚨 Error:", error);
+    }
   };
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const email = localStorage.getItem("userEmail");
+      if (!email) return;
+
+      try {
+        const res = await fetch(
+          `http://localhost:8080/api/user-info?email=${email}`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          setUserInfo(data);
+          setTempInfo(data); // ตั้งค่าช่วงแก้ไขให้เหมือนกัน
+        }
+      } catch (err) {
+        console.error("❌ ดึงข้อมูล userInfo ไม่สำเร็จ:", err);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
+
   const handleEditGenres = async () => {
     const email = localStorage.getItem("userEmail");
 
@@ -89,6 +136,34 @@ const Profile = () => {
     setEditingGenres(false);
   };
 
+  const handleClearGenres = async () => {
+    const email = localStorage.getItem("userEmail");
+    if (!email) {
+      console.error("ไม่พบอีเมลผู้ใช้");
+      return;
+    }
+
+    const clearedGenres = [];
+
+    try {
+      const response = await fetch("http://localhost:8080/api/update-genres", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, genres: clearedGenres }),
+      });
+
+      if (response.ok) {
+        console.log("🧹 ล้างแนวเพลงทั้งหมดเรียบร้อย");
+        setSelectedGenres([]);
+        localStorage.setItem("selectedGenres", JSON.stringify([]));
+      } else {
+        console.error("❌ ล้างแนวเพลงไม่สำเร็จ");
+      }
+    } catch (error) {
+      console.error("🚨 เกิดข้อผิดพลาด:", error);
+    }
+  };
+
   if (!userName || !userPhoto) {
     return (
       <div className="container-profile">
@@ -115,22 +190,31 @@ const Profile = () => {
           <div className="info-box">
             <h3>About Me</h3>
             {editingField === "detail" ? (
-              <textarea
-                name="detail"
-                value={tempInfo.detail}
-                onChange={handleInputChange}
-                rows={3}
-              />
+              <div>
+                <textarea
+                  name="detail"
+                  value={tempInfo.detail}
+                  onChange={handleInputChange}
+                  rows={3}
+                  placeholder="ใส่ข้อความ"
+                />
+                <p className="word-limit-info">
+                  {tempInfo.detail.trim().split(/\s+/).filter(Boolean).length} /
+                  400 คำ
+                </p>
+              </div>
             ) : (
               <p
                 onClick={() => {
                   setEditingField("detail");
                   setTempInfo({ ...userInfo });
                 }}
+                style={{ color: !userInfo.detail ? "#999" : "inherit" }} // สีเทาถ้าไม่มีข้อความ
               >
-                {userInfo.detail}
+                {userInfo.detail || "ใส่ข้อความ"}
               </p>
             )}
+
             {/* ✅ ปุ่มบันทึก */}
             {editingField && (
               <div className="save-button-container">
@@ -185,7 +269,7 @@ const Profile = () => {
                         setSelectedGenres(originalGenres);
                         setEditingGenres(false);
                       }}
-                      className="edit-button cancel-button"
+                      className="edit-button-cancel-button"
                     >
                       ย้อนกลับ
                     </Button>
@@ -200,6 +284,14 @@ const Profile = () => {
                   className="edit-button"
                 >
                   ✏️ แก้ไข
+                </Button>
+              )}
+              {editingGenres && (
+                <Button
+                  onClick={handleClearGenres}
+                  className="edit-button-cancel-button"
+                >
+                  ล้างแนวเพลงทั้งหมด
                 </Button>
               )}
             </div>
