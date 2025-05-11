@@ -21,7 +21,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: ["http://localhost:5173"],
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST"],
   },
 });
 
@@ -53,28 +53,34 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("🔴 Client disconnected", socket.id);
-    onlineUsers.delete(socket.email); 
+    onlineUsers.delete(socket.email);
     io.emit("update-users", Array.from(onlineUsers.keys())); // แจ้งให้ทุกคนรู้ว่าผู้ใช้ได้ออกจากระบบ
   });
 });
 
 // 📌 7️⃣ API เพิ่มเพื่อน
-app.post('/api/add-friend', async (req, res) => {
+app.post("/api/add-friend", async (req, res) => {
   const { userEmail, friendEmail } = req.body;
   console.log(userEmail, friendEmail);
 
   if (!userEmail || !friendEmail) {
-    return res.status(400).json({ error: "Both userEmail and friendEmail are required." });
+    return res
+      .status(400)
+      .json({ error: "Both userEmail and friendEmail are required." });
   }
 
   // ป้องกันไม่ให้เพิ่มตัวเองเป็นเพื่อน
   if (userEmail === friendEmail) {
-    return res.status(400).json({ error: "You cannot add yourself as a friend." });
+    return res
+      .status(400)
+      .json({ error: "You cannot add yourself as a friend." });
   }
 
   try {
     const user = await Friend.addFriend(userEmail, friendEmail); // ใช้ static method ใน model
-    return res.status(200).json({ message: "Friend added successfully.", user });
+    return res
+      .status(200)
+      .json({ message: "Friend added successfully.", user });
   } catch (error) {
     console.error("Error while adding friend:", error);
     res.status(500).json({ error: "Internal server error." });
@@ -82,7 +88,7 @@ app.post('/api/add-friend', async (req, res) => {
 });
 
 // 📌 7️⃣ API ดึงข้อมูลเพื่อน
-app.get('/api/friends/:email', async (req, res) => {
+app.get("/api/friends/:email", async (req, res) => {
   const { email } = req.params;
 
   try {
@@ -90,14 +96,14 @@ app.get('/api/friends/:email', async (req, res) => {
     const user = await Friend.findOne({ email });
 
     if (!user) {
-      return res.status(404).send('User not found');
+      return res.status(404).send("User not found");
     }
 
     // ส่งข้อมูลของเพื่อนกลับไป
     res.json(user.friends);
   } catch (error) {
-    console.error('Error fetching friends:', error);
-    res.status(500).send('Server error');
+    console.error("Error fetching friends:", error);
+    res.status(500).send("Server error");
   }
 });
 
@@ -165,11 +171,11 @@ app.get("/api/users", async (req, res) => {
 });
 
 // Express route สำหรับดึงข้อมูลเพื่อน
-app.get('/api/usersfriends', async (req, res) => {
+app.get("/api/usersfriends", async (req, res) => {
   try {
     // รับข้อมูล emails ที่ส่งมาจาก query string และ parse มันให้เป็น array
     const email = JSON.parse(decodeURIComponent(req.query.emails));
-    console.log('Decoded emails:', email); // ดีบักค่า emails ที่รับมา
+    console.log("Decoded emails:", email); // ดีบักค่า emails ที่รับมา
 
     // ค้นหาผู้ใช้งานที่มี email ตรงกับรายการใน array `emails`
     const users = await Gmail.find({ email: { $in: email } });
@@ -178,7 +184,7 @@ app.get('/api/usersfriends', async (req, res) => {
     res.json(users);
   } catch (error) {
     console.error(error);
-    res.status(500).send('Server error');
+    res.status(500).send("Server error");
   }
 });
 
@@ -197,15 +203,15 @@ app.post("/api/logout", async (req, res) => {
 
 // 📌 6️⃣ API บันทึกหมวดหมู่เพลงที่ผู้ใช้เลือก
 app.post("/api/update-genres", async (req, res) => {
-  const { email, genres } = req.body;
-  if (!email || !genres) {
-    return res.status(400).json({ message: "Missing email or genres" });
+  const { email, genres, subGenres, updatedAt } = req.body;
+  if (!email || !genres || !subGenres) {
+    return res.status(400).json({ message: "Missing email, genres, or subGenres" });
   }
 
   try {
     const user = await Filter.findOneAndUpdate(
       { email },
-      { genres },
+      { genres, subGenres: subGenres || {} },
       { new: true, upsert: true } // เพิ่ม upsert เผื่อ user ยังไม่มีใน Filter
     );
 
@@ -215,10 +221,14 @@ app.post("/api/update-genres", async (req, res) => {
       filter_info: {
         email: user.email,
         genres: user.genres,
+        subGenres: user.subGenres,
+        updatedAt: updatedAt || new Date().toISOString(),
       },
     });
 
-    res.status(200).json({ message: "Genres updated & sent to Make.com", user });
+    res
+      .status(200)
+      .json({ message: "Genres updated & sent to Make.com", user });
   } catch (error) {
     console.error("❌ Update failed:", error);
     res.status(500).json({ message: "Server error" });
@@ -236,7 +246,7 @@ app.post("/api/save-event", async (req, res) => {
     imageUrl,
     link,
     isFirst,
-    email, 
+    email,
   } = req.body;
 
   try {
@@ -338,6 +348,30 @@ app.get("/api/user-info", async (req, res) => {
   }
 });
 
+app.post("/api/update-display-name", async (req, res) => {
+  const { email, displayName } = req.body;
+
+  if (!email || !displayName) {
+    return res.status(400).json({ message: "Missing email or displayName" });
+  }
+
+  try {
+    const user = await Gmail.findOneAndUpdate(
+      { email },
+      { displayName },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "Display name updated", user });
+  } catch (error) {
+    console.error("Error updating display name:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 // เริ่มต้นเซิร์ฟเวอร์
