@@ -36,7 +36,6 @@ const NewLogin = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
       // ส่งข้อมูลผู้ใช้ไปยัง backend (MongoDB)
       const response = await axios.post("http://localhost:8080/api/login", {
         displayName: user.displayName,
@@ -49,8 +48,20 @@ const NewLogin = () => {
       // เก็บข้อมูลลง localStorage
       localStorage.setItem("userName", user.displayName);
       localStorage.setItem("userPhoto", user.photoURL);
-      localStorage.setItem("userEmail", user.email); // ✅ เพิ่มบรรทัดนี้
+      localStorage.setItem("userEmail", user.email); 
 
+      // ตรวจสอบอีเมลผู้ใช้
+      // if (user.email && user.email.endsWith("@bumail.net")) {
+      //   // ผ่าน ✅ -> เก็บข้อมูลและไปหน้า /home
+      //   localStorage.setItem("userName", user.displayName);
+      //   localStorage.setItem("userPhoto", user.photoURL);
+      //   localStorage.setItem("userEmail", user.email);
+      //   navigate("/home");
+      // } else {
+      //   // ไม่ผ่าน ❌ -> ล็อกเอาท์ออก และแสดงข้อความ error
+      //   setError("คุณต้องใช้บัญชี @bumail.net เท่านั้น");
+      //   await auth.signOut();
+      // }
       // ไปหน้า /home
       navigate("/home");
     } catch (error) {

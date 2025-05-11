@@ -1,30 +1,38 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./Profile.css";
 import { Button } from "@/components/ui";
-import { EventContext } from "../../context/eventcontext.jsx";
 import { useNavigate } from "react-router-dom";
+import { FaEdit } from "react-icons/fa";
 
 const genreOptions = [
-  "Arts",
-  "Movie",
   "Music",
-  "Party",
-  "Concert",
-  "Golf",
-  "Snooker",
-  "Football",
-  "Muaythai",
-  "Book",
+  "Sport",
   "Game",
+  "Movie",
+  "Book",
+  "Exihibition",
   "Food",
-  "Vocal",
+  "Health",
+  "Art",
+  "Travel",
 ];
+const genreSubOptions = {
+  Music: ["Pop", "Rock", "Indie", "Jazz", "Hip-Hop"],
+  Sport: ["Football", "Basketball", "Snooker", "Boxing"],
+  Game: ["PC", "Console", "Mobile", "Board Game"],
+  Movie: ["Action", "Romance", "Sci-Fi", "Drama"],
+  Book: ["Fiction", "Non-fiction", "Fantasy", "Self-help"],
+  Exihibition: ["Museum", "Gallery", "Design", "Startup"],
+  Food: ["Street Food", "Fine Dining", "Vegan", "Dessert"],
+  Health: ["Yoga", "Fitness", "Meditation", "Wellness"],
+  Art: ["Painting", "Photography", "Sculpture", "Digital"],
+  Travel: ["Adventure", "Beach", "Mountain", "City"],
+};
 
 const Profile = () => {
-  const userName = localStorage.getItem("userName");
+  // const userName = localStorage.getItem("userName");
   const userPhoto = localStorage.getItem("userPhoto");
   const navigate = useNavigate();
-  const { setEvents } = useContext(EventContext);
   const [originalGenres, setOriginalGenres] = useState([]);
 
   const [selectedGenres, setSelectedGenres] = useState(
@@ -41,13 +49,27 @@ const Profile = () => {
 
   const [editingGenres, setEditingGenres] = useState(false);
   const [editingField, setEditingField] = useState(null); // ช่องที่กำลังแก้ไข
-
+  const [selectedSubGenres, setSelectedSubGenres] = useState({});
   const [tempInfo, setTempInfo] = useState({ ...userInfo }); // เก็บค่าที่แก้ไว้ชั่วคราว
+  const [isEditing, setIsEditing] = useState(false);
+  const [userName, setUserName] = useState(
+    localStorage.getItem("userName") || ""
+  );
 
   const toggleGenre = (genre) => {
     setSelectedGenres((prev) =>
       prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]
     );
+  };
+
+  const toggleSubGenre = (genre, subGenre) => {
+    setSelectedSubGenres((prev) => {
+      const current = prev[genre] || [];
+      const updated = current.includes(subGenre)
+        ? current.filter((s) => s !== subGenre)
+        : [...current, subGenre];
+      return { ...prev, [genre]: updated };
+    });
   };
 
   const handleInputChange = (e) => {
@@ -116,10 +138,16 @@ const Profile = () => {
     }
 
     try {
+      console.log(selectedSubGenres);
       const response = await fetch("http://localhost:8080/api/update-genres", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, genres: selectedGenres }),
+        body: JSON.stringify({
+          email,
+          genres: selectedGenres,
+          subGenres: selectedSubGenres,
+          updatedAt: new Date().toISOString(),
+        }),
       });
 
       if (response.ok) {
@@ -143,17 +171,20 @@ const Profile = () => {
       return;
     }
 
-    const clearedGenres = [];
-
     try {
       const response = await fetch("http://localhost:8080/api/update-genres", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, genres: clearedGenres }),
+        body: JSON.stringify({
+          email,
+          genres: [], // ล้าง genres
+          subGenres: {}, // ล้าง subGenres ด้วย
+        }),
       });
 
       if (response.ok) {
         console.log("🧹 ล้างแนวเพลงทั้งหมดเรียบร้อย");
+        setSelectedSubGenres({});
         setSelectedGenres([]);
         localStorage.setItem("selectedGenres", JSON.stringify([]));
       } else {
@@ -163,6 +194,51 @@ const Profile = () => {
       console.error("🚨 เกิดข้อผิดพลาด:", error);
     }
   };
+  const handleChange = (e) => {
+    setUserName(e.target.value);
+  };
+  const handleBlur = async () => {
+    const email = localStorage.getItem("userEmail");
+
+    if (!email || !userName.trim()) {
+      console.error("ชื่อว่างหรือไม่มีอีเมล");
+      setUserName(previousUserName); // ย้อนค่ากลับเดิม
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:8080/api/update-display-name",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, displayName: userName.trim() }),
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("✅ อัปเดตชื่อสำเร็จ:", data);
+        localStorage.setItem("userName", userName.trim());
+      } else {
+        console.error("❌ อัปเดตชื่อไม่สำเร็จ");
+      }
+    } catch (error) {
+      console.error("🚨 เกิดข้อผิดพลาด:", error);
+    }
+
+    setIsEditing(false);
+  };
+
+  const handleClick = () => {
+    setIsEditing(true);
+  };
+  useEffect(() => {
+    const savedName = localStorage.getItem("userName");
+    if (savedName) {
+      setUserName(savedName);
+    }
+  }, []);
 
   if (!userName || !userPhoto) {
     return (
@@ -181,9 +257,42 @@ const Profile = () => {
 
   return (
     <div className="container-profile">
+      <div className="text-xl-font-semibold">
+        <h1>Profile</h1>
+      </div>
       <div className="profile-container">
         <img src={userPhoto} alt="Profile" className="profile-image" />
-        <h2>{`${userName}`}</h2>
+        <h2>
+          {isEditing ? (
+            <input
+              type="text"
+              value={userName}
+              onChange={handleChange}
+              onBlur={handleBlur} // เมื่อผู้ใช้หยุดพิมพ์และคลิกออก จะบันทึก
+              autoFocus
+              placeholder="ใส่ชื่อของคุณ"
+              style={{
+                fontSize: "30px",
+                fontWeight: "600",
+                border: "none",
+                outline: "none",
+                backgroundColor: "transparent",
+                textAlign: "center",
+              }}
+            />
+          ) : (
+            <span style={{ fontSize: "30px", fontWeight: "600" }}>
+              {userName || "ใส่ชื่อของคุณ"}
+            </span>
+          )}
+
+          <FaEdit
+            onClick={handleClick}
+            className="edit-icon"
+            style={{ cursor: "pointer", fontSize: "24px" }}
+            title="แก้ไขชื่อ"
+          />
+        </h2>
 
         <div className="info-wrapper">
           {/* 📝 ช่องข้อมูล */}
@@ -196,11 +305,11 @@ const Profile = () => {
                   value={tempInfo.detail}
                   onChange={handleInputChange}
                   rows={3}
-                  placeholder="ใส่ข้อความ"
+                  placeholder="รายละเอียดข้อมูลของผู้ใช้ที่น่าสนใจ...."
+                  maxLength={400}
                 />
                 <p className="word-limit-info">
-                  {tempInfo.detail.trim().split(/\s+/).filter(Boolean).length} /
-                  400 คำ
+                  {tempInfo.detail.trim().length} / 400
                 </p>
               </div>
             ) : (
@@ -211,7 +320,7 @@ const Profile = () => {
                 }}
                 style={{ color: !userInfo.detail ? "#999" : "inherit" }} // สีเทาถ้าไม่มีข้อความ
               >
-                {userInfo.detail || "ใส่ข้อความ"}
+                {userInfo.detail || "รายละเอียดข้อมูลของผู้ใช้ที่น่าสนใจ...."}
               </p>
             )}
 
@@ -229,19 +338,21 @@ const Profile = () => {
           <div className="info-box">
             <h3>Activities</h3>
             {editingGenres ? (
-              <div className="filter-genres">
-                {genreOptions.map((genre) => (
-                  <button
-                    key={genre}
-                    onClick={() => toggleGenre(genre)}
-                    className={`genre-button ${
-                      selectedGenres.includes(genre) ? "selected" : ""
-                    }`}
-                  >
-                    {genre}
-                  </button>
-                ))}
-              </div>
+              <>
+                <div className="filter-genres">
+                  {genreOptions.map((genre) => (
+                    <button
+                      key={genre}
+                      onClick={() => toggleGenre(genre)}
+                      className={`genre-button ${
+                        selectedGenres.includes(genre) ? "selected" : ""
+                      }`}
+                    >
+                      {genre}
+                    </button>
+                  ))}
+                </div>
+              </>
             ) : (
               <div className="filter-genres">
                 {selectedGenres.length > 0 ? (
@@ -296,6 +407,36 @@ const Profile = () => {
               )}
             </div>
           </div>
+          {editingGenres && (
+            <div className="info-box">
+              {/* 🔽 Subgenre Filters */}
+              {selectedGenres.map(
+                (genre) =>
+                  genreSubOptions[genre] && (
+                    <div key={`sub-${genre}`} className="subgenre-container">
+                      <button className="genreshow-button">
+                        <h4>{genre} :</h4>
+                      </button>
+                      <div className="filter-subgenres">
+                        {genreSubOptions[genre].map((sub) => (
+                          <button
+                            key={sub}
+                            onClick={() => toggleSubGenre(genre, sub)}
+                            className={`subgenre-button ${
+                              selectedSubGenres[genre]?.includes(sub)
+                                ? "selected"
+                                : ""
+                            }`}
+                          >
+                            {sub}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

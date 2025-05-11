@@ -16,8 +16,18 @@ body {
 .container-profile {
   display: flex;
   width: 100%;
+  flex-direction: column;
+  align-items: center;
 }
 
+.text-xl-font-semibold {
+  border-bottom: 2px solid #9d9d9d;
+  width: 100%;
+  align-items: center;
+  display: flex;
+  height: 10vh;
+  justify-content: center;
+}
 /* .profile-image {
   width:max-content;
   height:max-content;
@@ -66,7 +76,7 @@ body {
 .create-btn {
   margin-top: auto;
   padding: 10px;
-  background: rgb(111, 43, 238);
+  background: #b8d897;
   color: white;
   border: none;
   cursor: pointer;
@@ -136,7 +146,7 @@ body {
 }
 
 .info-box {
-  width: 80%;
+  width: 500px;
   height: fit-content;
   max-width: 600px;
   background: white;
@@ -149,6 +159,12 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+@media screen and (max-width: 768px) {
+  .info-box {
+    width: 300px;
+    height: fit-content;
+  }
 }
 
 .container-profile {
@@ -257,7 +273,7 @@ body {
   margin-left: 10px;
   padding: 2px 20px;
   border: 1px solid #ccc;
-  width:fit-content;
+  width: fit-content;
   text-align: center;
   border-radius: 20px;
   background-color: #f0f0f0;
@@ -270,7 +286,6 @@ body {
   background-color: #ddd;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* เพิ่มเงา */
   transition: box-shadow 0.2s ease;
-  
 }
 .edit-button.selected {
   background-color: #6f2bee;
@@ -290,23 +305,26 @@ textarea {
   padding: 10px;
   font-size: 14px;
   font-family: "Montserrat", sans-serif;
-  border: 1px solid #ccc;
+  border: none;
   border-radius: 10px;
-  resize: vertical; /* ให้ขยายได้แนวตั้ง */
-  box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.05);
+  resize: vertical;
+  box-shadow: none;
   outline: none;
-  transition: border 0.2s ease;
+  overflow: hidden;
+  transition: none;
 }
 
 textarea:focus {
-  border-color: #6c63ff;
-  box-shadow: 0 0 3px rgba(111, 43, 238, 0.3);
+  border: none;
+  box-shadow: none;
+  outline: none;
 }
 
 textarea::placeholder {
   color: #aaa;
   font-style: italic;
 }
+
 .save-button-container {
   display: flex;
   justify-content: center;
@@ -326,17 +344,80 @@ textarea::placeholder {
 }
 
 .save-button:hover {
-    background-color: #ddd;
+  background-color: #ddd;
 }
 .cancel-button {
-    margin-left: 10px;
-    background-color: #ccc;
-    color: #333;
-  }
+  margin-left: 10px;
+  background-color: #ccc;
+  color: #333;
+}
 
-  .word-limit-info {
-    font-size: 0.9rem;
-    color: #666;
-    margin-top: 4px;
-    text-align: right;
-  }  
+.word-limit-info {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 4px;
+  text-align: right;
+}
+.subgenre-container {
+  /* margin-top: 10px; */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.filter-subgenres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+  justify-content: center;
+}
+
+.subgenre-button {
+  padding: 6px 12px;
+  border: 1px solid #bbb;
+  border-radius: 20px;
+  background-color: #f5f5f5;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.subgenre-button.selected {
+  background-color: #6f2bee;
+  color: white;
+  border-color: #6c63ff;
+}
+.genreshow-button {
+  padding: 6px 12px;
+  margin-top: 6px;
+  border: 1px solid #bbb;
+  border-radius: 20px;
+  background-color: #6f2bee;
+  color: white;
+  border-color: #6c63ff;
+  margin-right: 5px;
+}
+.profile-container input {
+  width: 100%;
+  padding: 10px;
+  font-size: 30px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  resize: vertical;
+  box-shadow: none;
+  outline: none;
+  overflow: hidden;
+  transition: none;
+  background-color: transparent; /* ✅ แก้ตรงนี้ */
+  text-align: center;
+}
+
+.input:focus {
+  border: none;
+  box-shadow: none;
+  outline: none;
+}
+.edit-icon {
+  margin-left: 5px;
+}
