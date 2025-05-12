@@ -10,4 +10,4 @@ const GmailSchema = new mongoose.Schema({
   },
 });
 
-export const Filter = mongoose.model("Filters", GmailSchema);
+export const Filter = mongoose.model("filters", GmailSchema);
