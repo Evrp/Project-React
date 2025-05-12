@@ -17,6 +17,7 @@ const Newcommu = () => {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
+        console.log(loggedInEmail);
         const res = await fetch(
           `http://localhost:8080/matches/${loggedInEmail}`
         );
@@ -48,7 +49,7 @@ const Newcommu = () => {
         </div>
 
         <div className="recommentfreind">
-          <h2>Recomment Friend</h2>
+          <h2>Recommend Friend</h2>
           {matches.length === 0 ? (
             <p>ไม่พบเพื่อนที่มีความสนใจเหมือนกัน</p>
           ) : (

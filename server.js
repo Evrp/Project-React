@@ -206,7 +206,9 @@ app.post("/api/logout", async (req, res) => {
 app.post("/api/update-genres", async (req, res) => {
   const { email, genres, subGenres, updatedAt } = req.body;
   if (!email || !genres || !subGenres) {
-    return res.status(400).json({ message: "Missing email, genres, or subGenres" });
+    return res
+      .status(400)
+      .json({ message: "Missing email, genres, or subGenres" });
   }
 
   try {
@@ -391,21 +393,27 @@ app.get("/api/allroom", async (req, res) => {
 });
 
 app.get("/matches/:email", async (req, res) => {
+  const { email } = req.params;
+  console.log("Looking for email:", email); // ตรวจสอบว่าอีเมลถูกต้องหรือไม่
+
   try {
-    const user = await Filter.findOne({ email: req.params.email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const user = await Filter.findOne({ email });
+    console.log("User found:", user); // ตรวจสอบว่าเจอผู้ใช้หรือไม่
 
-    const userGenres = user.genres;
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    // ค้นหาผู้ใช้คนอื่นที่มี genres เหมือนกัน
+    // หาคนอื่นที่มี genre เหมือนกัน (ไม่นับตัวเอง)
     const matches = await Filter.find({
-      email: { $ne: req.params.email }, // ไม่รวมตัวเอง
-      genres: { $in: userGenres }, // มี genre อย่างน้อย 1 อย่างเหมือนกัน
+      email: { $ne: email },
+      genres: { $in: user.genres },
     });
 
     res.json(matches);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

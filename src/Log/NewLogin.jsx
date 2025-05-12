@@ -51,19 +51,19 @@ const NewLogin = () => {
       localStorage.setItem("userEmail", user.email); 
 
       // ตรวจสอบอีเมลผู้ใช้
-      // if (user.email && user.email.endsWith("@bumail.net")) {
-      //   // ผ่าน ✅ -> เก็บข้อมูลและไปหน้า /home
-      //   localStorage.setItem("userName", user.displayName);
-      //   localStorage.setItem("userPhoto", user.photoURL);
-      //   localStorage.setItem("userEmail", user.email);
-      //   navigate("/home");
-      // } else {
-      //   // ไม่ผ่าน ❌ -> ล็อกเอาท์ออก และแสดงข้อความ error
-      //   setError("คุณต้องใช้บัญชี @bumail.net เท่านั้น");
-      //   await auth.signOut();
-      // }
+      if (user.email && user.email.endsWith("@bumail.net")) {
+        // ผ่าน ✅ -> เก็บข้อมูลและไปหน้า /home
+        localStorage.setItem("userName", user.displayName);
+        localStorage.setItem("userPhoto", user.photoURL);
+        localStorage.setItem("userEmail", user.email);
+        navigate("/home");
+      } else {
+        // ไม่ผ่าน ❌ -> ล็อกเอาท์ออก และแสดงข้อความ error
+        setError("คุณต้องใช้บัญชี @bumail.net เท่านั้น");
+        await auth.signOut();
+      }
       // ไปหน้า /home
-      navigate("/home");
+      // navigate("/home");
     } catch (error) {
       setError("เกิดข้อผิดพลาดในการล็อกอิน");
       console.error(error);
