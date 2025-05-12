@@ -12,6 +12,7 @@ import { Gmail } from "./src/model/gmail.js";
 import { Filter } from "./src/model/filter.js";
 import { Event } from "./src/model/event.js";
 import { Info } from "./src/model/info.js";
+import { Room } from "./src/model/room.js"; // import Room from "./src/model/room.js";
 // import Friend from "./src/model/Friend.js";
 
 dotenv.config();
@@ -370,6 +371,41 @@ app.post("/api/update-display-name", async (req, res) => {
   } catch (error) {
     console.error("Error updating display name:", error);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/api/createroom", async (req, res) => {
+  try {
+    const { name, image, description, createdBy } = req.body;
+    const room = new Room({ name, image, description, createdBy });
+    await room.save();
+    res.status(201).json(room);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to create room" });
+  }
+});
+
+app.get("/api/allroom", async (req, res) => {
+  const rooms = await Room.find();
+  res.json(rooms);
+});
+
+app.get("/matches/:email", async (req, res) => {
+  try {
+    const user = await Filter.findOne({ email: req.params.email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const userGenres = user.genres;
+
+    // ค้นหาผู้ใช้คนอื่นที่มี genres เหมือนกัน
+    const matches = await Filter.find({
+      email: { $ne: req.params.email }, // ไม่รวมตัวเอง
+      genres: { $in: userGenres }, // มี genre อย่างน้อย 1 อย่างเหมือนกัน
+    });
+
+    res.json(matches);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

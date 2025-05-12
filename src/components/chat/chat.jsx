@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { db, storage } from "../../firebase/firebase";
-// import { ref, getDownloadURL } from "firebase/storage";
+import { useParams } from "react-router-dom";
+import { ref, getDownloadURL } from "firebase/storage"; // ✅ เพิ่มกลับเข้ามา
 import {
   collection,
   addDoc,
@@ -12,6 +13,7 @@ import {
 import "../chat/Chat.css";
 
 const Chat = () => {
+  const { roomId } = useParams();
   const userPhoto = localStorage.getItem("userPhoto");
   const userName = localStorage.getItem("userName");
 
@@ -35,13 +37,17 @@ const Chat = () => {
   useEffect(() => {
     const q = query(messagesRef, orderBy("timestamp"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const messagesData = snapshot.docs.map((doc) => ({
+      const allMessages = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
 
-      // ถ้ามีข้อความใหม่จากคนอื่น ให้เล่นเสียง
-      const lastMsg = messagesData[messagesData.length - 1];
+      // ✅ กรองเฉพาะข้อความในห้องนี้
+      const roomMessages = allMessages.filter((msg) => msg.roomId === roomId);
+      setMessages(roomMessages);
+
+      // ✅ เล่นเสียงถ้ามีข้อความใหม่ที่มาจากคนอื่นส่งให้เรา
+      const lastMsg = roomMessages[roomMessages.length - 1];
       if (
         lastMsg &&
         lastMsg.sender !== userName &&
@@ -51,10 +57,8 @@ const Chat = () => {
         audioRef.current?.play().catch(() => {});
       }
 
-      setMessages(messagesData);
-
       const users = new Set();
-      messagesData.forEach((msg) => {
+      roomMessages.forEach((msg) => {
         if (msg.sender !== userName) {
           users.add(msg.sender);
         }
@@ -87,7 +91,7 @@ const Chat = () => {
     });
 
     return () => unsubscribe();
-  }, [userName, activeUser]);
+  }, [userName, activeUser, roomId]);
 
   useEffect(() => {
     scrollToBottom();
@@ -100,6 +104,7 @@ const Chat = () => {
       text: input,
       sender: userName || "Unknown",
       receiver: activeUser,
+      roomId: roomId,
       timestamp: serverTimestamp(),
     });
 

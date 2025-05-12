@@ -26,10 +26,9 @@ function App() {
         <Route path="/friend" element={<Freind />} />
         <Route path="/setup" element={<Setup />} />
         <Route path="/chat" element={<Chat />} />
-
-        {/* <Route path="/forgot-password" element={<ForgotPassword />} /> */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/community" element={<Community />} />
+        <Route path="/chat/:roomId" element={<Chat />} />
       </Routes>
     </>
   );

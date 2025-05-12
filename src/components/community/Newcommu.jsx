@@ -1,72 +1,82 @@
-import React from 'react';
-import './Newcommu.css';
-import { EventContext } from "../../context/eventcontext";
-import { useContext } from "react";
+import "./Newcommu.css";
+import CreateRoom from "./createroom";
+import RoomList from "./roomlist";
+import { useState, useEffect } from "react";
 
 const Newcommu = () => {
-    const userPhoto = localStorage.getItem("userPhoto");
-    const { events } = useContext(EventContext);
+  const userPhoto = localStorage.getItem("userPhoto");
+  const loggedInEmail = localStorage.getItem("email"); // ดึงอีเมลผู้ใช้ที่ล็อกอิน
+  const [rooms, setRooms] = useState([]);
+  const [matches, setMatches] = useState([]);
+
+  const handleNewRoom = (room) => {
+    setRooms((prev) => [...prev, room]);
+  };
+
+  // ดึงข้อมูล matches ตอน component โหลด
+  useEffect(() => {
+    const fetchMatches = async () => {
+      try {
+        const res = await fetch(
+          `http://localhost:8080/matches/${loggedInEmail}`
+        );
+        const data = await res.json();
+        setMatches(data);
+      } catch (error) {
+        console.error("เกิดข้อผิดพลาดในการโหลด matches:", error);
+      }
+    };
+
+    if (loggedInEmail) {
+      fetchMatches();
+    }
+  }, [loggedInEmail]);
+
   return (
-    <div className="main-content">
-      <div className="header">
-        <h1>Hello Boss!</h1>
-        <div className="profile-section">
-          <span className="bell-icon">&#128276;</span>
-          <span className="divider">|</span>
-          <img
-          src={userPhoto}
-          alt="Profile"
-          className="profile-image-com"
-        />
-        </div>
+    <div className="main-content-com">
+      <div className="profile-section">
+        <span className="bell-icon">&#128276;</span>
+        <span className="divider">|</span>
+        <img src={userPhoto} alt="Profile" className="profile-image-com" />
       </div>
-      <div className="content-area">
-        {/* บล็อกด้านบน */}
-        <div className="top-block">
-          <span>ชื่อห้อง</span>
-          <i className="fas fa-edit"></i>
+
+      <CreateRoom onRoomCreated={handleNewRoom} />
+
+      <div className="container-content">
+        <div className="content-area">
+          <RoomList rooms={rooms} />
         </div>
 
-        {/* บล็อกด้านล่าง */}
-        <div className="bottom-blocks">
-          <div className="small-block"></div>
-          <div className="small-block"><i className="fas fa-image"></i></div>
-        </div>
-
-        {/* บล็อกข้าง */}
-        <div className="side-block"></div>
-      </div>
-      {events.length > 0 && (
-            <div className="mt-8">
-              <h3 className="text-lg font-semibold">กิจกรรมที่พบ:</h3>
-              <ul className="mt-4">
-                {events.map((event, index) => (
-                  <li key={index} className="mb-4">
-                    <h4 className="text-md font-bold">{event.name}</h4>
-                    <p>ราคา: {event.price}</p>
-                    <p>
-                      ลิงค์:{" "}
-                      <a
-                        href={event.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 underline"
-                      >
-                        ดูสินค้า
-                      </a>
-                    </p>
-                    {event.image && (
-                      <img
-                        src={event.image}
-                        alt={event.name}
-                        className="w-full mt-4 rounded-md"
-                      />
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
+        <div className="recommentfreind">
+          <h2>Recomment Friend</h2>
+          {matches.length === 0 ? (
+            <p>ไม่พบเพื่อนที่มีความสนใจเหมือนกัน</p>
+          ) : (
+            matches.map((match) => (
+              <div key={match._id} className="friend-card">
+                <h3>{match.email}</h3>
+                <p>
+                  <strong>หมวดหมู่:</strong> {match.genres.join(", ")}
+                </p>
+                {match.subGenres && Object.keys(match.subGenres).length > 0 && (
+                  <div>
+                    <strong>หัวข้อย่อย:</strong>
+                    <ul>
+                      {Object.entries(match.subGenres).map(
+                        ([category, topics]) => (
+                          <li key={category}>
+                            {category}: {topics.join(", ")}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            ))
           )}
+        </div>
+      </div>
     </div>
   );
 };
