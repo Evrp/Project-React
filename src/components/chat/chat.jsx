@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { db, storage } from "../../firebase/firebase";
 import { useParams } from "react-router-dom";
-import { ref, getDownloadURL } from "firebase/storage"; // ✅ เพิ่มกลับเข้ามา
+// import { ref, getDownloadURL } from "firebase/storage";
 import {
   collection,
   addDoc,
@@ -11,22 +11,63 @@ import {
   orderBy,
 } from "firebase/firestore";
 import "../chat/Chat.css";
+import axios from "axios";
+import "react-toastify/dist/ReactToastify.css";
 
 const Chat = () => {
   const { roomId } = useParams();
+  const [users, setUsers] = useState([]);
   const userPhoto = localStorage.getItem("userPhoto");
   const userName = localStorage.getItem("userName");
-
+  const [searchTerm, setSearchTerm] = useState("");
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState([]);
   const [chatUsers, setChatUsers] = useState([]);
   const [userPhotos, setUserPhotos] = useState({});
   const [activeUser, setActiveUser] = useState(null);
+  const userEmail = localStorage.getItem("userEmail");
+  const [friends, setFriends] = useState([]);
+  const [loadingFriendEmail, setLoadingFriendEmail] = useState(null);
 
   const messagesRef = collection(db, "messages");
 
   const endOfMessagesRef = useRef(null);
   const audioRef = useRef(null);
+
+  const fetchUsersAndFriends = async () => {
+    try {
+      const response = await axios.get("http://localhost:8080/api/users");
+      const allUsers = response.data;
+      setUsers(allUsers);
+
+      const currentUser = allUsers.find((u) => u.email === userEmail);
+      if (currentUser && Array.isArray(currentUser.friends)) {
+        const friendEmails = currentUser.friends.map((f) =>
+          typeof f === "string" ? f : f.email
+        );
+        const filteredFriends = allUsers
+          .filter((user) => friendEmails.includes(user.email))
+          .map((user) => ({
+            photoURL: user.photoURL,
+            email: user.email,
+            displayName: user.displayName,
+            isOnline: user.isOnline || false,
+          }))
+          .sort((a, b) => a.displayName.localeCompare(b.displayName));
+
+        setFriends(filteredFriends);
+      } else {
+        setFriends([]);
+      }
+    } catch (error) {
+      console.error("Error fetching users and friends:", error);
+    }
+  };
+  useEffect(() => {
+    if (userEmail) {
+      fetchUsersAndFriends();
+    }
+  }, [userEmail]);
 
   const scrollToBottom = () => {
     if (endOfMessagesRef.current) {
@@ -76,12 +117,16 @@ const Chat = () => {
         for (let user of users) {
           try {
             const encodedUser = encodeURIComponent(user);
-            const userPhotoRef = ref(storage, `profile_pictures/${encodedUser}.jpg`);
+            const userPhotoRef = ref(
+              storage,
+              `profile_pictures/${encodedUser}.jpg`
+            );
             const photoURL = await getDownloadURL(userPhotoRef);
             userPhotoURLs[user] = photoURL;
           } catch (error) {
             console.error("Error fetching user photo: ", error);
-            userPhotoURLs[user] = "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg";
+            userPhotoURLs[user] =
+              "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg";
           }
         }
         setUserPhotos(userPhotoURLs);
@@ -118,35 +163,54 @@ const Chat = () => {
     return isMyMsg || isTheirMsg;
   });
 
+  const filteredUsers = users.filter(
+    (user) =>
+      user.displayName.toLowerCase().includes(searchTerm) &&
+      user.email !== userEmail
+  );
+
   return (
     <div className="main-container">
       <div className="user-container">
         <div className="chat">
           <h2>Chat</h2>
         </div>
+        <div className="search-con">
+          {" "}
+          <input
+            type="text"
+            placeholder="ค้นหาชื่อเพื่อน..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+            className="search-input"
+          />
+        </div>
+
         <div className="list-user">
           {chatUsers.length > 0 ? (
-            chatUsers.map((user, index) => (
-              <div
-                key={index}
-                className={`user-item ${user === activeUser ? "active" : ""}`}
-                onClick={() => setActiveUser(user)}
-              >
-                <img
-                  src={
-                    userPhotos[user] ||
-                    "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg"
-                  }
-                  alt="User"
-                  className="user-photo"
-                />
-                <div className="bg">
-                  <div className="row-name-message">
-                    <span className="user-name">{user}</span>
+            chatUsers
+              .filter((user) => user.toLowerCase().includes(searchTerm))
+              .map((user, index) => (
+                <div
+                  key={index}
+                  className={`user-item ${user === activeUser ? "active" : ""}`}
+                  onClick={() => setActiveUser(user)}
+                >
+                  <img
+                    src={
+                      userPhotos[user] ||
+                      "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg"
+                    }
+                    alt="User"
+                    className="user-photo"
+                  />
+                  <div className="bg">
+                    <div className="row-name-message">
+                      <span className="user-name">{user}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              ))
           ) : (
             <p>No active chats</p>
           )}
@@ -167,7 +231,9 @@ const Chat = () => {
             return (
               <div
                 key={msg.id}
-                className={`chat-message ${isCurrentUser ? "my-message" : "other-message"}`}
+                className={`chat-message ${
+                  isCurrentUser ? "my-message" : "other-message"
+                }`}
               >
                 <img src={senderPhoto} alt="Sender" className="message-photo" />
                 <div className="message-bubble">{msg.text}</div>

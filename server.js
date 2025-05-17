@@ -7,7 +7,6 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
-import { User } from "./src/model/user.js";
 import { Gmail } from "./src/model/gmail.js";
 import { Filter } from "./src/model/filter.js";
 import { Event } from "./src/model/event.js";
@@ -119,26 +118,6 @@ app.get("/api/friends", async (req, res) => {
   }
 });
 
-// 📌 2️⃣ API รับข้อมูล User + Amazon → บันทึกลง Database + ส่งไป Make.com
-app.post("/api/send-to-make-combined", async (req, res) => {
-  try {
-    const { userData, amazonData } = req.body;
-    const user = new User(userData);
-    await user.save();
-
-    const payload = {
-      user_info: userData,
-      amazon_product: amazonData,
-    };
-
-    await axios.post(MAKE_WEBHOOK_URL, payload);
-
-    res.json({ message: "ส่งข้อมูลไปยัง Make.com สำเร็จ" });
-  } catch (error) {
-    console.error("Error sending combined data to Make.com:", error);
-    res.status(500).json({ error: "ไม่สามารถส่งข้อมูลไปยัง Make.com ได้" });
-  }
-});
 
 // 📌 3️⃣ API บันทึก/อัปเดตผู้ใช้จาก Google Login
 app.post("/api/login", async (req, res) => {
