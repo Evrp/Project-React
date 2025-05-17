@@ -191,3 +191,39 @@
   background-color: #e0f7fa;
   border-left: 4px solid #007bff;
 }
+.friend-search {
+  margin-top: 20px;
+}
+
+.friend-item {
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.friend-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.friend-details {
+  flex-grow: 1;
+}
+
+.add-friend-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.search-con{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+}
