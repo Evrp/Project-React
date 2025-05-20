@@ -6,6 +6,8 @@ const userSchema = new mongoose.Schema(
     email: { type: String, unique: true },
     photoURL: String,
     friends: [{ type: String }],
+    following: [String],
+    followers: [String],
   },
   { timestamps: true } // เพื่อให้มี createdAt / updatedAt
 );

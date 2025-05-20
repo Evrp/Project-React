@@ -12,6 +12,8 @@ import { Filter } from "./src/model/filter.js";
 import { Event } from "./src/model/event.js";
 import { Info } from "./src/model/info.js";
 import { Room } from "./src/model/room.js"; // import Room from "./src/model/room.js";
+import Friend from "./src/model/Friend.js";
+import { User } from "./src/model/user.js";
 // import Friend from "./src/model/Friend.js";
 
 dotenv.config();
@@ -87,6 +89,18 @@ app.post("/api/add-friend", async (req, res) => {
   }
 });
 
+// GET /api/users/:email
+app.get("/api/users/:email", async (req, res) => {
+  const { email } = req.params;
+  try {
+    const user = await Friend.findOne({ email });
+    res.json(user);
+  } catch (error) {
+    console.error("Error fetching user by email:", error);
+    res.status(500).json({ error: "Failed to fetch user" });
+  }
+});
+
 // 📌 7️⃣ API ดึงข้อมูลเพื่อน
 app.get("/api/friends/:email", async (req, res) => {
   const { email } = req.params;
@@ -117,7 +131,6 @@ app.get("/api/friends", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch friends" });
   }
 });
-
 
 // 📌 3️⃣ API บันทึก/อัปเดตผู้ใช้จาก Google Login
 app.post("/api/login", async (req, res) => {
@@ -392,6 +405,77 @@ app.get("/matches/:email", async (req, res) => {
     res.json(matches);
   } catch (error) {
     console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ลบเพื่อนออกจาก list ของ user
+app.delete("/api/users/:userEmail/friends/:friendEmail", async (req, res) => {
+  const { userEmail, friendEmail } = req.params;
+  try {
+    const user = await Friend.findOne({ email: userEmail });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.friends = user.friends.filter((email) => email !== friendEmail);
+    await user.save();
+
+    res.json({ message: "Friend removed successfully", friends: user.friends });
+  } catch (err) {
+    console.error("Error removing friend:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.post("/api/users/:userEmail/follow/:targetEmail", async (req, res) => {
+  const { userEmail, targetEmail } = req.params;
+
+  if (userEmail === targetEmail)
+    return res.status(400).json({ message: "Cannot follow yourself" });
+
+  try {
+    const user = await Gmail.findOne({ email: userEmail });
+    const target = await Gmail.findOne({ email: targetEmail });
+
+    if (!user || !target)
+      return res.status(404).json({ message: user + target+"User not found" });
+    // ติดตาม
+    if (!user.following.includes(targetEmail)) {
+      user.following.push(targetEmail);
+      await user.save();
+    }
+
+    // เพิ่มคนติดตาม
+    if (!target.followers.includes(userEmail)) {
+      target.followers.push(userEmail);
+      await target.save();
+    }
+
+    res.json({ message: "Followed successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.delete("/api/users/:userEmail/unfollow/:targetEmail", async (req, res) => {
+  const { userEmail, targetEmail } = req.params;
+
+  try {
+    const user = await Gmail.findOne({ email: userEmail });
+    const target = await Gmail.findOne({ email: targetEmail });
+
+    if (!user || !target)
+      return res.status(404).json({ message: "User not found" });
+
+    user.following = user.following.filter((email) => email !== targetEmail);
+    await user.save();
+
+    target.followers = target.followers.filter((email) => email !== userEmail);
+    await target.save();
+
+    res.json({ message: "Unfollowed successfully" });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });

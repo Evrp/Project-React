@@ -229,7 +229,6 @@ const Profile = () => {
 
     setIsEditing(false);
   };
-
   const handleClick = () => {
     setIsEditing(true);
   };
