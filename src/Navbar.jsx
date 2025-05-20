@@ -33,7 +33,7 @@ const Navbar = () => {
     closeMobileMenu();
   };
 
-  const isActive = (path) => location.pathname === path ? "active" : "";
+  const isActive = (path) => (location.pathname === path ? "active" : "");
 
   return (
     <div className="navbar-con">
@@ -45,34 +45,53 @@ const Navbar = () => {
       </div>
 
       <ul className={click ? "menu active" : "menu-bar"}>
-        <Link to="/community" onClick={closeMobileMenu} className={`menu-link ${isActive("/community")}`}>
+        <Link
+          to="/community"
+          onClick={closeMobileMenu}
+          className={`menu-link ${isActive("/community")}`}
+        >
           <li>
             <FaUsers className="icon" />
             <span>Community</span>
           </li>
         </Link>
 
-        <Link to="/profile" onClick={closeMobileMenu} className={`menu-link ${isActive("/profile")}`}>
+        <Link
+          to="/friend"
+          onClick={closeMobileMenu}
+          className={`menu-link ${isActive("/friend")}`}
+        >
+          <li>
+            <FaUserFriends className="icon" />
+            <span>Friend</span>
+          </li>
+        </Link>
+        <Link
+          to="/profile"
+          onClick={closeMobileMenu}
+          className={`menu-link ${isActive("/profile")}`}
+        >
           <li>
             <FaUser className="icon" />
             <span>Profile</span>
           </li>
         </Link>
 
-        <Link to="/friend" onClick={closeMobileMenu} className={`menu-link ${isActive("/friend")}`}>
+        <Link
+          to="/chat"
+          onClick={closeMobileMenu}
+          className={`menu-link ${isActive("/chat")}`}
+        >
           <li>
-            <FaUserFriends className="icon" />
-            <span>Friend</span>
-          </li>
-        </Link>
-
-        <Link to="/chat" onClick={closeMobileMenu} className={`menu-link ${isActive("/setup")}`}>
-          <li>
-          <BsFillChatLeftDotsFill className="icon"/>
+            <BsFillChatLeftDotsFill className="icon" />
             <span>Chat</span>
           </li>
         </Link>
-        <Link to="/setup" onClick={closeMobileMenu} className={`menu-link ${isActive("/setup")}`}>
+        <Link
+          to="/setup"
+          onClick={closeMobileMenu}
+          className={`menu-link ${isActive("/setup")}`}
+        >
           <li>
             <FaCog className="icon" />
             <span>Setup</span>
@@ -84,7 +103,11 @@ const Navbar = () => {
             <span>LOGOUT</span>
           </li>
         ) : (
-          <Link to="/login" onClick={closeMobileMenu} className={`menu-link ${isActive("/login")}`}>
+          <Link
+            to="/login"
+            onClick={closeMobileMenu}
+            className={`menu-link ${isActive("/login")}`}
+          >
             <li>
               <span>LOGIN</span>
             </li>

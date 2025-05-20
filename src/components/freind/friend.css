@@ -1,117 +1,126 @@
-/* ตั้งค่าเบื้องต้น */
-* {
-    box-sizing: border-box;
-    font-family: 'Montserrat', sans-serif;
-  }
-  
-  .fr-container {
-    background-color: #f7f8fc;
-    min-height: 100vh; /* ให้ความสูงเต็มหน้าจอ */
-    width: 100%; /* ขยายให้เต็มความกว้าง */
-    padding-top: 2rem; /* ลบ padding */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start; /* ตั้งตำแหน่งเนื้อหาขึ้นบนสุด */
-  }
-  
-  
-  .Freind {
-    font-size: 2rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 20px;
-  }
-  
-  /* ช่องค้นหาชื่อเพื่อน */
-  .search-input {
-    padding: 10px;
-    margin-bottom: 20px;
-    width: 80%;
-    max-width: 400px;
-    border-radius: 25px;
-    border: 1px solid #ddd;
-    font-size: 1rem;
-    outline: none;
-    transition: border-color 0.3s ease;
-  }
-  
-  .search-input:focus {
-    border-color: #6c63ff;
-  }
-  
-  /* รายการเพื่อนออนไลน์ */
-  .friend-list {
-    list-style-type: none;
-    padding: 0;
-    width: 100%;
-    max-width: 500px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-  }
-  .friend-recommend {
-    list-style-type: none;
-    padding: 0;
-    width: 100%;
-    max-width: 500px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-  }
-  
-  /* รายการเพื่อนแต่ละคน */
-  .friend-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    padding: 10px;
-    border-radius: 8px;
-    transition: background-color 0.3s;
-    cursor: pointer;
-  }
-  
-  .friend-item:hover {
-    background-color: #f1f5f9;
-  }
-  
-  /* รูปโปรไฟล์ของเพื่อน */
-  .friend-photo {
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-  }
-  
-  /* ชื่อของเพื่อน */
-  .friend-name {
-    margin-left: 12px;
-    font-size: 1.1rem;
-    color: #555;
-    font-weight: 500;
-  }
-  
-  /* หากไม่มีเพื่อนออนไลน์ */
-  .no-friends {
-    color: #ccc;
-    text-align: center;
-  }
-  .status {
-    font-size: 0.9rem;
-    margin-left: 10px;
-    font-weight: bold;
-  }
-  
-  .online {
-    color: #4caf50; /* สีเขียวสำหรับออนไลน์ */
-  }
-  
-  .offline {
-    color: #f44336; /* สีแดงสำหรับออฟไลน์ */
-  }
-  /* สไตล์สำหรับ modal */
+.fr-container {
+  background-color: #f7f8fc;
+  min-height: 100vh; /* ให้ความสูงเต็มหน้าจอ */
+  width: 100%; /* ขยายให้เต็มความกว้าง */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start; /* ตั้งตำแหน่งเนื้อหาขึ้นบนสุด */
+}
+
+.Freind {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* ช่องค้นหาชื่อเพื่อน */
+.search-input {
+  padding: 10px;
+  margin-bottom: 20px;
+  width: 80%;
+  max-width: 500px;
+  border-radius: 25px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  font-weight: bold;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #6c63ff;
+}
+.search-friend-con {
+  margin-top: 2rem;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+/* รายการเพื่อนออนไลน์ */
+.friend-list {
+  list-style-type: none;
+  width: 600px;
+  position: relative;
+  overflow: visible;
+  /* background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); */
+}
+.friend-recommend {
+  list-style-type: none;
+  padding: 0;
+  width: max-content;
+  /* background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); */
+  padding: 20px;
+}
+.friend-email {
+  margin-left: 12px;
+  width: 70%;
+}
+/* รายการเพื่อนแต่ละคน */
+.friend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  width: 600px;
+  padding: 20px;
+  border-radius: 8px;
+  transition: background-color 0.3s;
+  cursor: pointer;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.friend-item:hover {
+  background-color: #f1f5f9;
+}
+
+/* รูปโปรไฟล์ของเพื่อน */
+.friend-photo {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+}
+
+/* ชื่อของเพื่อน */
+.friend-name {
+  margin-left: 12px;
+  font-size: 1.1rem;
+  color: #555;
+  font-weight: 500;
+  width: 70%;
+}
+
+/* หากไม่มีเพื่อนออนไลน์ */
+.no-friends {
+  color: #ccc;
+  text-align: center;
+}
+.status {
+  font-size: 0.9rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.online {
+  color: #4caf50; /* สีเขียวสำหรับออนไลน์ */
+}
+
+.offline {
+  color: #f44336; /* สีแดงสำหรับออฟไลน์ */
+}
+/* สไตล์สำหรับ modal */
 /* สไตล์สำหรับ modal */
 .profile-modal {
   position: fixed;
@@ -182,13 +191,19 @@
   display: flex;
   justify-content: space-between;
 }
+.friend-detailss {
+  width: 80%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 .add-friend-btn {
   background-color: #4caf50;
   color: white;
   border: none;
   padding: 5px 10px;
   cursor: pointer;
-  margin-left: 10px;
+  margin: 0 10px;
   border-radius: 5px;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
@@ -198,8 +213,54 @@
   transform: scale(1.05);
 }
 
-
 .status.offline {
   color: #f44336;
   max-width: fit-content;
+}
+.button-friend-item {
+  width: 600px;
+  height: fit-content;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.button-friend-item:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+.profile-btn-follow {
+  padding: 2;
+}
+.con-dot {
+  display: flex;
+  /* justify-content: center; */
+  /* align-items: center; */
+  background-color: #45a049;
+  border-radius: 20px;
+  width: 50px;
+  height: 40px;
+}
+.div-nofr {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.div-con {
+  background: white;
+  width: fit-content;
+  height: fit-content;
+
 }

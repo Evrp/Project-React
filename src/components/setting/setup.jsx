@@ -1,10 +1,12 @@
 import React from 'react'
-
+import RequireLogin from '../ui/RequireLogin'
 const setup = () => {
   return (
-    <div>
-      setup
-    </div>
+    <RequireLogin>
+      <div className="pd-10">
+        Setting
+      </div>
+      </RequireLogin>
   )
 }
 

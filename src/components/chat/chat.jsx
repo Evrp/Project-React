@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { db, storage } from "../../firebase/firebase";
 import { useParams } from "react-router-dom";
 // import { ref, getDownloadURL } from "firebase/storage";
+import RequireLogin from "../ui/RequireLogin";
 import {
   collection,
   addDoc,
@@ -170,95 +171,103 @@ const Chat = () => {
   );
 
   return (
-    <div className="main-container">
-      <div className="user-container">
-        <div className="chat">
-          <h2>Chat</h2>
-        </div>
-        <div className="search-con">
-          {" "}
-          <input
-            type="text"
-            placeholder="ค้นหาชื่อเพื่อน..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
-            className="search-input"
-          />
-        </div>
+    <RequireLogin>
+      <div className="main-container">
+        <div className="user-container">
+          <div className="chat">
+            <h2>Chat</h2>
+          </div>
+          <div className="search-con">
+            {" "}
+            <input
+              type="text"
+              placeholder="ค้นหาชื่อเพื่อน..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+              className="search-input"
+            />
+          </div>
 
-        <div className="list-user">
-          {chatUsers.length > 0 ? (
-            chatUsers
-              .filter((user) => user.toLowerCase().includes(searchTerm))
-              .map((user, index) => (
-                <div
-                  key={index}
-                  className={`user-item ${user === activeUser ? "active" : ""}`}
-                  onClick={() => setActiveUser(user)}
-                >
-                  <img
-                    src={
-                      userPhotos[user] ||
-                      "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg"
-                    }
-                    alt="User"
-                    className="user-photo"
-                  />
-                  <div className="bg">
-                    <div className="row-name-message">
-                      <span className="user-name">{user}</span>
+          <div className="list-user">
+            {chatUsers.length > 0 ? (
+              chatUsers
+                .filter((user) => user.toLowerCase().includes(searchTerm))
+                .map((user, index) => (
+                  <div
+                    key={index}
+                    className={`user-item ${
+                      user === activeUser ? "active" : ""
+                    }`}
+                    onClick={() => setActiveUser(user)}
+                  >
+                    <img
+                      src={
+                        userPhotos[user] ||
+                        "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg"
+                      }
+                      alt="User"
+                      className="user-photo"
+                    />
+                    <div className="bg">
+                      <div className="row-name-message">
+                        <span className="user-name">{user}</span>
+                      </div>
                     </div>
                   </div>
+                ))
+            ) : (
+              <p>No active chats</p>
+            )}
+          </div>
+        </div>
+        <div className="chat-container">
+          <div className="show-info">
+            <img src={userPhoto} alt="Profile" className="chat-profile" />
+            <h2>{userName}</h2>
+          </div>
+          <div className="chat-box">
+            {filteredMessages.map((msg) => {
+              const isCurrentUser = msg.sender === userName;
+              const senderPhoto =
+                userPhotos[msg.sender] ||
+                "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg";
+
+              return (
+                <div
+                  key={msg.id}
+                  className={`chat-message ${
+                    isCurrentUser ? "my-message" : "other-message"
+                  }`}
+                >
+                  <img
+                    src={senderPhoto}
+                    alt="Sender"
+                    className="message-photo"
+                  />
+                  <div className="message-bubble">{msg.text}</div>
                 </div>
-              ))
-          ) : (
-            <p>No active chats</p>
-          )}
+              );
+            })}
+            <div ref={endOfMessagesRef} />
+          </div>
+          <div className="chat-input-container">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your message..."
+              className="chat-input"
+            />
+            <button onClick={handleSend} className="chat-send-button">
+              Send
+            </button>
+          </div>
         </div>
-      </div>
-      <div className="chat-container">
-        <div className="show-info">
-          <img src={userPhoto} alt="Profile" className="chat-profile" />
-          <h2>{userName}</h2>
-        </div>
-        <div className="chat-box">
-          {filteredMessages.map((msg) => {
-            const isCurrentUser = msg.sender === userName;
-            const senderPhoto =
-              userPhotos[msg.sender] ||
-              "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg";
 
-            return (
-              <div
-                key={msg.id}
-                className={`chat-message ${
-                  isCurrentUser ? "my-message" : "other-message"
-                }`}
-              >
-                <img src={senderPhoto} alt="Sender" className="message-photo" />
-                <div className="message-bubble">{msg.text}</div>
-              </div>
-            );
-          })}
-          <div ref={endOfMessagesRef} />
-        </div>
-        <div className="chat-input-container">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
-            className="chat-input"
-          />
-          <button onClick={handleSend} className="chat-send-button">
-            Send
-          </button>
-        </div>
+        {/* 🔊 เสียงแจ้งเตือน */}
+        <audio ref={audioRef} src="/notification.mp3" preload="auto" />
       </div>
-
-      {/* 🔊 เสียงแจ้งเตือน */}
-      <audio ref={audioRef} src="/notification.mp3" preload="auto" />
-    </div>
+    </RequireLogin>
   );
 };
 
