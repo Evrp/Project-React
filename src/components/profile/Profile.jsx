@@ -3,6 +3,7 @@ import "./Profile.css";
 import { Button } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
+import axios from "axios";
 
 const genreOptions = [
   "Music",
@@ -32,6 +33,7 @@ const genreSubOptions = {
 const Profile = () => {
   // const userName = localStorage.getItem("userName");
   const userPhoto = localStorage.getItem("userPhoto");
+  const userEmail = localStorage.getItem("userEmail");
   const navigate = useNavigate();
   const [originalGenres, setOriginalGenres] = useState([]);
 
@@ -55,6 +57,9 @@ const Profile = () => {
   const [userName, setUserName] = useState(
     localStorage.getItem("userName") || ""
   );
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [activeTab, setActiveTab] = useState("followers");
 
   const toggleGenre = (genre) => {
     setSelectedGenres((prev) =>
@@ -253,6 +258,25 @@ const Profile = () => {
       </div>
     );
   }
+  useEffect(() => {
+    const fetchFollowInfo = async () => {
+      try {
+        const encodedEmail = encodeURIComponent(userEmail);
+        const res = await axios.get(
+          `http://localhost:8080/api/user/${encodedEmail}/follow-info`
+        );
+
+        setFollowers(res.data.followers);
+        setFollowing(res.data.following);
+      } catch (error) {
+        console.error("Error fetching follow info:", error);
+      }
+    };
+
+    if (userEmail) {
+      fetchFollowInfo();
+    }
+  }, [userEmail]);
 
   return (
     <div className="container-profile">
@@ -292,6 +316,16 @@ const Profile = () => {
             title="แก้ไขชื่อ"
           />
         </h2>
+        <div>
+          <div className="tabs">
+            <ul className="followers">
+              <li>{followers.length} followers</li>
+            </ul>
+            <ul className="following">
+              <li>{following.length} following</li>
+            </ul>
+          </div>
+        </div>
 
         <div className="info-wrapper">
           {/* 📝 ช่องข้อมูล */}

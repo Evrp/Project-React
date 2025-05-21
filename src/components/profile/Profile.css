@@ -1,18 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
-
-* {
-  /* margin: 0;
-    padding: 0; */
-  box-sizing: border-box;
-  font-family: "Montserrat", sans-serif;
-}
-
-body {
-  /* display: flex;
-    margin: 0; */
-  font-family: Arial, sans-serif;
-}
-
 .container-profile {
   display: flex;
   width: 100%;
@@ -28,15 +13,6 @@ body {
   height: 10vh;
   justify-content: center;
 }
-/* .profile-image {
-  width:max-content;
-  height:max-content;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  margin-bottom: 10px;
-} */
 
 .sidebar {
   width: 200px;
@@ -94,19 +70,6 @@ body {
   justify-content: space-between;
   align-items: center;
 }
-
-.profile-section {
-  display: flex;
-  align-items: center;
-}
-
-.profile-pic {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-left: 10px;
-}
-
 .data-blocks {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -135,7 +98,6 @@ body {
   height: 200px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
   margin-bottom: 10px;
 }
@@ -420,4 +382,28 @@ textarea::placeholder {
 }
 .edit-icon {
   margin-left: 5px;
+}
+.tab-button {
+  flex: 1;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+.tab-button.active {
+  border-color: #3b82f6;
+  font-weight: 600;
+  color: #3b82f6;
+}
+.tabs ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 1rem 1rem 0;
+  display: inline-block;
+  font-weight: bold;
+}
+.tabs ul li {
+  font-size: 16px;
+  color: #333;
 }

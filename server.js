@@ -91,15 +91,27 @@ app.post("/api/add-friend", async (req, res) => {
 
 // GET /api/users/:email
 app.get("/api/users/:email", async (req, res) => {
-  const { email } = req.params;
+  const userEmail = req.params.email.toLowerCase();
   try {
-    const user = await Friend.findOne({ email });
+    const user = await Friend.findOne({ email: userEmail });
     res.json(user);
   } catch (error) {
     console.error("Error fetching user by email:", error);
     res.status(500).json({ error: "Failed to fetch user" });
   }
 });
+
+app.get('/api/users/gmail/:email', async (req, res) => {
+  const { email } = req.params;
+  try {
+    const user = await Gmail.findOne({ email }); // เปลี่ยนเป็น model จริง
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 // 📌 7️⃣ API ดึงข้อมูลเพื่อน
 app.get("/api/friends/:email", async (req, res) => {
@@ -437,12 +449,15 @@ app.post("/api/users/:userEmail/follow/:targetEmail", async (req, res) => {
     const target = await Gmail.findOne({ email: targetEmail });
 
     if (!user || !target)
-      return res.status(404).json({ message: user + target+"User not found" });
+      return res
+        .status(404)
+        .json({ message: user + target + "User not found" });
     // ติดตาม
     if (!user.following.includes(targetEmail)) {
       user.following.push(targetEmail);
       await user.save();
     }
+    
 
     // เพิ่มคนติดตาม
     if (!target.followers.includes(userEmail)) {
@@ -479,7 +494,21 @@ app.delete("/api/users/:userEmail/unfollow/:targetEmail", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+///////////get follow/////////
+app.get("/api/user/:email/follow-info", async (req, res) => {
+  const userEmail = req.params.email;
+  try {
+    const user = await Gmail.findOne({ email: userEmail });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
+    const followers = await Gmail.find({ email: { $in: user.followers } });
+    const following = await Gmail.find({ email: { $in: user.following } });
+
+    res.json({ followers, following });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
 
 // เริ่มต้นเซิร์ฟเวอร์
 server.listen(port, () => console.log(`🚀 Server is running on port ${port}`));
