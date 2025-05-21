@@ -12,6 +12,7 @@ const socket = io("http://localhost:8080");
 const Friend = () => {
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [currentUserfollow, setCurrentUserfollow] = useState(null);
   const [friends, setFriends] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
@@ -20,11 +21,16 @@ const Friend = () => {
   const [loadingCurrentUser, setLoadingCurrentUser] = useState(true);
   const modalRef = useRef(null);
   const [openMenuFor, setOpenMenuFor] = useState(null);
-  const menuRef = useRef();
+
+  const dropdownRefs = useRef({});
 
   const userEmail = localStorage.getItem("userEmail");
   const displayName = localStorage.getItem("userName");
   const photoURL = localStorage.getItem("userPhoto");
+  useEffect(() => {
+    fetchGmailUser(); // ดึงข้อมูล Gmail user จาก backend
+  }, []);
+
   const fetchCurrentUserAndFriends = async () => {
     try {
       const encodedEmail = encodeURIComponent(userEmail);
@@ -49,7 +55,6 @@ const Friend = () => {
             isOnline: user.isOnline || false,
           }))
           .sort((a, b) => a.displayName.localeCompare(b.displayName));
-        console.log(filteredFriends); // Debugging: Log filtered friends to the console for inspection
         setFriends(filteredFriends);
         setUsers(allUsers);
       } else {
@@ -64,7 +69,6 @@ const Friend = () => {
     if (!userEmail) return;
 
     fetchCurrentUserAndFriends();
-
     socket.emit("user-online", { displayName, photoURL, email: userEmail });
 
     socket.on("update-users", (onlineUsers) => {
@@ -193,13 +197,25 @@ const Friend = () => {
       setLoadingCurrentUser(false);
     }
   };
+  const fetchGmailUser = async () => {
+    try {
+      const res = await axios.get(
+        `http://localhost:8080/api/users/gmail/${userEmail}`
+      );
+      setCurrentUserfollow(res.data);
+    } catch (err) {
+      console.error("โหลด Gmail currentUser ไม่ได้:", err);
+    }
+  };
+
   const handleFollow = async (targetEmail) => {
-    if (!currentUser || !Array.isArray(currentUser.following)) {
+    await fetchGmailUser();
+    if (!currentUserfollow || !Array.isArray(currentUserfollow.following)) {
       console.warn("currentUser ยังไม่พร้อม หรือ following ไม่มี");
       return;
     }
 
-    const isFollowing = currentUser.following.includes(targetEmail);
+    const isFollowing = currentUserfollow.following.includes(targetEmail);
     const url = `http://localhost:8080/api/users/${userEmail}/${
       isFollowing ? "unfollow" : "follow"
     }/${targetEmail}`;
@@ -207,11 +223,7 @@ const Friend = () => {
 
     try {
       await axios({ method, url });
-      const res = await axios.get(
-        `http://localhost:8080/api/users/${userEmail}`
-      );
-      setCurrentUser(res.data);
-      await fetchCurrentUser(); // โหลดใหม่เพื่ออัปเดต following/followers
+      await fetchGmailUser();
     } catch (err) {
       console.error("Follow/unfollow error:", err);
     }
@@ -228,7 +240,10 @@ const Friend = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
+      const isClickInsideAny = Object.values(dropdownRefs.current).some((ref) =>
+        ref?.contains(event.target)
+      );
+      if (!isClickInsideAny) {
         setOpenMenuFor(null);
       }
     };
@@ -238,6 +253,10 @@ const Friend = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const filteredFriends = friends.filter((friend) =>
+    friend.displayName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <RequireLogin>
@@ -255,86 +274,94 @@ const Friend = () => {
           />
         </div>
 
-        <h2>Following</h2>
+        <h2>Favorite</h2>
         <ul className="friend-list">
-          {friends.length > 0 ? (
-            friends.filter((friend) =>
-              friend.displayName
-                .toLowerCase()
-                .includes(searchTerm.toLowerCase())
-            ).length > 0 ? (
-              friends
-                .filter((friend) =>
-                  friend.displayName
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase())
-                )
-                .map((friend, index) => (
-                  <li key={index} className="friend-item">
-                    <img
-                      src={friend.photoURL}
-                      alt={friend.displayName}
-                      className="friend-photo"
-                    />
-                    <div className="friend-detailss">
-                      <span className="friend-name">{friend.displayName}</span>
-                      <span className="friend-email">{friend.email}</span>
-                    </div>
-                    <span
-                      className={`status ${
-                        friend.isOnline ? "online" : "offline"
-                      }`}
+          {filteredFriends.length > 0 ? (
+            filteredFriends.map((friend, index) => (
+    
+              <li key={index} className="button-friend-item">
+                <img
+                  src={friend.photoURL}
+                  alt={friend.displayName}
+                  className="friend-photo"
+                />
+                <div className="friend-detailss">
+                  <span className="friend-name">{friend.displayName}</span>
+                  <span className="friend-email">{friend.email}</span>
+                </div>
+                <div className="con-right">
+                  <span
+                    className={`status ${
+                      friend.isOnline ? "online" : "offline"
+                    }`}
+                  >
+                    {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
+                  </span>
+
+                  <div
+                    className="dropdown-wrapper"
+                    ref={(el) => (dropdownRefs.current[friend.email] = el)}
+                  >
+                    <button
+                      onClick={() =>
+                        setOpenMenuFor((prev) =>
+                          prev === friend.email ? null : friend.email
+                        )
+                      }
+                      className="dropdown-toggle"
                     >
-                      {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
-                    </span>
-                    <div className="con-dot" ref={menuRef}>
-                      <button
-                        onClick={() =>
-                          setOpenMenuFor((prev) =>
-                            prev === friend.email ? null : friend.email
-                          )
-                        }
-                        className="p-2 rounded-full hover:bg-gray-200"
-                      >
-                        <BsThreeDots size={20} />
-                      </button>
-                      <div className="div-con">
-                        {openMenuFor === friend.email && (
-                          <div className="absolute top-full right-0 mt-2 w-48 bg-white shadow-lg border border-gray-200 rounded-lg z-50">
-                            <button
-                              onClick={() => {
-                                handleProfileClick(friend);
-                                setOpenMenuFor(null);
-                              }}
-                              className="w-full text-left px-4 py-2 hover:bg-gray-100"
-                            >
-                              ดูโปรไฟล์
-                            </button>
-                            <button
-                              onClick={() => {
-                                handleRemoveFriend(friend.email);
-                                setOpenMenuFor(null);
-                              }}
-                              className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
-                              disabled={loadingFriendEmail === friend.email}
-                            >
-                              {loadingFriendEmail === friend.email
-                                ? "กำลังลบ..."
-                                : "ลบเพื่อน"}
-                            </button>
-                          </div>
-                        )}
+                      <BsThreeDots size={20} />
+                    </button>
+
+                    {openMenuFor === friend.email && (
+                      <div className="dropdown-menu">
+                        <button
+                          className="dropdown-item"
+                          onClick={() => {
+                            handleProfileClick(friend);
+                            setOpenMenuFor(null);
+                          }}
+                        >
+                          👤 ดูโปรไฟล์
+                        </button>
+
+                        <button
+                          className="dropdown-item"
+                          onClick={() => {
+                            if (
+                              !currentUserfollow ||
+                              !Array.isArray(currentUserfollow.following)
+                            )
+                              return;
+                            handleFollow(friend.email);
+                          }}
+                        >
+                          {Array.isArray(currentUserfollow?.following) &&
+                          currentUserfollow.following.includes(friend.email)
+                            ? "🔔 กำลังติดตาม"
+                            : "➕ ติดตาม"}
+                        </button>
+
+                        <button
+                          className="dropdown-item danger"
+                          onClick={() => {
+                            handleRemoveFriend(friend.email);
+                            setOpenMenuFor(null);
+                          }}
+                          disabled={loadingFriendEmail === friend.email}
+                        >
+                          {loadingFriendEmail === friend.email
+                            ? "กำลังลบ..."
+                            : "🗑️ ลบเพื่อน"}
+                        </button>
                       </div>
-                    </div>
-                  </li>
-                ))
-            ) : (
-              <p>ไม่พบเพื่อนที่ตรงกับคำค้นหา</p>
-            )
+                    )}
+                  </div>
+                </div>
+              </li>
+            ))
           ) : (
-            <div className="div-nofr">
-              <p>คุณยังไม่มีเพื่อน</p>
-            </div>
+            <p>ไม่พบเพื่อนที่ตรงกับคำค้นหา</p>
           )}
         </ul>
 
@@ -345,50 +372,81 @@ const Friend = () => {
             filteredUsers
               .filter((user) => !isFriend(user.email))
               .map((user, index) => (
-                <li
-                  key={index}
-                  className="button-friend-item"
-                  onClick={() => handleProfileClick(user)} // ← เปลี่ยนตรงนี้
-                >
+                <li key={index} className="button-friend-item">
                   <img
                     src={user.photoURL}
                     alt={user.displayName}
                     className="friend-photo"
                   />
-                  <div className="friend-details">
+                  <div className="friend-detailss">
                     <span className="friend-name">{user.displayName}</span>
-
+                    <span className="friend-email">{user.email}</span>
+                  </div>
+                  <div className="con-right">
                     <span
                       className={`status ${
                         user.isOnline ? "online" : "offline"
                       }`}
                     >
-                      {user.isOnline ? "online" : "ออฟไลน์"}
+                      {user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                     </span>
+                    <button
+                      className="add-friend-btn"
+                      onClick={() => handleAddFriend(user.email)}
+                      disabled={loadingFriendEmail === user.email}
+                    >
+                      {loadingFriendEmail === user.email ? (
+                        "กำลังเพิ่ม..."
+                      ) : (
+                        <IoMdPersonAdd />
+                      )}
+                    </button>
+                    <div
+                      className="dropdown-wrapper"
+                      ref={(el) => (dropdownRefs.current[user.email] = el)}
+                    >
+                      <button
+                        onClick={() =>
+                          setOpenMenuFor((prev) =>
+                            prev === user.email ? null : user.email
+                          )
+                        }
+                        className="dropdown-toggle"
+                      >
+                        <BsThreeDots size={20} />
+                      </button>
+
+                      {openMenuFor === user.email && (
+                        <div className="dropdown-menu">
+                          <button
+                            className="dropdown-item"
+                            onClick={() => {
+                              handleProfileClick(user);
+                              setOpenMenuFor(null);
+                            }}
+                          >
+                            👤 ดูโปรไฟล์
+                          </button>
+                          <button
+                            className="dropdown-item"
+                            onClick={() => {
+                              if (
+                                !currentUserfollow ||
+                                !Array.isArray(currentUserfollow.following)
+                              )
+                                return;
+                              handleFollow(user.email);
+                            }}
+                          >
+                            {Array.isArray(currentUserfollow?.following) &&
+                            currentUserfollow.following.includes(user.email)
+                              ? "🔔 กำลังติดตาม"
+                              : "➕ ติดตาม"}
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <button
-                    className="add-friend-btn"
-                    onClick={() => handleAddFriend(user.email)}
-                    disabled={loadingFriendEmail === user.email}
-                  >
-                    {loadingFriendEmail === user.email ? (
-                      "กำลังเพิ่ม..."
-                    ) : (
-                      <IoMdPersonAdd />
-                    )}
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (!currentUser || !Array.isArray(currentUser.following))
-                        return;
-                      handleFollow(user.email);
-                    }}
-                  >
-                    {Array.isArray(currentUser?.following) &&
-                    currentUser.following.includes(user.email)
-                      ? "กำลังติดตาม"
-                      : "ติดตาม"}
-                  </button>
                 </li>
               ))}
         </ul>
