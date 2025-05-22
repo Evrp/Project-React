@@ -101,7 +101,7 @@ app.get("/api/users/:email", async (req, res) => {
   }
 });
 
-app.get('/api/users/gmail/:email', async (req, res) => {
+app.get("/api/users/gmail/:email", async (req, res) => {
   const { email } = req.params;
   try {
     const user = await Gmail.findOne({ email }); // เปลี่ยนเป็น model จริง
@@ -111,7 +111,6 @@ app.get('/api/users/gmail/:email', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // 📌 7️⃣ API ดึงข้อมูลเพื่อน
 app.get("/api/friends/:email", async (req, res) => {
@@ -398,25 +397,35 @@ app.get("/api/allroom", async (req, res) => {
 
 app.get("/matches/:email", async (req, res) => {
   const { email } = req.params;
-  console.log("Looking for email:", email); // ตรวจสอบว่าอีเมลถูกต้องหรือไม่
 
   try {
     const user = await Filter.findOne({ email });
-    console.log("User found:", user); // ตรวจสอบว่าเจอผู้ใช้หรือไม่
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // หาคนอื่นที่มี genre เหมือนกัน (ไม่นับตัวเอง)
+    // หา matches ที่ genre ตรงกัน
     const matches = await Filter.find({
       email: { $ne: email },
       genres: { $in: user.genres },
     });
 
-    res.json(matches);
+    // ดึงอีเมลทั้งหมดของ matches มาใช้ค้นใน Gmail
+    const matchEmails = matches.map((m) => m.email);
+
+    const gmailUsers = await Gmail.find({ email: { $in: matchEmails } });
+
+    // รวมข้อมูลจากทั้ง 2 collection
+    const combinedMatches = matches.map((match) => {
+      const gmailUser = gmailUsers.find((g) => g.email === match.email);
+      return {
+        ...match.toObject(),
+        displayName: gmailUser?.displayName || "",
+        photoURL: gmailUser?.photoURL || "",
+      };
+    });
+
+    res.json(combinedMatches);
   } catch (error) {
-    console.error(error);
+    console.error("Match error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
@@ -457,7 +466,6 @@ app.post("/api/users/:userEmail/follow/:targetEmail", async (req, res) => {
       user.following.push(targetEmail);
       await user.save();
     }
-    
 
     // เพิ่มคนติดตาม
     if (!target.followers.includes(userEmail)) {
