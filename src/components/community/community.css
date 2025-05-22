@@ -16,10 +16,12 @@
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  border: 2px solid #05f339;
+  border: 2px solid #f4f7f4;
   transition: transform 0.2s ease;
 }
-
+.grd {
+  margin-bottom: 1rem;
+}
 .profile-image-com:hover {
   transform: scale(1.05);
 }
@@ -30,15 +32,15 @@
 }
 
 .divider {
-  color: #05f339;
+  color: #080808;
   margin: 0 10px;
 }
 .content-area h3 {
   margin-top: 0;
-  color: #05f339;
+  color: #0d0e0d;
 }
 
-button {
+/* button {
   background-color: #81e697;
   color: black;
   font-weight: bold;
@@ -56,7 +58,7 @@ button:hover {
   color: black;
   transform: scale(1.03);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
+} */
 
 .container-content {
   display: flex;
@@ -79,4 +81,36 @@ button:hover {
   border-radius: 8px;
   margin-bottom: 1rem;
   background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.friend-image {
+  left: 50%;
+  margin: 1rem;
+}
+.header-friend-card {
+  display: flex;
+  justify-content: space-between; /* ดันให้รูปไปซ้าย ปุ่มไปขวา */
+  align-items: center;
+  width: 70%;
+
+  position: relative;
+}
+.friend-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.rr {
+  margin-left: auto; /* ดันปุ่มไปชิดขวา */
+}
+.dfd {
+  width: 50%;
+  background-color: white;
+}
+.rf {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
 }

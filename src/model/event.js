@@ -2,16 +2,19 @@
 
 import mongoose from "mongoose";
 
-const eventSchema = new mongoose.Schema({
-  title: String,
-  genre: String,
-  location: String,
-  date: String,
-  description: String,
-  imageUrl: String,
-  link: String,
-  createdByAI: Boolean,
-  email: String,
-});
+const eventSchema = new mongoose.Schema(
+  {
+    title: String,
+    genre: String,
+    location: String,
+    date: String,
+    description: String,
+    imageUrl: String,
+    link: String,
+    createdByAI: Boolean,
+    email: String,
+  },
+  { timestamps: true }
+);
 
 export const Event = mongoose.model("Event", eventSchema);

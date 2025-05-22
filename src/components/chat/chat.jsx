@@ -21,7 +21,8 @@ import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 const socket = io("http://localhost:8080");
 
 const Chat = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
+  const [isOpencom, setIsOpencom] = useState(true);
   const { roomId } = useParams();
   const [users, setUsers] = useState([]);
   const userPhoto = localStorage.getItem("userPhoto");
@@ -41,6 +42,8 @@ const Chat = () => {
   const endOfMessagesRef = useRef(null);
   const modalRef = useRef(null);
   const dropdownRefs = useRef({});
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
   const audioRef = useRef(null);
   const [friends, setFriends] = useState([]);
   const displayName = localStorage.getItem("userName");
@@ -76,7 +79,6 @@ const Chat = () => {
       console.error("Error fetching users and friends:", error);
     }
   };
-
   const fetchCurrentUserAndFriends = async () => {
     try {
       const encodedEmail = encodeURIComponent(userEmail);
@@ -165,7 +167,28 @@ const Chat = () => {
       console.error("Follow/unfollow error:", err);
     }
   };
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedUser(null);
+  };
+  const handleClickOutside = (e) => {
+    if (modalRef.current && !modalRef.current.contains(e.target)) {
+      handleCloseModal();
+    }
+  };
+  const fetchFollowInfo = async (targetEmail) => {
+    try {
+      console.log(targetEmail);
+      const res = await axios.get(
+        `http://localhost:8080/api/user/${targetEmail}/follow-info`
+      );
 
+      setFollowers(res.data.followers);
+      setFollowing(res.data.following);
+    } catch (error) {
+      console.error("Error fetching follow info:", error);
+    }
+  };
   useEffect(() => {
     if (userEmail) {
       fetchUsersAndFriends();
@@ -196,6 +219,24 @@ const Chat = () => {
       socket.off("update-users");
     };
   }, [userEmail]);
+  useEffect(() => {
+    fetchGmailUser();
+  }, []);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const isClickInsideAny = Object.values(dropdownRefs.current).some((ref) =>
+        ref?.contains(event.target)
+      );
+      if (!isClickInsideAny) {
+        setOpenMenuFor(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const scrollToBottom = () => {
     if (endOfMessagesRef.current) {
@@ -204,6 +245,7 @@ const Chat = () => {
   };
 
   useEffect(() => {
+    console.log("roomId:", roomId);
     const q = query(messagesRef, orderBy("timestamp"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const allMessages = snapshot.docs.map((doc) => ({
@@ -264,15 +306,17 @@ const Chat = () => {
 
       fetchUserPhotos();
     });
-
+    scrollToBottom();
     return () => unsubscribe();
   }, [userName, activeUser, roomId]);
 
   useEffect(() => {
-    scrollToBottom();
+    console.log(activeUser);
   }, [messages, activeUser]);
 
   const handleSend = async () => {
+    console.log(activeUser);
+    console.log(roomId);
     if (input.trim() === "" || !activeUser) return;
 
     await addDoc(messagesRef, {
@@ -285,15 +329,6 @@ const Chat = () => {
 
     setInput("");
   };
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedUser(null);
-  };
-  const handleClickOutside = (e) => {
-    if (modalRef.current && !modalRef.current.contains(e.target)) {
-      handleCloseModal();
-    }
-  };
 
   const filteredMessages = messages.filter((msg) => {
     const isMyMsg = msg.sender === userName && msg.receiver === activeUser;
@@ -304,33 +339,6 @@ const Chat = () => {
   const filteredFriends = friends.filter((friend) =>
     friend.displayName.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      const isClickInsideAny = Object.values(dropdownRefs.current).some((ref) =>
-        ref?.contains(event.target)
-      );
-      if (!isClickInsideAny) {
-        setOpenMenuFor(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-  useEffect(() => {
-    fetchGmailUser();
-  }, []);
-
   return (
     <RequireLogin>
       <div className="main-container">
@@ -362,7 +370,11 @@ const Chat = () => {
                 <ul className="friend-list-chat">
                   {filteredFriends.length > 0 ? (
                     filteredFriends.map((friend, index) => (
-                      <li key={index} className="chat-friend-item">
+                      <li
+                        key={index}
+                        className="chat-friend-item"
+                        onClick={() => setActiveUser(friend.email)}
+                      >
                         <img
                           src={friend.photoURL}
                           alt={friend.displayName}
@@ -388,13 +400,15 @@ const Chat = () => {
                             ref={(el) =>
                               (dropdownRefs.current[friend.email] = el)
                             }
+                            onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
                           >
                             <button
-                              onClick={() =>
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setOpenMenuFor((prev) =>
                                   prev === friend.email ? null : friend.email
-                                )
-                              }
+                                );
+                              }}
                               className="dropdown-toggle"
                             >
                               <BsThreeDots size={20} />
@@ -404,8 +418,10 @@ const Chat = () => {
                               <div className="dropdown-menu">
                                 <button
                                   className="dropdown-item"
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     handleProfileClick(friend);
+                                    fetchFollowInfo(friend.email);
                                     setOpenMenuFor(null);
                                   }}
                                 >
@@ -414,7 +430,8 @@ const Chat = () => {
 
                                 <button
                                   className="dropdown-item"
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     if (
                                       !currentUserfollow ||
                                       !Array.isArray(
@@ -437,7 +454,8 @@ const Chat = () => {
 
                                 <button
                                   className="dropdown-item danger"
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     handleRemoveFriend(friend.email);
                                     setOpenMenuFor(null);
                                   }}
@@ -460,6 +478,25 @@ const Chat = () => {
               </div>
             )}
           </div>
+          <div className="favorite-container">
+            <div
+              className="favorite-toggle"
+              onClick={() => setIsOpencom((prev) => !prev)}
+            >
+              {isOpencom ? <FaChevronDown /> : <FaChevronRight />}
+              <span>Community</span>
+            </div>
+            {isOpencom && (
+              <div className="favorite-container">
+                <ul className="friend-list-chat">
+                  <li>sds</li>
+                  <li>sds</li>
+                  <li>sds</li>
+                </ul>
+              </div>
+            )}
+          </div>
+
           <div className="list-user">
             {chatUsers.length > 0 ? (
               chatUsers
@@ -538,7 +575,7 @@ const Chat = () => {
 
         {/* 🔊 เสียงแจ้งเตือน */}
         <audio ref={audioRef} src="/notification.mp3" preload="auto" />
-         {isModalOpen && selectedUser && (
+        {isModalOpen && selectedUser && (
           <div className="profile-modal">
             <div className="modal-content" ref={modalRef}>
               <div className="profile-info">
@@ -548,6 +585,14 @@ const Chat = () => {
                   className="profile-photo"
                 />
                 <h2>{selectedUser.displayName}</h2>
+                <div className="tabs">
+                  <ul className="followers">
+                    <li>{followers.length} followers</li>
+                  </ul>
+                  <ul className="following">
+                    <li>{following.length} following</li>
+                  </ul>
+                </div>
                 <p>Email: {selectedUser.email}</p>
                 <p>สถานะ: {selectedUser.isOnline ? "ออนไลน์" : "ออฟไลน์"}</p>
                 <button className="close-btn" onClick={handleCloseModal}>

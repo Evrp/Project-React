@@ -13,7 +13,7 @@ import { Event } from "./src/model/event.js";
 import { Info } from "./src/model/info.js";
 import { Room } from "./src/model/room.js"; // import Room from "./src/model/room.js";
 import Friend from "./src/model/Friend.js";
-import { User } from "./src/model/user.js";
+
 // import Friend from "./src/model/Friend.js";
 
 dotenv.config();
@@ -104,7 +104,7 @@ app.get("/api/users/:email", async (req, res) => {
 app.get("/api/users/gmail/:email", async (req, res) => {
   const { email } = req.params;
   try {
-    const user = await Gmail.findOne({ email }); // เปลี่ยนเป็น model จริง
+    const user = await Friend.findOne({ email }); // เปลี่ยนเป็น model จริง
     if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
   } catch (err) {
@@ -454,8 +454,8 @@ app.post("/api/users/:userEmail/follow/:targetEmail", async (req, res) => {
     return res.status(400).json({ message: "Cannot follow yourself" });
 
   try {
-    const user = await Gmail.findOne({ email: userEmail });
-    const target = await Gmail.findOne({ email: targetEmail });
+    const user = await Friend.findOne({ email: userEmail });
+    const target = await Friend.findOne({ email: targetEmail });
 
     if (!user || !target)
       return res
@@ -484,8 +484,8 @@ app.delete("/api/users/:userEmail/unfollow/:targetEmail", async (req, res) => {
   const { userEmail, targetEmail } = req.params;
 
   try {
-    const user = await Gmail.findOne({ email: userEmail });
-    const target = await Gmail.findOne({ email: targetEmail });
+    const user = await Friend.findOne({ email: userEmail });
+    const target = await Friend.findOne({ email: targetEmail });
 
     if (!user || !target)
       return res.status(404).json({ message: "User not found" });
@@ -506,11 +506,11 @@ app.delete("/api/users/:userEmail/unfollow/:targetEmail", async (req, res) => {
 app.get("/api/user/:email/follow-info", async (req, res) => {
   const userEmail = req.params.email;
   try {
-    const user = await Gmail.findOne({ email: userEmail });
+    const user = await Friend.findOne({ email: userEmail });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const followers = await Gmail.find({ email: { $in: user.followers } });
-    const following = await Gmail.find({ email: { $in: user.following } });
+    const followers = await Friend.find({ email: { $in: user.followers } });
+    const following = await Friend.find({ email: { $in: user.following } });
 
     res.json({ followers, following });
   } catch (err) {
