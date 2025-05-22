@@ -4,7 +4,7 @@ import Navbar from "./Navbar";
 import Profile from "./components/profile/Profile";
 import Freind from "./components/freind/friend";
 import LoginForm from "./Log/NewLogin";
-import Community from "./components/community/Newcommu";
+import Community from "./components/community/community";
 import Setup from "./components/setting/setup";
 import Home from "./components/Home/Home";
 import Chat from "./components/chat/Chat";
