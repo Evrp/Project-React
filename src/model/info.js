@@ -9,6 +9,7 @@ const infoSchema = new mongoose.Schema({
     description: String,
     extra: String,
   },
-});
+},
+  { timestamps: true });
 
 export const Info = mongoose.model("Info", infoSchema);

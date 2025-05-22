@@ -8,6 +8,7 @@ const GmailSchema = new mongoose.Schema({
     of: [String],
     default: {},
   },
-});
+},
+  { timestamps: true });
 
 export const Filter = mongoose.model("filters", GmailSchema);

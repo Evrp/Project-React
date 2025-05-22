@@ -21,7 +21,8 @@ const Friend = () => {
   const [loadingCurrentUser, setLoadingCurrentUser] = useState(true);
   const modalRef = useRef(null);
   const [openMenuFor, setOpenMenuFor] = useState(null);
-
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
   const dropdownRefs = useRef({});
 
   const userEmail = localStorage.getItem("userEmail");
@@ -257,6 +258,18 @@ const Friend = () => {
   const filteredFriends = friends.filter((friend) =>
     friend.displayName.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const fetchFollowInfo = async (targetEmail) => {
+    try {
+      const res = await axios.get(
+        `http://localhost:8080/api/user/${targetEmail}/follow-info`
+      );
+
+      setFollowers(res.data.followers);
+      setFollowing(res.data.following);
+    } catch (error) {
+      console.error("Error fetching follow info:", error);
+    }
+  };
 
   return (
     <RequireLogin>
@@ -278,7 +291,6 @@ const Friend = () => {
         <ul className="friend-list">
           {filteredFriends.length > 0 ? (
             filteredFriends.map((friend, index) => (
-    
               <li key={index} className="button-friend-item">
                 <img
                   src={friend.photoURL}
@@ -319,6 +331,7 @@ const Friend = () => {
                           className="dropdown-item"
                           onClick={() => {
                             handleProfileClick(friend);
+                            fetchFollowInfo(friend.email);
                             setOpenMenuFor(null);
                           }}
                         >
@@ -461,6 +474,14 @@ const Friend = () => {
                   className="profile-photo"
                 />
                 <h2>{selectedUser.displayName}</h2>
+                <div className="tabs">
+                  <ul className="followers">
+                    <li>{followers.length} followers</li>
+                  </ul>
+                  <ul className="following">
+                    <li>{following.length} following</li>
+                  </ul>
+                </div>
                 <p>Email: {selectedUser.email}</p>
                 <p>สถานะ: {selectedUser.isOnline ? "ออนไลน์" : "ออฟไลน์"}</p>
                 <button className="close-btn" onClick={handleCloseModal}>

@@ -59,7 +59,6 @@ const Profile = () => {
   );
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
-  const [activeTab, setActiveTab] = useState("followers");
 
   const toggleGenre = (genre) => {
     setSelectedGenres((prev) =>
