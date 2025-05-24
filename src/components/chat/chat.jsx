@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { db, storage } from "../../firebase/firebase";
+import { db } from "../../firebase/firebase";
 import { useParams } from "react-router-dom";
 // import { ref, getDownloadURL } from "firebase/storage";
 import RequireLogin from "../ui/RequireLogin";
@@ -237,6 +237,27 @@ const Chat = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+   useEffect(() => {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, []);
+  useEffect(() => {
+      const handleClickOutside = (event) => {
+        const isClickInsideAny = Object.values(dropdownRefs.current).some((ref) =>
+          ref?.contains(event.target)
+        );
+        if (!isClickInsideAny) {
+          setOpenMenuFor(null);
+        }
+      };
+  
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }, []);
 
   const scrollToBottom = () => {
     if (endOfMessagesRef.current) {
