@@ -19,6 +19,8 @@ const RoomList = () => {
       }
     };
     fetchRooms();
+
+    
   }, []);
   const handleAddCommunity = async (roomId, roomName) => {
     console.log("Adding friend:", roomId);
