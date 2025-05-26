@@ -1,8 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
 import { IoMdAddCircle, IoMdCloseCircle } from "react-icons/io";
+import { useParams } from "react-router-dom";
 import "./createroom.css";
 const CreateRoom = ({ onRoomCreated }) => {
+  const { roomId } = useParams();
   const [showForm, setShowForm] = useState(false);
   const [roomData, setRoomData] = useState({
     name: "",
@@ -17,11 +19,12 @@ const CreateRoom = ({ onRoomCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const createdBy = localStorage.getItem("userName") || "ไม่ระบุ";
-
+    console.log(roomId);
     try {
       const res = await axios.post("http://localhost:8080/api/createroom", {
         ...roomData,
         createdBy,
+        roomId
       });
       onRoomCreated(res.data); // ส่งข้อมูลกลับไปให้ Newcommu แสดงผล
       setRoomData({ name: "", image: "", description: "" });

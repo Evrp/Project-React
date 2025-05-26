@@ -331,13 +331,11 @@ const Chat = () => {
     return () => unsubscribe();
   }, [userName, activeUser, roomId]);
 
-  useEffect(() => {
-    console.log(activeUser);
-  }, [messages, activeUser]);
+  // useEffect(() => {
+  //   console.log(activeUser);
+  // }, [messages, activeUser]);
 
   const handleSend = async () => {
-    console.log(activeUser);
-    console.log(roomId);
     if (input.trim() === "" || !activeUser) return;
 
     await addDoc(messagesRef, {
