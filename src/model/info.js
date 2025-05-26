@@ -1,5 +1,4 @@
 // src/model/info.js
-
 import mongoose from "mongoose";
 
 const infoSchema = new mongoose.Schema(
@@ -10,15 +9,21 @@ const infoSchema = new mongoose.Schema(
       description: String,
       extra: String,
     },
-    rooms: {
-      name: String,
-      image: String,
-      description: String,
-      createdBy: String, // ชื่อหรืออีเมลของผู้สร้าง
-      createdAt: { type: Date, default: Date.now },
-    },
+    joinedRooms: [String], // เปลี่ยนจาก rooms เป็น joinedRooms และเก็บ roomId เป็น array
   },
   { timestamps: true }
 );
+infoSchema.statics.joinRoom = async function (userEmail, roomId) {
+  const user = await this.findOne({ email: userEmail });
 
-export const Info = mongoose.model("Info", infoSchema);
+  if (!user) throw new Error("User not found");
+
+  if (!user.joinedRooms.includes(roomId)) {
+    user.joinedRooms.push(roomId);
+    await user.save();
+  }
+
+  return user;
+};
+
+  export const Info = mongoose.model("Info", infoSchema);
