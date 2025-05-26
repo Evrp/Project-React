@@ -89,6 +89,28 @@ app.post("/api/add-friend", async (req, res) => {
   }
 });
 
+/////////////////////////Join Community////////////////
+app.post("/api/join-community", async (req, res) => {
+  const { userEmail, roomId } = req.body;
+  console.log(userEmail, roomId);
+
+  if (!userEmail || !roomId) {
+    return res
+      .status(400)
+      .json({ error: "Both userEmail and friendEmail are required." });
+  }
+
+  try {
+    const user = await Info.addFriend(userEmail, friendEmail); // ใช้ static method ใน model
+    return res
+      .status(200)
+      .json({ message: "Friend added successfully.", user });
+  } catch (error) {
+    console.error("Error while adding friend:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+});
+
 // GET /api/users/:email
 app.get("/api/users/:email", async (req, res) => {
   const userEmail = req.params.email.toLowerCase();
@@ -381,8 +403,8 @@ app.post("/api/update-display-name", async (req, res) => {
 
 app.post("/api/createroom", async (req, res) => {
   try {
-    const { name, image, description, createdBy } = req.body;
-    const room = new Room({ name, image, description, createdBy });
+    const { name, image, description, createdBy, roomId } = req.body;
+    const room = new Room({ name, image, description, createdBy, roomId });
     await room.save();
     res.status(201).json(room);
   } catch (err) {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation,useParams } from "react-router-dom";
 import "./Navbar.css";
 import { useAuth } from "./firebase/Authcontext";
 import { FaUsers, FaUser, FaUserFriends, FaCog } from "react-icons/fa";
@@ -10,7 +10,7 @@ const Navbar = () => {
   const [click, setClick] = useState(false);
   const location = useLocation(); // <-- ตรงนี้สำคัญ!
   const { user, logout } = useAuth();
-
+  const { roomId } = useParams();
   const handleClick = () => setClick(!click);
   const closeMobileMenu = () => setClick(false);
 
@@ -78,7 +78,7 @@ const Navbar = () => {
         </Link>
 
         <Link
-          to="/chat"
+          to={`/chat/${roomId}`}
           onClick={closeMobileMenu}
           className={`menu-link ${isActive("/chat")}`}
         >

@@ -25,7 +25,7 @@ function App() {
         <Route path="/login" element={<LoginForm />} />
         <Route path="/friend" element={<Freind />} />
         <Route path="/setup" element={<Setup />} />
-        <Route path="/chat" element={<Chat />} />
+        {/* <Route path="/chat" element={<Chat />} /> */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/community" element={<Community />} />
         <Route path="/chat/:roomId" element={<Chat />} />
