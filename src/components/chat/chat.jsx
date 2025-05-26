@@ -40,10 +40,11 @@ const Chat = () => {
   const userEmail = localStorage.getItem("userEmail");
   const messagesRef = collection(db, "messages");
   const endOfMessagesRef = useRef(null);
-  const modalRef = useRef(null);
+  const modalRef = useRef(null); /// เพิ่ม modalRef
   const dropdownRefs = useRef({});
-  const [followers, setFollowers] = useState([]);
-  const [following, setFollowing] = useState([]);
+  const [followers, setFollowers] = useState([]);  /// เพิ่ม followers
+  const [following, setFollowing] = useState([]); /// เพิ่ม following
+  const [joinedRooms, setJoinedRooms] = useState([]); /// เพิ่ม joinedRooms
   const audioRef = useRef(null);
   const [friends, setFriends] = useState([]);
   const displayName = localStorage.getItem("userName");
@@ -155,9 +156,8 @@ const Chat = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `http://localhost:8080/api/users/${userEmail}/${
-      isFollowing ? "unfollow" : "follow"
-    }/${targetEmail}`;
+    const url = `http://localhost:8080/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
+      }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -237,33 +237,49 @@ const Chat = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-   useEffect(() => {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, []);
   useEffect(() => {
-      const handleClickOutside = (event) => {
-        const isClickInsideAny = Object.values(dropdownRefs.current).some((ref) =>
-          ref?.contains(event.target)
-        );
-        if (!isClickInsideAny) {
-          setOpenMenuFor(null);
-        }
-      };
-  
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, []);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const isClickInsideAny = Object.values(dropdownRefs.current).some((ref) =>
+        ref?.contains(event.target)
+      );
+      if (!isClickInsideAny) {
+        setOpenMenuFor(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const scrollToBottom = () => {
     if (endOfMessagesRef.current) {
       endOfMessagesRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+  useEffect(() => {
+    const fetchJoinedRooms = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/api/user-rooms", {
+          params: { userEmail },
+        });
+        setJoinedRooms(res.data.rooms);
+      } catch (err) {
+        console.error("Error fetching joined rooms:", err);
+      }
+    };
+
+    if (isOpencom) {
+      fetchJoinedRooms();
+    }
+  }, [isOpencom, userEmail]);
 
   useEffect(() => {
     console.log("roomId:", roomId);
@@ -286,7 +302,7 @@ const Chat = () => {
         lastMsg.text &&
         lastMsg.receiver === userName
       ) {
-        audioRef.current?.play().catch(() => {});
+        audioRef.current?.play().catch(() => { });
       }
 
       const users = new Set();
@@ -407,9 +423,8 @@ const Chat = () => {
                         </div>
                         <div className="con-right">
                           <span
-                            className={`status ${
-                              friend.isOnline ? "online" : "offline"
-                            }`}
+                            className={`status ${friend.isOnline ? "online" : "offline"
+                              }`}
                           >
                             {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                           </span>
@@ -464,9 +479,9 @@ const Chat = () => {
                                   {Array.isArray(
                                     currentUserfollow?.following
                                   ) &&
-                                  currentUserfollow.following.includes(
-                                    friend.email
-                                  )
+                                    currentUserfollow.following.includes(
+                                      friend.email
+                                    )
                                     ? "🔔 กำลังติดตาม"
                                     : "➕ ติดตาม"}
                                 </button>
@@ -508,9 +523,14 @@ const Chat = () => {
             {isOpencom && (
               <div className="favorite-container">
                 <ul className="friend-list-chat">
-                  <li>sds</li>
-                  <li>sds</li>
-                  <li>sds</li>
+                  {joinedRooms.map((room) => (
+                    <li key={room.roomId}>
+                      <div>
+                        <strong>{room.name}</strong>
+                        <p>{room.description}</p>
+                      </div>
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}
@@ -523,9 +543,8 @@ const Chat = () => {
                 .map((user, index) => (
                   <div
                     key={index}
-                    className={`user-item ${
-                      user === activeUser ? "active" : ""
-                    }`}
+                    className={`user-item ${user === activeUser ? "active" : ""
+                      }`}
                     onClick={() => setActiveUser(user)}
                   >
                     <img
@@ -563,9 +582,8 @@ const Chat = () => {
               return (
                 <div
                   key={msg.id}
-                  className={`chat-message ${
-                    isCurrentUser ? "my-message" : "other-message"
-                  }`}
+                  className={`chat-message ${isCurrentUser ? "my-message" : "other-message"
+                    }`}
                 >
                   <img
                     src={senderPhoto}
