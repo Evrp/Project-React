@@ -80,7 +80,7 @@ const EventList = () => {
       {events.length === 0 ? (
         <p className="empty-text">ยังไม่มีกิจกรรม</p>
       ) : (
-        <div className="event-list">
+        <div className="event-list"> 
           {events.map((event) => (
             <div key={event._id} className="event-card">
               {eventsImage.map((item) => {
