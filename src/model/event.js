@@ -9,7 +9,6 @@ const eventSchema = new mongoose.Schema(
     location: String,
     date: String,
     description: String,
-    imageUrl: String,
     link: String,
     createdByAI: Boolean,
     email: String,
