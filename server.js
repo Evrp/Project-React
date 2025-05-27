@@ -11,7 +11,8 @@ import { Gmail } from "./src/model/gmail.js";
 import { Filter } from "./src/model/filter.js";
 import { Event } from "./src/model/event.js";
 import { Info } from "./src/model/info.js";
-import { Room } from "./src/model/room.js"; // import Room from "./src/model/room.js";
+import { Room } from "./src/model/room.js";
+import { ImageGenre } from "./src/model/image.js"; // import Room from "./src/model/room.js";
 import Friend from "./src/model/Friend.js";
 
 // import Friend from "./src/model/Friend.js";
@@ -284,7 +285,6 @@ app.post("/api/save-event", async (req, res) => {
     location,
     date,
     description,
-    imageUrl,
     link,
     isFirst,
     email,
@@ -302,7 +302,6 @@ app.post("/api/save-event", async (req, res) => {
       location,
       date,
       description,
-      imageUrl,
       link,
       createdByAI: true,
       email,
@@ -550,6 +549,43 @@ app.get("/api/user/:email/follow-info", async (req, res) => {
     res.json({ followers, following });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+///////////delete event////////
+app.delete("/api/delete-all-events", async (req, res) => {
+  try {
+    await Event.deleteMany({}); // ลบทุกเอกสารใน collection
+    res.status(200).json({ message: "ลบกิจกรรมทั้งหมดเรียบร้อยแล้ว" });
+  } catch (error) {
+    console.error("❌ Error deleting all events:", error);
+    res.status(500).json({ error: "เกิดข้อผิดพลาดในการลบกิจกรรม" });
+  }
+});
+
+app.post("/api/save-image", async (req, res) => {
+  const { image, genres } = req.body;
+
+  if (!image || !genres ) {
+    return res.status(400).json({ error: "ต้องมีทั้ง image และ genres เป็น array" });
+  }
+
+  try {
+    const newImageGenre = new ImageGenre({ image, genres });
+    await newImageGenre.save();
+    res.status(200).json({ message: "บันทึกข้อมูลสำเร็จ", data: newImageGenre });
+  } catch (error) {
+    console.error("❌ Error saving to MongoDB:", error);
+    res.status(500).json({ error: "เกิดข้อผิดพลาดในการบันทึก" });
+  }
+});
+
+app.get("/api/get-image-genres", async (req, res) => {
+  try {
+    const imageGenres = await ImageGenre.find();
+    res.status(200).json({ imageGenres });
+  } catch (error) {
+    console.error("❌ Error fetching image genres:", error);
+    res.status(500).json({ error: "เกิดข้อผิดพลาดในการดึงข้อมูล" });
   }
 });
 
