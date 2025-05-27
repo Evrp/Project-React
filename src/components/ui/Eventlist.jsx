@@ -69,7 +69,7 @@ const EventList = () => {
     fetchEvents();
     fetchimage();
   }, []);
-/////aa
+
 
 
   if (loading) return <p className="loading-text">กำลังโหลด...</p>;
