@@ -92,31 +92,54 @@ app.post("/api/add-friend", async (req, res) => {
 
 // routes/api.js หรือไฟล์หลักของ backend
 app.post("/api/join-community", async (req, res) => {
-  const { userEmail, roomId } = req.body;
-
-  if (!userEmail || !roomId) {
+  const { userEmail, roomId, roomName } = req.body;
+  console.log(userEmail, roomId, roomName);
+  if (!userEmail || !roomId || !roomName) {
     return res.status(400).json({ error: "userEmail and roomId are required." });
   }
 
+  // try {
+  //   const user = await Info.joinRoom(userEmail, roomId, roomName); // เรียก static method
+  //   res.status(200).json({ message: "Joined room successfully.", user });
+  // } catch (error) {
+  //   console.error("Error while joining room:", error);
+  //   res.status(500).json({ error: "Internal server error." });
+  // }
   try {
-    const user = await Info.joinRoom(userEmail, roomId); // เรียก static method
-    res.status(200).json({ message: "Joined room successfully.", user });
-  } catch (error) {
-    console.error("Error while joining room:", error);
-    res.status(500).json({ error: "Internal server error." });
+    const updatedUser = await Info.findOneAndUpdate(
+      { email: userEmail },
+      {
+        $push: {
+          joinedRooms: { roomId, roomName }
+        }
+      },
+      { new: true, runValidators: true }
+    );
+
+    res.json(updatedUser);
+  } catch (err) {
+    console.error("Error while joining room:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
 // routes/api.js
-app.get("/api/user-rooms", async (req, res) => {
-  const { userEmail } = req.query;
+app.get("/api/user-rooms/:email", async (req, res) => {
+  const userEmail = req.params.email.toLowerCase();
+  console.log("Getting rooms for:", userEmail);
 
   try {
     const user = await Info.findOne({ email: userEmail });
     if (!user) return res.status(404).json({ error: "User not found" });
 
-    const rooms = await Room.find({ roomId: { $in: user.joinedRooms } });
-    res.status(200).json({ rooms });
+    // ✅ แยกเฉพาะ roomId ออกมา
+
+    const roomIds = user.joinedRooms.map(room => room.roomId);
+    console.log(roomIds);
+    // ✅ หาห้องจาก roomIds
+    const roomNames = user.joinedRooms.map(room => room.roomName);
+    console.log(roomNames);
+    res.status(200).json({ roomNames, roomIds });
   } catch (error) {
     console.error("Error fetching rooms:", error);
     res.status(500).json({ error: "Internal server error." });
@@ -565,7 +588,7 @@ app.delete("/api/delete-all-events", async (req, res) => {
 app.post("/api/save-image", async (req, res) => {
   const { image, genres } = req.body;
 
-  if (!image || !genres ) {
+  if (!image || !genres) {
     return res.status(400).json({ error: "ต้องมีทั้ง image และ genres เป็น array" });
   }
 

@@ -20,26 +20,27 @@ const RoomList = () => {
     };
     fetchRooms();
   }, []);
-    const handleAddCommunity = async (roomId) => {
+  const handleAddCommunity = async (roomId, roomName) => {
     console.log("Adding friend:", roomId);
     console.log("User email:", userEmail);
+    console.log("Room name:", roomName);
+
     try {
       await axios.post("http://localhost:8080/api/join-community", {
         userEmail,
         roomId,
+        roomName,
       });
       toast.success("เข้าร่วมห้องสําเร็จ!");
     } catch (error) {
       console.error("Error adding friend:", error);
       toast.error("ไม่สามารถเพิ่มเพื่อนได้");
-    } finally {
-      setLoadingFriendEmail(null);
-    }
+    } 
   };
 
-  const handleEnterRoom = (roomId) => {
+  const handleEnterRoom = (roomId, roomName) => {
     navigate(`/chat/${roomId}`);
-    handleAddCommunity(roomId);
+    handleAddCommunity(roomId, roomName);
   };
 
   return (
@@ -48,16 +49,16 @@ const RoomList = () => {
         <div
           key={room._id}
           className="room-container"
-          onClick={() => handleEnterRoom(room._id)}
+          onClick={() => handleEnterRoom(room._id, room.name)}
         >
-             {room.image && (
-              <img src={room.image} alt="room" className="room-image" />
-            )}
-           <div className="room-info">
-              <h4>{room.name}</h4>
-              <p>{room.description}</p>
-              <small>สร้างโดย: {room.createdBy}</small>
-            </div>
+          {room.image && (
+            <img src={room.image} alt="room" className="room-image" />
+          )}
+          <div className="room-info">
+            <h4>{room.name}</h4>
+            <p>{room.description}</p>
+            <small>สร้างโดย: {room.createdBy}</small>
+          </div>
         </div>
       ))}
     </div>
