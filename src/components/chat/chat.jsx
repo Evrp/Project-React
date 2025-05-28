@@ -45,6 +45,7 @@ const Chat = () => {
   const [followers, setFollowers] = useState([]);  /// เพิ่ม followers
   const [following, setFollowing] = useState([]); /// เพิ่ม following
   const [joinedRooms, setJoinedRooms] = useState([]); /// เพิ่ม joinedRooms
+  const [allRooms, setRooms] = useState([]); /// เพิ่ม joinedRooms
   const audioRef = useRef(null);
   const [friends, setFriends] = useState([]);
   const displayName = localStorage.getItem("userName");
@@ -189,6 +190,31 @@ const Chat = () => {
       console.error("Error fetching follow info:", error);
     }
   };
+  const fetchJoinedRooms = async () => {
+    try {
+      const encodedEmail = encodeURIComponent(userEmail);
+      const res = await axios.get(
+        `http://localhost:8080/api/user-rooms/${encodedEmail}`
+      );
+      console.log(res.data);
+      setJoinedRooms(res.data.rooms);
+    } catch (err) {
+      console.error("Error fetching joined rooms:", err);
+    }
+  };
+  const getallRooms = async () => {
+    try {
+      const encodedEmail = encodeURIComponent(userEmail);
+      const encodedRoomId = encodeURIComponent(roomId);
+      const res = await axios.post(
+        `http://localhost:8080/api/user-rooms/${encodedEmail}/${encodedRoomId}`
+      );
+      console.log(res.data);
+      fetchJoinedRooms();
+    } catch (err) {
+      console.error("Error joining room:", err);
+    }
+  };
   useEffect(() => {
     if (userEmail) {
       fetchUsersAndFriends();
@@ -265,20 +291,12 @@ const Chat = () => {
     }
   };
   useEffect(() => {
-    const fetchJoinedRooms = async () => {
-      try {
-        const res = await axios.get("http://localhost:8080/api/user-rooms", {
-          params: { userEmail },
-        });
-        setJoinedRooms(res.data.rooms);
-      } catch (err) {
-        console.error("Error fetching joined rooms:", err);
-      }
-    };
 
     if (isOpencom) {
       fetchJoinedRooms();
     }
+    fetchJoinedRooms();
+    console.log(joinedRooms);
   }, [isOpencom, userEmail]);
 
   useEffect(() => {
@@ -361,7 +379,7 @@ const Chat = () => {
       roomId: roomId,
       timestamp: serverTimestamp(),
     });
-
+    console
     setInput("");
   };
 
@@ -523,14 +541,14 @@ const Chat = () => {
             {isOpencom && (
               <div className="favorite-container">
                 <ul className="friend-list-chat">
-                  {joinedRooms.map((room) => (
+                  {/* {joinedRooms.map((room) => (
                     <li key={room.roomId}>
                       <div>
                         <strong>{room.name}</strong>
                         <p>{room.description}</p>
                       </div>
                     </li>
-                  ))}
+                  ))} */}
                 </ul>
               </div>
             )}
