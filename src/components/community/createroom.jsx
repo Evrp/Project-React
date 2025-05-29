@@ -11,6 +11,7 @@ const CreateRoom = ({ onRoomCreated }) => {
     image: "",
     description: "",
   });
+  const [isReloading, setIsReloading] = useState(false);
 
   const handleChange = (e) => {
     setRoomData({ ...roomData, [e.target.name]: e.target.value });
@@ -19,16 +20,34 @@ const CreateRoom = ({ onRoomCreated }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const createdBy = localStorage.getItem("userName") || "ไม่ระบุ";
-    console.log(roomId);
+
+    // เช็คชื่อห้องซ้ำ
+    const res = await axios.get(`http://localhost:8080/api/allrooms`);
+    const allRooms = res.data;
+    const isDuplicate = allRooms.some(
+      (room) =>
+        room.name.trim().toLowerCase() === roomData.name.trim().toLowerCase()
+    );
+
+    if (isDuplicate) {
+      alert("มีห้องชื่อนี้อยู่แล้ว กรุณาตั้งชื่อใหม่");
+      return;
+    }
+
     try {
       const res = await axios.post("http://localhost:8080/api/createroom", {
         ...roomData,
         createdBy,
-        roomId
+        roomId,
       });
-      onRoomCreated(res.data); // ส่งข้อมูลกลับไปให้ Newcommu แสดงผล
+      onRoomCreated(res.data);
       setRoomData({ name: "", image: "", description: "" });
       setShowForm(false);
+      setIsReloading(true); // 🔥 แสดง animation
+
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500); // ให้เวลา animation โชว์ก่อนรีโหลด
     } catch (err) {
       console.error("เกิดข้อผิดพลาดในการสร้างห้อง:", err);
     }
@@ -38,13 +57,13 @@ const CreateRoom = ({ onRoomCreated }) => {
     <div className="create-room-bt">
       <button onClick={() => setShowForm(!showForm)}>
         {showForm ? <IoMdCloseCircle /> : <IoMdAddCircle />}
-        {showForm ? "ยกเลิก" : "สร้างห้องใหม่"}
+        {showForm ? "Cancel" : "Create Room"}
       </button>
 
       {showForm && (
         <div className="popup-overlay" onClick={() => setShowForm(false)}>
           <div className="popup-form" onClick={(e) => e.stopPropagation()}>
-            <h3>สร้างห้องใหม่</h3>
+            <h3>Create Room</h3>
             <form onSubmit={handleSubmit}>
               <input
                 type="text"
@@ -81,6 +100,12 @@ const CreateRoom = ({ onRoomCreated }) => {
               <button type="submit">ยืนยันสร้างห้อง</button>
             </form>
           </div>
+        </div>
+      )}
+      {isReloading && (
+        <div className="reload-overlay">
+          <div className="loader"></div>
+          <p>Loading...</p>
         </div>
       )}
     </div>

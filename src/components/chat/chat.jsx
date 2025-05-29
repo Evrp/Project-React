@@ -42,7 +42,7 @@ const Chat = () => {
   const endOfMessagesRef = useRef(null);
   const modalRef = useRef(null); /// เพิ่ม modalRef
   const dropdownRefs = useRef({});
-  const [followers, setFollowers] = useState([]);  /// เพิ่ม followers
+  const [followers, setFollowers] = useState([]); /// เพิ่ม followers
   const [following, setFollowing] = useState([]); /// เพิ่ม following
   const [joinedRooms, setJoinedRooms] = useState([]); /// เพิ่ม joinedRooms
   const [allRooms, setRooms] = useState([]); /// เพิ่ม joinedRooms
@@ -157,8 +157,9 @@ const Chat = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `http://localhost:8080/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
-      }/${targetEmail}`;
+    const url = `http://localhost:8080/api/users/${userEmail}/${
+      isFollowing ? "unfollow" : "follow"
+    }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -190,6 +191,24 @@ const Chat = () => {
       console.error("Error fetching follow info:", error);
     }
   };
+  const handleRoomProfileClick = (room) => {
+    // เช่น เปิด modal หรือ redirect ไปหน้าโปรไฟล์ห้อง
+    console.log("ดูโปรไฟล์ห้อง:", room);
+  };
+
+  const handleDeleteRoom = async (roomId) => {
+    try {
+      setLoadingRoomId(roomId);
+      // ลบห้องออกจาก database หรือ state
+      await deleteRoomById(roomId); // ← แทนด้วยฟังก์ชันจริงของคุณ
+      // รีเฟรชหรืออัปเดตรายการห้อง
+    } catch (error) {
+      console.error("ลบห้องล้มเหลว:", error);
+    } finally {
+      setLoadingRoomId(null);
+    }
+  };
+
   const fetchJoinedRooms = async () => {
     try {
       const encodedEmail = encodeURIComponent(userEmail);
@@ -197,20 +216,15 @@ const Chat = () => {
         `http://localhost:8080/api/user-rooms/${encodedEmail}`
       );
       console.log(res.data);
-      setJoinedRooms(res.data.rooms);
+      setJoinedRooms(res.data);
     } catch (err) {
       console.error("Error fetching joined rooms:", err);
     }
   };
   const getallRooms = async () => {
     try {
-      const encodedEmail = encodeURIComponent(userEmail);
-      const encodedRoomId = encodeURIComponent(roomId);
-      const res = await axios.post(
-        `http://localhost:8080/api/user-rooms/${encodedEmail}/${encodedRoomId}`
-      );
-      console.log(res.data);
-      fetchJoinedRooms();
+      const res = await axios.get(`http://localhost:8080/api/allrooms`);
+      setRooms(res.data);
     } catch (err) {
       console.error("Error joining room:", err);
     }
@@ -291,12 +305,11 @@ const Chat = () => {
     }
   };
   useEffect(() => {
-
     if (isOpencom) {
       fetchJoinedRooms();
+      getallRooms();
+      console.log("Joined rooms:", joinedRooms);
     }
-    fetchJoinedRooms();
-    console.log(joinedRooms);
   }, [isOpencom, userEmail]);
 
   useEffect(() => {
@@ -320,7 +333,7 @@ const Chat = () => {
         lastMsg.text &&
         lastMsg.receiver === userName
       ) {
-        audioRef.current?.play().catch(() => { });
+        audioRef.current?.play().catch(() => {});
       }
 
       const users = new Set();
@@ -337,29 +350,29 @@ const Chat = () => {
         setActiveUser(usersArray[usersArray.length - 1]);
       }
 
-      const fetchUserPhotos = async () => {
-        let userPhotoURLs = {};
-        for (let user of users) {
-          try {
-            userPhotoURLs[user] =
-              "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg";
-            // const encodedUser = encodeURIComponent(user);
-            // const userPhotoRef = ref(
-            //   storage,
-            //   `profile_pictures/${encodedUser}.jpg`
-            // );
-            // const photoURL = await getDownloadURL(userPhotoRef);
-            // userPhotoURLs[user] = photoURL;
-          } catch (error) {
-            console.error("Error fetching user photo: ", error);
-            userPhotoURLs[user] =
-              "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg";
-          }
-        }
-        setUserPhotos(userPhotoURLs);
-      };
+      // const fetchUserPhotos = async () => {
+      //   let userPhotoURLs = {};
+      //   for (let user of users) {
+      //     try {
+      //       userPhotoURLs[user] =
+      //         "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg";
+      //       // const encodedUser = encodeURIComponent(user);
+      //       // const userPhotoRef = ref(
+      //       //   storage,
+      //       //   `profile_pictures/${encodedUser}.jpg`
+      //       // );
+      //       // const photoURL = await getDownloadURL(userPhotoRef);
+      //       // userPhotoURLs[user] = photoURL;
+      //     } catch (error) {
+      //       console.error("Error fetching user photo: ", error);
+      //       userPhotoURLs[user] =
+      //         "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg";
+      //     }
+      //   }
+      //   setUserPhotos(userPhotoURLs);
+      // };
 
-      fetchUserPhotos();
+      // fetchUserPhotos();
     });
     scrollToBottom();
     return () => unsubscribe();
@@ -379,7 +392,7 @@ const Chat = () => {
       roomId: roomId,
       timestamp: serverTimestamp(),
     });
-    console
+    console;
     setInput("");
   };
 
@@ -441,8 +454,9 @@ const Chat = () => {
                         </div>
                         <div className="con-right">
                           <span
-                            className={`status ${friend.isOnline ? "online" : "offline"
-                              }`}
+                            className={`status ${
+                              friend.isOnline ? "online" : "offline"
+                            }`}
                           >
                             {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                           </span>
@@ -497,9 +511,9 @@ const Chat = () => {
                                   {Array.isArray(
                                     currentUserfollow?.following
                                   ) &&
-                                    currentUserfollow.following.includes(
-                                      friend.email
-                                    )
+                                  currentUserfollow.following.includes(
+                                    friend.email
+                                  )
                                     ? "🔔 กำลังติดตาม"
                                     : "➕ ติดตาม"}
                                 </button>
@@ -541,14 +555,92 @@ const Chat = () => {
             {isOpencom && (
               <div className="favorite-container">
                 <ul className="friend-list-chat">
-                  {/* {joinedRooms.map((room) => (
-                    <li key={room.roomId}>
-                      <div>
-                        <strong>{room.name}</strong>
-                        <p>{room.description}</p>
+                  {joinedRooms.roomNames?.map((name, index) => {
+                    const roomId = joinedRooms.roomNames?.[index];
+
+                    // ข้ามถ้า name หรือ id เป็น null
+                    if (!name || !roomId) return null;
+
+                    return (
+                      <div key={roomId}>
+                        {/* <h1>{name}</h1> */}
+                        <ul>
+                          {allRooms.map((room) =>
+                            room.name === roomId ? (
+                              <li
+                                key={room.roomId}
+                                className="chat-friend-item"
+                                onClick={() => setActiveUser(room.name)}
+                              >
+                                <img
+                                  src={room.image}
+                                  alt={room.name}
+                                  className="friend-photo"
+                                />
+                                <div className="friend-detailss">
+                                  <span className="friend-name">
+                                    {room.name}
+                                  </span>
+                                  <span className="friend-email">
+                                    {room.createdBy}
+                                  </span>
+                                </div>
+                                <div
+                                  className="dropdown-wrapper"
+                                  // ref={(el) =>
+                                  //   (dropdownRefs.current[] = el)
+                                  // }
+                                  // onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
+                                >
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenMenuFor((prev) =>
+                                      prev === room.name ? null : room.name
+                                    );
+                                  }}
+                                  className="dropdown-toggle"
+                                >
+                                  <BsThreeDots size={20} />
+                                </button>
+
+                                {openMenuFor === roomId && (
+                                  <div className="dropdown-menu">
+                                    <button
+                                      className="dropdown-item"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleProfileClick(friend);
+                                        fetchFollowInfo(friend.email);
+                                        setOpenMenuFor(null);
+                                      }}
+                                    >
+                                      👤 ดูโปรไฟล์
+                                    </button>
+
+                                    {/* <button
+                                      className="dropdown-item danger"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteRoom(room.roomId); // 👉 ลบห้อง
+                                        setOpenMenuFor(null);
+                                      }}
+                                      disabled={loadingRoomId === room.roomId}
+                                    >
+                                      {loadingRoomId === room.roomId
+                                        ? "กำลังลบ..."
+                                        : "🗑️ ลบห้อง"}
+                                    </button> */}
+                                  </div>
+                                )}
+                                </div>
+                              </li>
+                            ) : null
+                          )}
+                        </ul>
                       </div>
-                    </li>
-                  ))} */}
+                    );
+                  })}
                 </ul>
               </div>
             )}
@@ -561,8 +653,9 @@ const Chat = () => {
                 .map((user, index) => (
                   <div
                     key={index}
-                    className={`user-item ${user === activeUser ? "active" : ""
-                      }`}
+                    className={`user-item ${
+                      user === activeUser ? "active" : ""
+                    }`}
                     onClick={() => setActiveUser(user)}
                   >
                     <img
@@ -600,8 +693,9 @@ const Chat = () => {
               return (
                 <div
                   key={msg.id}
-                  className={`chat-message ${isCurrentUser ? "my-message" : "other-message"
-                    }`}
+                  className={`chat-message ${
+                    isCurrentUser ? "my-message" : "other-message"
+                  }`}
                 >
                   <img
                     src={senderPhoto}

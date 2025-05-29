@@ -69,14 +69,14 @@ const EventList = () => {
     fetchEvents();
     fetchimage();
   }, []);
-
+/////aa
 
 
   if (loading) return <p className="loading-text">กำลังโหลด...</p>;
 
   return (
     <div className="event-container">
-      <h2 className="event-title">🎤 กิจกรรมที่น่าสนใจ</h2> 
+      <h2 className="event-title">Community Recommand</h2> 
       {events.length === 0 ? (
         <p className="empty-text">ยังไม่มีกิจกรรม</p>
       ) : (
@@ -95,22 +95,22 @@ const EventList = () => {
               })}
               <h3 className="event-name">{event.title}</h3>
               <div className="event-info">
-                <p>🎵 หมวดหมู่: {event.genre}</p>
-                <p>📍 สถานที่: {event.location}</p>
-                <p>🗓️ วันที่: {event.date}</p>
+                <p>🎵 genre: {event.genre}</p>
+                <p>📍 location: {event.location}</p>
+                <p>🗓️ date: {event.date}</p>
               </div>
               <p className="event-description">{event.description}</p>
               <a href={event.link} target="_blank" rel="noopener noreferrer" className="event-link">
-                ดูรายละเอียดเพิ่มเติม
+                Info more
               </a>
               <button onClick={() => handleDelete(event._id)} className="delete-button">
-                🗑️ ลบกิจกรรม
+                🗑️ Delete
               </button>
             </div>
           ))}
           <div className="btn-delete-all">
             <button onClick={handleDeleteAll} className="delete-button-all">
-              ลบกิจกรรมทั้งหมด
+              Delete all
             </button>
           </div>
         </div>

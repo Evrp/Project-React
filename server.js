@@ -14,6 +14,7 @@ import { Info } from "./src/model/info.js";
 import { Room } from "./src/model/room.js";
 import { ImageGenre } from "./src/model/image.js"; // import Room from "./src/model/room.js";
 import Friend from "./src/model/Friend.js";
+import { error } from "console";
 
 // import Friend from "./src/model/Friend.js";
 
@@ -95,23 +96,17 @@ app.post("/api/join-community", async (req, res) => {
   const { userEmail, roomId, roomName } = req.body;
   console.log(userEmail, roomId, roomName);
   if (!userEmail || !roomId || !roomName) {
-    return res.status(400).json({ error: "userEmail and roomId are required." });
+    return res
+      .status(400)
+      .json({ error: "userEmail and roomId are required." });
   }
-
-  // try {
-  //   const user = await Info.joinRoom(userEmail, roomId, roomName); // เรียก static method
-  //   res.status(200).json({ message: "Joined room successfully.", user });
-  // } catch (error) {
-  //   console.error("Error while joining room:", error);
-  //   res.status(500).json({ error: "Internal server error." });
-  // }
   try {
     const updatedUser = await Info.findOneAndUpdate(
       { email: userEmail },
       {
         $push: {
-          joinedRooms: { roomId, roomName }
-        }
+          joinedRooms: { roomId, roomName },
+        },
       },
       { new: true, runValidators: true }
     );
@@ -123,21 +118,21 @@ app.post("/api/join-community", async (req, res) => {
   }
 });
 
-// routes/api.js
+//////////ดึงห้องที่ผู้ใช้เชื่อมต่อ/////////////////
 app.get("/api/user-rooms/:email", async (req, res) => {
-  const userEmail = req.params.email.toLowerCase();
-  console.log("Getting rooms for:", userEmail);
+  const encodedEmail = req.params.email.toLowerCase();
+  console.log("Getting rooms for:", encodedEmail);
 
   try {
-    const user = await Info.findOne({ email: userEmail });
-    if (!user) return res.status(404).json({ error: "User not found" });
+    const user = await Info.findOne({ email: encodedEmail });
+    if (!user) return res.status(404).json({ error: "User not found"});
 
     // ✅ แยกเฉพาะ roomId ออกมา
 
-    const roomIds = user.joinedRooms.map(room => room.roomId);
+    const roomIds = user.joinedRooms.map((room) => room.roomId);
     console.log(roomIds);
     // ✅ หาห้องจาก roomIds
-    const roomNames = user.joinedRooms.map(room => room.roomName);
+    const roomNames = user.joinedRooms.map((room) => room.roomName);
     console.log(roomNames);
     res.status(200).json({ roomNames, roomIds });
   } catch (error) {
@@ -145,8 +140,6 @@ app.get("/api/user-rooms/:email", async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 });
-
-
 
 // GET /api/users/:email
 app.get("/api/users/:email", async (req, res) => {
@@ -302,16 +295,8 @@ app.post("/api/update-genres", async (req, res) => {
 
 // 📌 7️⃣ API บันทึก Event จาก Make.com///////
 app.post("/api/save-event", async (req, res) => {
-  const {
-    title,
-    genre,
-    location,
-    date,
-    description,
-    link,
-    isFirst,
-    email,
-  } = req.body;
+  const { title, genre, location, date, description, link, isFirst, email } =
+    req.body;
 
   try {
     if (isFirst) {
@@ -435,7 +420,7 @@ app.post("/api/update-display-name", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
+///////////////Create Room/////////////
 app.post("/api/createroom", async (req, res) => {
   try {
     const { name, image, description, createdBy, roomId } = req.body;
@@ -447,11 +432,11 @@ app.post("/api/createroom", async (req, res) => {
   }
 });
 
-app.get("/api/allroom", async (req, res) => {
+app.get("/api/allrooms", async (req, res) => {
   const rooms = await Room.find();
   res.json(rooms);
 });
-
+//////////////Freind Match////////////
 app.get("/matches/:email", async (req, res) => {
   const { email } = req.params;
 
@@ -503,7 +488,7 @@ app.delete("/api/users/:userEmail/friends/:friendEmail", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
+//////////////Follow Freind//////////
 app.post("/api/users/:userEmail/follow/:targetEmail", async (req, res) => {
   const { userEmail, targetEmail } = req.params;
 
@@ -536,7 +521,7 @@ app.post("/api/users/:userEmail/follow/:targetEmail", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
+//////////////UnFollow Freind//////////
 app.delete("/api/users/:userEmail/unfollow/:targetEmail", async (req, res) => {
   const { userEmail, targetEmail } = req.params;
 
@@ -559,7 +544,7 @@ app.delete("/api/users/:userEmail/unfollow/:targetEmail", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-///////////get follow/////////
+///////////get follow by userEmail/////////
 app.get("/api/user/:email/follow-info", async (req, res) => {
   const userEmail = req.params.email;
   try {
@@ -584,24 +569,28 @@ app.delete("/api/delete-all-events", async (req, res) => {
     res.status(500).json({ error: "เกิดข้อผิดพลาดในการลบกิจกรรม" });
   }
 });
-
+/////////////////Save Image use Postman////////
 app.post("/api/save-image", async (req, res) => {
   const { image, genres } = req.body;
 
   if (!image || !genres) {
-    return res.status(400).json({ error: "ต้องมีทั้ง image และ genres เป็น array" });
+    return res
+      .status(400)
+      .json({ error: "ต้องมีทั้ง image และ genres เป็น array" });
   }
 
   try {
     const newImageGenre = new ImageGenre({ image, genres });
     await newImageGenre.save();
-    res.status(200).json({ message: "บันทึกข้อมูลสำเร็จ", data: newImageGenre });
+    res
+      .status(200)
+      .json({ message: "บันทึกข้อมูลสำเร็จ", data: newImageGenre });
   } catch (error) {
     console.error("❌ Error saving to MongoDB:", error);
     res.status(500).json({ error: "เกิดข้อผิดพลาดในการบันทึก" });
   }
 });
-
+//////////////Get Image Genres //////////
 app.get("/api/get-image-genres", async (req, res) => {
   try {
     const imageGenres = await ImageGenre.find();
