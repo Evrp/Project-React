@@ -12,7 +12,7 @@ const RoomList = () => {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/allroom");
+        const res = await axios.get("http://localhost:8080/api/allrooms");
         setRooms(res.data);
       } catch (error) {
         console.error("ไม่สามารถโหลดห้อง:", error);
@@ -22,6 +22,7 @@ const RoomList = () => {
 
     
   }, []);
+  
   const handleAddCommunity = async (roomId, roomName) => {
     console.log("Adding friend:", roomId);
     console.log("User email:", userEmail);
@@ -43,6 +44,18 @@ const RoomList = () => {
   const handleEnterRoom = (roomId, roomName) => {
     navigate(`/chat/${roomId}`);
     handleAddCommunity(roomId, roomName);
+  };
+
+   const handleDeleteRoom = async (id) => {
+    const confirm = window.confirm("คุณแน่ใจว่าต้องการลบกิจกรรมนี้หรือไม่?");
+    if (!confirm) return;
+
+    try {
+      await axios.delete(`http://localhost:8080/api/detele-events/${id}`);
+      setEvents((prevEvents) => prevEvents.filter((event) => event._id !== id));
+    } catch (error) {
+      console.error("❌ Error deleting event:", error);
+    }
   };
 
   return (
