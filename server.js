@@ -226,7 +226,7 @@ app.get("/api/users", async (req, res) => {
   }
 });
 
-// Express route สำหรับดึงข้อมูลเพื่อน
+///////////สำหรับดึงข้อมูลเพื่อน
 app.get("/api/usersfriends", async (req, res) => {
   try {
     // รับข้อมูล emails ที่ส่งมาจาก query string และ parse มันให้เป็น array
@@ -362,6 +362,44 @@ app.delete("/api/detele-events/:id", async (req, res) => {
     res.status(500).json({ message: "Delete failed" });
   }
 });
+/////////////Delete Room///////////////
+app.delete("/api/delete-rooms/:name", async (req, res) => {
+  const { name } = req.params;
+  console.log(name);
+  try {
+    // 1. ลบ room document
+    const deletedRoom = await Room.findOneAndDelete({ name });
+
+    if (!deletedRoom) {
+      return res.status(404).json({ message: "Room not found" });
+    }
+
+    const roomIdToDelete = deletedRoom._id.toString();
+
+    // 2. ลบ room ออกจาก joinedRooms ของทุก user
+    const result = await Info.updateMany(
+      {},
+      {
+        $pull: {
+          joinedRooms: {
+            roomId: roomIdToDelete
+          }
+        }
+      }
+    );
+
+    res.json({
+      message: "Room deleted and removed from user joinedRooms",
+      deletedRoom,
+      updatedUsers: result.modifiedCount
+    });
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({ message: "Delete failed" });
+  }
+});
+
+
 
 // POST /api/save-user-info
 app.post("/api/save-user-info", async (req, res) => {
