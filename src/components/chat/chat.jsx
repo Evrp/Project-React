@@ -148,7 +148,6 @@ const Chat = () => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
-
   const handleFollow = async (targetEmail) => {
     await fetchGmailUser();
     if (!currentUserfollow || !Array.isArray(currentUserfollow.following)) {
@@ -157,9 +156,8 @@ const Chat = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `http://localhost:8080/api/users/${userEmail}/${
-      isFollowing ? "unfollow" : "follow"
-    }/${targetEmail}`;
+    const url = `http://localhost:8080/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
+      }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -197,9 +195,12 @@ const Chat = () => {
   };
 
   const handleDeleteRoom = async (roomId) => {
+   
     try {
-      setLoadingRoomId(roomId);
-      // ลบห้องออกจาก database หรือ state
+      console.log("ลบห้อง:", roomId);
+      const name = roomId;
+      const res = await axios.delete(`http://localhost:8080/api/delete-rooms/${name}`);
+      console.log(res.data);
       await deleteRoomById(roomId); // ← แทนด้วยฟังก์ชันจริงของคุณ
       // รีเฟรชหรืออัปเดตรายการห้อง
     } catch (error) {
@@ -333,7 +334,7 @@ const Chat = () => {
         lastMsg.text &&
         lastMsg.receiver === userName
       ) {
-        audioRef.current?.play().catch(() => {});
+        audioRef.current?.play().catch(() => { });
       }
 
       const users = new Set();
@@ -349,30 +350,6 @@ const Chat = () => {
       if (!activeUser && usersArray.length > 0) {
         setActiveUser(usersArray[usersArray.length - 1]);
       }
-
-      // const fetchUserPhotos = async () => {
-      //   let userPhotoURLs = {};
-      //   for (let user of users) {
-      //     try {
-      //       userPhotoURLs[user] =
-      //         "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg";
-      //       // const encodedUser = encodeURIComponent(user);
-      //       // const userPhotoRef = ref(
-      //       //   storage,
-      //       //   `profile_pictures/${encodedUser}.jpg`
-      //       // );
-      //       // const photoURL = await getDownloadURL(userPhotoRef);
-      //       // userPhotoURLs[user] = photoURL;
-      //     } catch (error) {
-      //       console.error("Error fetching user photo: ", error);
-      //       userPhotoURLs[user] =
-      //         "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg";
-      //     }
-      //   }
-      //   setUserPhotos(userPhotoURLs);
-      // };
-
-      // fetchUserPhotos();
     });
     scrollToBottom();
     return () => unsubscribe();
@@ -454,9 +431,8 @@ const Chat = () => {
                         </div>
                         <div className="con-right">
                           <span
-                            className={`status ${
-                              friend.isOnline ? "online" : "offline"
-                            }`}
+                            className={`status ${friend.isOnline ? "online" : "offline"
+                              }`}
                           >
                             {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                           </span>
@@ -511,9 +487,9 @@ const Chat = () => {
                                   {Array.isArray(
                                     currentUserfollow?.following
                                   ) &&
-                                  currentUserfollow.following.includes(
-                                    friend.email
-                                  )
+                                    currentUserfollow.following.includes(
+                                      friend.email
+                                    )
                                     ? "🔔 กำลังติดตาม"
                                     : "➕ ติดตาม"}
                                 </button>
@@ -587,52 +563,37 @@ const Chat = () => {
                                 </div>
                                 <div
                                   className="dropdown-wrapper"
-                                  // ref={(el) =>
-                                  //   (dropdownRefs.current[] = el)
-                                  // }
-                                  // onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
+                                // ref={(el) =>
+                                //   (dropdownRefs.current[] = el)
+                                // }
+                                // onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
                                 >
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenMenuFor((prev) =>
-                                      prev === room.name ? null : room.name
-                                    );
-                                  }}
-                                  className="dropdown-toggle"
-                                >
-                                  <BsThreeDots size={20} />
-                                </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setOpenMenuFor((prev) =>
+                                        prev === room.name ? null : room.name
+                                      );
+                                    }}
+                                    className="dropdown-toggle"
+                                  >
+                                    <BsThreeDots size={20} />
+                                  </button>
 
-                                {openMenuFor === roomId && (
-                                  <div className="dropdown-menu">
-                                    <button
-                                      className="dropdown-item"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleProfileClick(friend);
-                                        fetchFollowInfo(friend.email);
-                                        setOpenMenuFor(null);
-                                      }}
-                                    >
-                                      👤 ดูโปรไฟล์
-                                    </button>
-
-                                    {/* <button
-                                      className="dropdown-item danger"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeleteRoom(room.roomId); // 👉 ลบห้อง
-                                        setOpenMenuFor(null);
-                                      }}
-                                      disabled={loadingRoomId === room.roomId}
-                                    >
-                                      {loadingRoomId === room.roomId
-                                        ? "กำลังลบ..."
-                                        : "🗑️ ลบห้อง"}
-                                    </button> */}
-                                  </div>
-                                )}
+                                  {openMenuFor === roomId && (
+                                    <div className="dropdown-menu">
+                                      <button
+                                        className="dropdown-item"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDeleteRoom(roomId);
+                                          setOpenMenuFor(null);
+                                        }}
+                                      >
+                                        🗑️ Delete Room
+                                      </button>
+                                    </div>
+                                  )}
                                 </div>
                               </li>
                             ) : null
@@ -643,38 +604,6 @@ const Chat = () => {
                   })}
                 </ul>
               </div>
-            )}
-          </div>
-
-          <div className="list-user">
-            {chatUsers.length > 0 ? (
-              chatUsers
-                .filter((user) => user.toLowerCase().includes(searchTerm))
-                .map((user, index) => (
-                  <div
-                    key={index}
-                    className={`user-item ${
-                      user === activeUser ? "active" : ""
-                    }`}
-                    onClick={() => setActiveUser(user)}
-                  >
-                    <img
-                      src={
-                        userPhotos[user] ||
-                        "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg"
-                      }
-                      alt="User"
-                      className="user-photo"
-                    />
-                    <div className="bg">
-                      <div className="row-name-message">
-                        <span className="user-name">{user}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-            ) : (
-              <p>No active chats</p>
             )}
           </div>
         </div>
@@ -693,9 +622,8 @@ const Chat = () => {
               return (
                 <div
                   key={msg.id}
-                  className={`chat-message ${
-                    isCurrentUser ? "my-message" : "other-message"
-                  }`}
+                  className={`chat-message ${isCurrentUser ? "my-message" : "other-message"
+                    }`}
                 >
                   <img
                     src={senderPhoto}
