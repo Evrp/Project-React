@@ -171,15 +171,6 @@
   border-radius: 50%;
   margin: 0 10px;
 }
-
-.message-bubble {
-  max-width: 60%;
-  padding: 10px;
-  border-radius: 10px;
-  background-color: #f0f0f0;
-  word-break: break-word;
-}
-
 .my-message .message-bubble {
   background-color: #dcf8c6; /* สีเขียวอ่อนเหมือนในไลน์ */
 }
@@ -271,4 +262,79 @@
 }
 .favorite-toggle {
   margin-left: 1rem;
+}
+/* โครงสร้างหลัก */
+.message-container {
+  display: flex;
+  margin: 8px 0;
+  padding: 0 12px;
+}
+
+.current-user {
+  justify-content: flex-end;
+}
+
+.other-user {
+  justify-content: flex-start;
+}
+
+/* รูปโปรไฟล์ */
+.message-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 8px;
+  align-self: flex-end;
+}
+
+/* เนื้อหาข้อความ */
+.message-content {
+  max-width: 70%;
+  display: flex;
+  flex-direction: row;
+}
+
+.sender-name {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 4px;
+  padding-left: 8px;
+}
+
+/* ฟองข้อความ */
+.message-bubble {
+  padding: 10px 14px;
+  border-radius: 18px;
+  position: relative;
+  word-wrap: break-word;
+}
+
+.message-bubble.current {
+  background-color: #007bff;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.message-bubble.other {
+  background-color: #f1f1f1;
+  color: #333;
+  border-bottom-left-radius: 4px;
+}
+
+/* เวลา */
+.message-time {
+  font-size: 0.7rem;
+  align-content: end;
+  text-align: right;
+  margin-right: 8px;
+  opacity: 0.8;
+}
+
+.message-bubble.current .message-time {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.message-bubble.other .message-time {
+  color: rgba(0, 0, 0, 0.6);
 }

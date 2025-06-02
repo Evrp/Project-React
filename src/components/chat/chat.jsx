@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 // import { ref, getDownloadURL } from "firebase/storage";
 import RequireLogin from "../ui/RequireLogin";
 import { FaSearch } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { BsThreeDots } from "react-icons/bs";
 import io from "socket.io-client";
 import {
@@ -13,6 +15,7 @@ import {
   onSnapshot,
   query,
   orderBy,
+  Timestamp
 } from "firebase/firestore";
 import "../chat/Chat.css";
 import axios from "axios";
@@ -33,6 +36,7 @@ const Chat = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [loadingFriendEmail, setLoadingFriendEmail] = useState(null);
+  const [loadingFriendRooms, setLoadingRoomId] = useState(null);
   const [chatUsers, setChatUsers] = useState([]);
   const [userPhotos, setUserPhotos] = useState({});
   const [activeUser, setActiveUser] = useState(null);
@@ -48,9 +52,12 @@ const Chat = () => {
   const [allRooms, setRooms] = useState([]); /// เพิ่ม joinedRooms
   const audioRef = useRef(null);
   const [friends, setFriends] = useState([]);
+  const [friendsBar, setFriendsBar] = useState([]);
+  const [RoomsBar, setRoomBar] = useState([]);
   const displayName = localStorage.getItem("userName");
   const photoURL = localStorage.getItem("userPhoto");
   const [openMenuFor, setOpenMenuFor] = useState(null);
+  const defaultProfileImage = userPhoto;
 
   const fetchUsersAndFriends = async () => {
     try {
@@ -81,6 +88,7 @@ const Chat = () => {
       console.error("Error fetching users and friends:", error);
     }
   };
+
   const fetchCurrentUserAndFriends = async () => {
     try {
       const encodedEmail = encodeURIComponent(userEmail);
@@ -193,20 +201,24 @@ const Chat = () => {
     // เช่น เปิด modal หรือ redirect ไปหน้าโปรไฟล์ห้อง
     console.log("ดูโปรไฟล์ห้อง:", room);
   };
-
-  const handleDeleteRoom = async (roomId) => {
-   
+  const handleDeleteRoom = async (roomName) => {
     try {
-      console.log("ลบห้อง:", roomId);
-      const name = roomId;
-      const res = await axios.delete(`http://localhost:8080/api/delete-rooms/${name}`);
-      console.log(res.data);
-      await deleteRoomById(roomId); // ← แทนด้วยฟังก์ชันจริงของคุณ
-      // รีเฟรชหรืออัปเดตรายการห้อง
+      const response = await axios.delete(
+        `http://localhost:8080/api/delete-joined-rooms/${roomName}/${userEmail}`
+      );
+
+      // อัปเดต state ทันที
+      setJoinedRooms(prev => ({
+        ...prev,
+        roomNames: prev.roomNames.filter(name => name !== roomName),
+        roomIds: prev.roomIds.filter(id => id !== roomName) // ใช้ roomName ถ้าเก็บเป็นชื่อ
+      }));
+
+      toast.success("ลบห้องสําเร็จ!");
+
     } catch (error) {
       console.error("ลบห้องล้มเหลว:", error);
-    } finally {
-      setLoadingRoomId(null);
+      toast.error("ลบห้องล้มเหลว!");
     }
   };
 
@@ -231,10 +243,9 @@ const Chat = () => {
     }
   };
   useEffect(() => {
-    if (userEmail) {
-      fetchUsersAndFriends();
-    }
-  }, [userEmail]);
+    fetchUsersAndFriends();
+  }, []);
+
   useEffect(() => {
     if (!userEmail) return;
 
@@ -299,7 +310,6 @@ const Chat = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
   const scrollToBottom = () => {
     if (endOfMessagesRef.current) {
       endOfMessagesRef.current.scrollIntoView({ behavior: "smooth" });
@@ -309,10 +319,9 @@ const Chat = () => {
     if (isOpencom) {
       fetchJoinedRooms();
       getallRooms();
-      console.log("Joined rooms:", joinedRooms);
     }
   }, [isOpencom, userEmail]);
-
+  /////////Chat One To One//////////
   useEffect(() => {
     console.log("roomId:", roomId);
     const q = query(messagesRef, orderBy("timestamp"));
@@ -350,38 +359,128 @@ const Chat = () => {
       if (!activeUser && usersArray.length > 0) {
         setActiveUser(usersArray[usersArray.length - 1]);
       }
+      console
+      // console.log("photo", usersArray[usersArray.length - 1]);
+      // console.log("photo", filteredFriends[filteredFriends.length - 1].photoURL);
+      const fetchUserPhotos = async () => {
+        // สร้าง object เพื่อเก็บ URL รูปโปรไฟล์
+        const userPhotoURLs = {};
+
+        // วนลูปผ่าน users เพื่อหารูปโปรไฟล์
+        users.forEach(user => {
+          // หาเพื่อนที่ตรงกับ user email
+          const friend = filteredFriends.find(f => f.displayName === user);
+          // ถ้าเจอเพื่อนและมีรูปโปรไฟล์
+          if (friend && friend.photoURL) {
+            userPhotoURLs[user.email] = friend.photoURL;
+            console.log("photouser", userPhotoURLs[user.email]);
+          } else {
+            // ถ้าไม่เจอหรือไม่มีรูป ใช้รูป default
+            userPhotoURLs[user.email] = "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg";
+          }
+        });
+
+        // บันทึกรูปโปรไฟล์ทั้งหมดลง state
+        setUserPhotos(filteredFriends);
+      };
+      fetchUserPhotos();
     });
     scrollToBottom();
     return () => unsubscribe();
   }, [userName, activeUser, roomId]);
+  ////////Chat one to Many//////////
+  useEffect(() => {
+    if (!roomId) return;
 
-  // useEffect(() => {
-  //   console.log(activeUser);
-  // }, [messages, activeUser]);
+    // 1. ดึงข้อมูลห้องจาก Firestore เพื่อตรวจสอบประเภท
+    const roomRef = doc(firestore, "rooms", roomId);
+    const roomUnsubscribe = onSnapshot(roomRef, (doc) => {
+      const roomData = doc.data();
+      setIsGroupChat(roomData?.type === "group");
+    });
 
+    // 2. ดึงข้อความ (ปรับ query สำหรับกลุ่ม)
+    const messagesQuery = query(
+      collection(firestore, "rooms", roomId, "messages"),
+      orderBy("timestamp")
+    );
+
+    const messagesUnsubscribe = onSnapshot(messagesQuery, (snapshot) => {
+      const roomMessages = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      setMessages(roomMessages);
+
+      // เล่นเสียงเมื่อมีข้อความใหม่จากคนอื่น (เฉพาะกลุ่ม)
+      const lastMsg = roomMessages[roomMessages.length - 1];
+      if (lastMsg && lastMsg.sender !== userEmail) {
+        audioRef.current?.play().catch(() => { });
+      }
+
+      // อัปเดตรายชื่อผู้ร่วมแชท (สำหรับกลุ่ม)
+      if (isGroupChat) {
+        const uniqueSenders = [...new Set(roomMessages.map(msg => msg.sender))];
+        setChatUsers(uniqueSenders);
+      }
+    });
+
+    return () => {
+      roomUnsubscribe();
+      messagesUnsubscribe();
+    };
+  }, [roomId, userEmail, isGroupChat]);
+  ////////////////////////////////
   const handleSend = async () => {
     if (input.trim() === "" || !activeUser) return;
+    console.log("input:", input);
+    console.log("userEmail:", userEmail);
+    console.log("activeUser:", activeUser);
+    console.log("roomId:", roomId);
+    console.log("serverTimestamp:", serverTimestamp());
 
-    await addDoc(messagesRef, {
-      text: input,
-      sender: userName || "Unknown",
-      receiver: activeUser,
-      roomId: roomId,
-      timestamp: serverTimestamp(),
-    });
+
+    // สำหรับห้องกลุ่ม
+    if (isGroupChat) {
+      await addDoc(collection(firestore, "rooms", roomId, "messages"), {
+        sender: userEmail,
+        content: input,
+        timestamp: serverTimestamp()
+      });
+    }
+    // สำหรับแชทส่วนตัว
+    else {
+      await addDoc(messagesRef, {
+        text: input,
+        sender: userEmail,
+        receiver: activeUser,
+        timestamp: serverTimestamp()
+      });
+    }
     console;
     setInput("");
   };
-
   const filteredMessages = messages.filter((msg) => {
-    const isMyMsg = msg.sender === userName && msg.receiver === activeUser;
+    const isMyMsg = msg.sender === userEmail && msg.receiver === activeUser;
     const isTheirMsg =
-      msg.sender === activeUser && (msg.receiver === userName || !msg.receiver);
+      msg.sender === activeUser && (msg.receiver === userEmail || !msg.receiver);
     return isMyMsg || isTheirMsg;
   });
   const filteredFriends = friends.filter((friend) =>
     friend.displayName.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const setProfilebar = (displayName) => {
+    setFriendsBar({ displayName });
+  };
+  const setRoombar = (roomImage, roomName) => {
+    setRoomBar({ roomImage, roomName });
+  };
+
   return (
     <RequireLogin>
       <div className="main-container">
@@ -416,7 +515,13 @@ const Chat = () => {
                       <li
                         key={index}
                         className="chat-friend-item"
-                        onClick={() => setActiveUser(friend.email)}
+                        onClick={() => {
+                          setProfilebar({
+                            photoURL: friend.photoURL,
+                            displayName: friend.displayName
+                          });
+                          setActiveUser(friend.email)
+                        }}
                       >
                         <img
                           src={friend.photoURL}
@@ -542,11 +647,14 @@ const Chat = () => {
                         {/* <h1>{name}</h1> */}
                         <ul>
                           {allRooms.map((room) =>
-                            room.name === roomId ? (
+                            room.name === name ? (
                               <li
                                 key={room.roomId}
                                 className="chat-friend-item"
-                                onClick={() => setActiveUser(room.name)}
+                                onClick={() => {
+                                  setActiveUser(room.name),
+                                    setRoombar(room.image, room.name)
+                                }}
                               >
                                 <img
                                   src={room.image}
@@ -558,15 +666,16 @@ const Chat = () => {
                                     {room.name}
                                   </span>
                                   <span className="friend-email">
+                                    Host:
                                     {room.createdBy}
                                   </span>
                                 </div>
                                 <div
                                   className="dropdown-wrapper"
-                                // ref={(el) =>
-                                //   (dropdownRefs.current[] = el)
-                                // }
-                                // onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
+                                  ref={(el) =>
+                                    (dropdownRefs.current[room.name] = el)
+                                  }
+                                  onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
                                 >
                                   <button
                                     onClick={(e) => {
@@ -580,17 +689,21 @@ const Chat = () => {
                                     <BsThreeDots size={20} />
                                   </button>
 
-                                  {openMenuFor === roomId && (
+                                  {openMenuFor === room.name && (
                                     <div className="dropdown-menu">
+
                                       <button
                                         className="dropdown-item"
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          handleDeleteRoom(roomId);
+                                          handleDeleteRoom(room.name);
                                           setOpenMenuFor(null);
                                         }}
+                                        disabled={loadingFriendRooms === room.name}
                                       >
-                                        🗑️ Delete Room
+                                        {loadingFriendRooms === room.name
+                                          ? "กำลังลบ..."
+                                          : "🗑️ ลบห้อง"}
                                       </button>
                                     </div>
                                   )}
@@ -609,31 +722,52 @@ const Chat = () => {
         </div>
         <div className="chat-container">
           <div className="show-info">
-            <img src={userPhoto} alt="Profile" className="chat-profile" />
-            <h2>{userName}</h2>
+            <img src={users.find(u => u.email === activeUser)?.photoURL || RoomsBar.roomImage || userPhoto} alt="Profile" className="chat-profile" />
+            <h2>{users.find(u => u.email === activeUser)?.displayName || RoomsBar.roomName || userName}</h2>
           </div>
           <div className="chat-box">
             {filteredMessages.map((msg) => {
-              const isCurrentUser = msg.sender === userName;
-              const senderPhoto =
-                userPhotos[msg.sender] ||
-                "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg";
+              const isCurrentUser = msg.sender === userEmail;
+              const senderInfo = users.find(user => user.email?.toLowerCase() === msg.sender?.toLowerCase());
+              const messageDate = msg.timestamp?.toDate();
 
               return (
                 <div
                   key={msg.id}
-                  className={`chat-message ${isCurrentUser ? "my-message" : "other-message"
-                    }`}
-                >
-                  <img
-                    src={senderPhoto}
-                    alt="Sender"
-                    className="message-photo"
-                  />
-                  <div className="message-bubble">{msg.text}</div>
+                  className={`chat-message ${isCurrentUser ? "my-message" : "other-message"}`}                >
+                  {!isCurrentUser && (
+                    <img
+                      src={senderInfo?.photoURL || defaultProfileImage}
+                      alt="Sender"
+                      className="message-avatar"
+                    />
+                  )}
+
+                  <div className="message-content">
+                    <div className="message-time">
+                      {messageDate && messageDate.toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </div>
+                    <div className={`message-bubble ${isCurrentUser ? 'current' : 'other'}`}>
+                      {msg.text}
+
+                    </div>
+
+                  </div>
+
+                  {isCurrentUser && (
+                    <img
+                      src={userPhoto || defaultProfileImage}
+                      alt="You"
+                      className="message-avatar"
+                    />
+                  )}
                 </div>
               );
             })}
+
             <div ref={endOfMessagesRef} />
           </div>
           <div className="chat-input-container">
@@ -679,8 +813,9 @@ const Chat = () => {
             </div>
           </div>
         )}
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       </div>
-    </RequireLogin>
+    </RequireLogin >
   );
 };
 
