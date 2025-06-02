@@ -284,6 +284,7 @@ const Profile = () => {
       </div>
       <div className="profile-container">
         <img src={userPhoto} alt="Profile" className="profile-image" />
+        <h4>{userEmail}</h4>
         <h2>
           {isEditing ? (
             <input

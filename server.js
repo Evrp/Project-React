@@ -125,7 +125,7 @@ app.get("/api/user-rooms/:email", async (req, res) => {
 
   try {
     const user = await Info.findOne({ email: encodedEmail });
-    if (!user) return res.status(404).json({ error: "User not found"});
+    if (!user) return res.status(404).json({ error: "User not found" });
 
     // ✅ แยกเฉพาะ roomId ออกมา
 
@@ -257,7 +257,7 @@ app.post("/api/logout", async (req, res) => {
   }
 });
 
-// 📌 6️⃣ API บันทึกหมวดหมู่เพลงที่ผู้ใช้เลือก
+// 📌 API บันทึกหมวดหมู่เพลงที่ผู้ใช้เลือก
 app.post("/api/update-genres", async (req, res) => {
   const { email, genres, subGenres, updatedAt } = req.body;
   if (!email || !genres || !subGenres) {
@@ -292,8 +292,7 @@ app.post("/api/update-genres", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-// 📌 7️⃣ API บันทึก Event จาก Make.com///////
+// 📌 API บันทึก Event จาก Make.com///////
 app.post("/api/save-event", async (req, res) => {
   const { title, genre, location, date, description, link, isFirst, email } =
     req.body;
@@ -322,8 +321,7 @@ app.post("/api/save-event", async (req, res) => {
     res.status(500).json({ message: "Failed to save event" });
   }
 });
-
-// ดึง filter ตาม email
+///📌 API ดึง filter ตาม email
 app.get("/api/filters/:email", async (req, res) => {
   try {
     const filter = await Filter.findOne({ email: req.params.email }); // ดึงตาม email
@@ -334,8 +332,7 @@ app.get("/api/filters/:email", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-// 📌 8️⃣ API ดึง Event ไปแสดงใน React
+// 📌 API ดึง Event ไปแสดงใน React
 app.get("/api/events", async (req, res) => {
   const email = req.query.email;
 
@@ -347,8 +344,7 @@ app.get("/api/events", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-// 📌 9️⃣ API ลบ Event
+// 📌 API ลบ Event
 app.delete("/api/detele-events/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -398,9 +394,64 @@ app.delete("/api/delete-rooms/:name", async (req, res) => {
     res.status(500).json({ message: "Delete failed" });
   }
 });
+////////////Delete Joined Room///////////////
+app.delete("/api/delete-joined-rooms/:roomName/:userEmail", async (req, res) => {
+  const { roomName, userEmail } = req.params;
 
+  try {
+    // 1. หาข้อมูลห้องจากชื่อ
+    const room = await Room.findOne({ name: roomName });
+    console.log("Found room:", room);
+    
+    if (!room) {
+      return res.status(404).json({ 
+        success: false,
+        message: "Room not found" 
+      });
+    }
 
+    const roomId = room._id.toString();
+    console.log("Room ID:", roomId);
+    // 2. ลบห้องออกจาก joinedRooms (ทั้งรูปแบบ String และ Object)
+    const result = await Info.updateOne(
+      { email: userEmail },
+      { 
+        $pull: { 
+          joinedRooms: {
+            $or: [
+              { roomId: roomId },          // กรณีเป็น String
+              { roomName: roomName }        // กรณีเป็น Object
+            ]
+          }
+        } 
+      }
+    );
 
+    console.log("Update result:", result);
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ 
+        success: false,
+        message: "User or room not found in joinedRooms" 
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Room removed from user's joinedRooms",
+      roomName: roomName,
+      userEmail: userEmail
+    });
+
+  } catch (err) {
+    console.error("Delete error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Delete failed",
+      error: err.message
+    });
+  }
+});
 // POST /api/save-user-info
 app.post("/api/save-user-info", async (req, res) => {
   const { email, userInfo } = req.body;
