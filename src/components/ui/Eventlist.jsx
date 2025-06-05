@@ -17,8 +17,8 @@ const EventList = () => {
       const imageList = res.data.imageGenres;
 
       imageList.forEach((item) => {
-        console.log("🎨 Genre:", item.genres);
-        console.log("🖼️ Image:", item.image);
+        // console.log("🎨 Genre:", item.genres);
+        // console.log("🖼️ Image:", item.image);
       });
       console.log("✅ Fetched:", imageList[1]);
 

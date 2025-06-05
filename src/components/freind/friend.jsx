@@ -35,11 +35,12 @@ const Friend = () => {
   const fetchCurrentUserAndFriends = async () => {
     try {
       const encodedEmail = encodeURIComponent(userEmail);
+      console.log("encodedEmail", encodedEmail);
       const userRes = await axios.get(
         `http://localhost:8080/api/users/${encodedEmail}`
       );
       const currentUser = userRes.data;
-
+      console.log("currentUser", currentUser);
       if (Array.isArray(currentUser.friends)) {
         const friendEmails = currentUser.friends;
 
@@ -201,7 +202,7 @@ const Friend = () => {
   const fetchGmailUser = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/users/gmail/${userEmail}`
+        `http://localhost:8080/api/users/${userEmail}`
       );
       setCurrentUserfollow(res.data);
     } catch (err) {
@@ -217,9 +218,8 @@ const Friend = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `http://localhost:8080/api/users/${userEmail}/${
-      isFollowing ? "unfollow" : "follow"
-    }/${targetEmail}`;
+    const url = `http://localhost:8080/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
+      }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -303,9 +303,8 @@ const Friend = () => {
                 </div>
                 <div className="con-right">
                   <span
-                    className={`status ${
-                      friend.isOnline ? "online" : "offline"
-                    }`}
+                    className={`status ${friend.isOnline ? "online" : "offline"
+                      }`}
                   >
                     {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                   </span>
@@ -350,7 +349,7 @@ const Friend = () => {
                           }}
                         >
                           {Array.isArray(currentUserfollow?.following) &&
-                          currentUserfollow.following.includes(friend.email)
+                            currentUserfollow.following.includes(friend.email)
                             ? "🔔 กำลังติดตาม"
                             : "➕ ติดตาม"}
                         </button>
@@ -397,9 +396,8 @@ const Friend = () => {
                   </div>
                   <div className="con-right">
                     <span
-                      className={`status ${
-                        user.isOnline ? "online" : "offline"
-                      }`}
+                      className={`status ${user.isOnline ? "online" : "offline"
+                        }`}
                     >
                       {user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                     </span>
@@ -452,7 +450,7 @@ const Friend = () => {
                             }}
                           >
                             {Array.isArray(currentUserfollow?.following) &&
-                            currentUserfollow.following.includes(user.email)
+                              currentUserfollow.following.includes(user.email)
                               ? "🔔 กำลังติดตาม"
                               : "➕ ติดตาม"}
                           </button>

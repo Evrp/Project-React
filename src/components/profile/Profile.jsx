@@ -101,6 +101,7 @@ const Profile = () => {
       });
 
       if (response.ok) {
+        console.log("tempInfo", tempInfo);
         setUserInfo(tempInfo);
         setEditingField(null);
         console.log("✅ บันทึกข้อมูลสำเร็จ");
@@ -111,27 +112,26 @@ const Profile = () => {
       console.error("🚨 Error:", error);
     }
   };
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      const email = localStorage.getItem("userEmail");
-      if (!email) return;
+  const fetchUserInfo = async () => {
+    const email = localStorage.getItem("userEmail");
+    if (!email) return;
 
-      try {
-        const res = await fetch(
-          `http://localhost:8080/api/user-info?email=${email}`
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setUserInfo(data);
-          setTempInfo(data); // ตั้งค่าช่วงแก้ไขให้เหมือนกัน
-        }
-      } catch (err) {
-        console.error("❌ ดึงข้อมูล userInfo ไม่สำเร็จ:", err);
-      }
-    };
+    try {
+      const email = encodeURIComponent(userEmail);
 
-    fetchUserInfo();
-  }, []);
+      const res = await axios.get(
+        `http://localhost:8080/api/user-info/${email}`
+      );
+
+      const data = res.data;
+      console.log("data", data);
+      setUserInfo(data);
+      setTempInfo(data); // ตั้งค่าช่วงแก้ไขให้เหมือนกัน
+
+    } catch (err) {
+      console.error("❌ ดึงข้อมูล userInfo ไม่สำเร็จ:", err);
+    }
+  };
 
   const handleEditGenres = async () => {
     const email = localStorage.getItem("userEmail");
@@ -276,6 +276,11 @@ const Profile = () => {
       fetchFollowInfo();
     }
   }, [userEmail]);
+  ///////////show user info//////////
+  useEffect(() => {
+    fetchUserInfo();
+    console.log("userInfo", userInfo);
+  }, []);
 
   return (
     <div className="container-profile">
@@ -377,9 +382,8 @@ const Profile = () => {
                     <button
                       key={genre}
                       onClick={() => toggleGenre(genre)}
-                      className={`genre-button ${
-                        selectedGenres.includes(genre) ? "selected" : ""
-                      }`}
+                      className={`genre-button ${selectedGenres.includes(genre) ? "selected" : ""
+                        }`}
                     >
                       {genre}
                     </button>
@@ -408,16 +412,16 @@ const Profile = () => {
                   </Button>
                   {JSON.stringify(originalGenres) !==
                     JSON.stringify(selectedGenres) && (
-                    <Button
-                      onClick={() => {
-                        setSelectedGenres(originalGenres);
-                        setEditingGenres(false);
-                      }}
-                      className="edit-button-cancel-button"
-                    >
-                      ย้อนกลับ
-                    </Button>
-                  )}
+                      <Button
+                        onClick={() => {
+                          setSelectedGenres(originalGenres);
+                          setEditingGenres(false);
+                        }}
+                        className="edit-button-cancel-button"
+                      >
+                        ย้อนกลับ
+                      </Button>
+                    )}
                 </>
               ) : (
                 <Button
@@ -455,11 +459,10 @@ const Profile = () => {
                           <button
                             key={sub}
                             onClick={() => toggleSubGenre(genre, sub)}
-                            className={`subgenre-button ${
-                              selectedSubGenres[genre]?.includes(sub)
-                                ? "selected"
-                                : ""
-                            }`}
+                            className={`subgenre-button ${selectedSubGenres[genre]?.includes(sub)
+                              ? "selected"
+                              : ""
+                              }`}
                           >
                             {sub}
                           </button>

@@ -270,13 +270,13 @@
   padding: 0 12px;
 }
 
-.current-user {
-  justify-content: flex-end;
+/* .current-user {
+  justify-content: flex-start;
 }
 
 .other-user {
   justify-content: flex-start;
-}
+} */
 
 /* รูปโปรไฟล์ */
 .message-avatar {
@@ -289,10 +289,18 @@
 }
 
 /* เนื้อหาข้อความ */
-.message-content {
+.message-content.current {
   max-width: 70%;
   display: flex;
+  /* justify-content: flex-end; */
   flex-direction: row;
+}
+
+.message-content.ohter {
+  max-width: 70%;
+  display: flex;
+  /* justify-content: flex-end; */
+  /* flex-direction: row-reverse; */
 }
 
 .sender-name {
@@ -323,10 +331,17 @@
 }
 
 /* เวลา */
-.message-time {
+.message-time.current {
   font-size: 0.7rem;
   align-content: end;
   text-align: right;
+  margin-right: 8px;
+  opacity: 0.8;
+}
+.message-time.other {
+  font-size: 0.7rem;
+  align-content: end;
+  text-align: left;
   margin-right: 8px;
   opacity: 0.8;
 }

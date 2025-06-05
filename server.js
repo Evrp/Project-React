@@ -153,16 +153,16 @@ app.get("/api/users/:email", async (req, res) => {
   }
 });
 
-app.get("/api/users/gmail/:email", async (req, res) => {
-  const { email } = req.params;
-  try {
-    const user = await Friend.findOne({ email }); // เปลี่ยนเป็น model จริง
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// app.get("/api/users/gmail/:email", async (req, res) => {
+//   const { email } = req.params;
+//   try {
+//     const user = await Friend.findOne({ email }); // เปลี่ยนเป็น model จริง
+//     if (!user) return res.status(404).json({ message: "User not found" });
+//     res.json(user);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
 // 📌 7️⃣ API ดึงข้อมูลเพื่อน
 app.get("/api/friends/:email", async (req, res) => {
@@ -248,7 +248,7 @@ app.get("/api/usersfriends", async (req, res) => {
 app.post("/api/logout", async (req, res) => {
   try {
     const { email } = req.body;
-    await Gmail.deleteOne({ email });
+    // await Gmail.deleteOne({ email });
     io.emit("user-logout", email); // แจ้งทุกคนว่าผู้ใช้ได้ออกจากระบบแล้ว
     res.status(200).json({ message: "ลบผู้ใช้ออกจาก MongoDB เรียบร้อยแล้ว" });
   } catch (error) {
@@ -402,11 +402,11 @@ app.delete("/api/delete-joined-rooms/:roomName/:userEmail", async (req, res) => 
     // 1. หาข้อมูลห้องจากชื่อ
     const room = await Room.findOne({ name: roomName });
     console.log("Found room:", room);
-    
+
     if (!room) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Room not found" 
+        message: "Room not found"
       });
     }
 
@@ -415,24 +415,24 @@ app.delete("/api/delete-joined-rooms/:roomName/:userEmail", async (req, res) => 
     // 2. ลบห้องออกจาก joinedRooms (ทั้งรูปแบบ String และ Object)
     const result = await Info.updateOne(
       { email: userEmail },
-      { 
-        $pull: { 
+      {
+        $pull: {
           joinedRooms: {
             $or: [
               { roomId: roomId },          // กรณีเป็น String
               { roomName: roomName }        // กรณีเป็น Object
             ]
           }
-        } 
+        }
       }
     );
 
     console.log("Update result:", result);
 
     if (result.modifiedCount === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "User or room not found in joinedRooms" 
+        message: "User or room not found in joinedRooms"
       });
     }
 
@@ -471,10 +471,11 @@ app.post("/api/save-user-info", async (req, res) => {
 });
 
 // GET /api/user-info?email=xxx
-app.get("/api/user-info", async (req, res) => {
-  const { email } = req.query;
+app.get("/api/user-info/:email", async (req, res) => {
+  const { email } = req.params;
 
   try {
+    console.log("Fetching user info for email:", email);
     const user = await Info.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -482,6 +483,7 @@ app.get("/api/user-info", async (req, res) => {
   } catch (error) {
     console.error("❌ Error fetching user info:", error);
     res.status(500).json({ message: "Server error" });
+    res.status(404).json({ message: "Server error" });
   }
 });
 
