@@ -15,6 +15,7 @@ import {
   onSnapshot,
   query,
   orderBy,
+  doc,
   Timestamp
 } from "firebase/firestore";
 import "../chat/Chat.css";
@@ -57,6 +58,8 @@ const Chat = () => {
   const displayName = localStorage.getItem("userName");
   const photoURL = localStorage.getItem("userPhoto");
   const [openMenuFor, setOpenMenuFor] = useState(null);
+  const [isGroupChat, setIsGroupChat] = useState(false);
+  const [roomData, setRoomData] = useState({});
   const defaultProfileImage = userPhoto;
 
   const fetchUsersAndFriends = async () => {
@@ -145,7 +148,7 @@ const Chat = () => {
   const fetchGmailUser = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/users/gmail/${userEmail}`
+        `http://localhost:8080/api/users/${userEmail}`
       );
       setCurrentUserfollow(res.data);
     } catch (err) {
@@ -228,7 +231,7 @@ const Chat = () => {
       const res = await axios.get(
         `http://localhost:8080/api/user-rooms/${encodedEmail}`
       );
-      console.log(res.data);
+      // console.log(res.data);
       setJoinedRooms(res.data);
     } catch (err) {
       console.error("Error fetching joined rooms:", err);
@@ -323,115 +326,50 @@ const Chat = () => {
   }, [isOpencom, userEmail]);
   /////////Chat One To One//////////
   useEffect(() => {
-    console.log("roomId:", roomId);
+    if (!roomId) return;
+    console.log("Room ID:", roomId);
+    const roomRef = doc(db, "messages", roomId);
+    const roomUnsubscribe = onSnapshot(roomRef, (doc) => {
+      const data = doc.data();
+      console.log("Room Data (Type):", data?.type); // Debug
+      console.log(isGroupChat);
+      setIsGroupChat(isGroupChat == true);
+    });
+
     const q = query(messagesRef, orderBy("timestamp"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const allMessages = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      }));
+      })).filter(msg => msg.roomId === roomId); // กรองเฉพาะข้อความในห้องนี้
 
-      // ✅ กรองเฉพาะข้อความในห้องนี้
-      const roomMessages = allMessages.filter((msg) => msg.roomId === roomId);
-      setMessages(roomMessages);
+      console.log("All Messages:", allMessages); // Debug
+      console.log(" isGroupChat:", isGroupChat); // Debug
 
-      // ✅ เล่นเสียงถ้ามีข้อความใหม่ที่มาจากคนอื่นส่งให้เรา
-      const lastMsg = roomMessages[roomMessages.length - 1];
-      if (
-        lastMsg &&
-        lastMsg.sender !== userName &&
-        lastMsg.text &&
-        lastMsg.receiver === userName
-      ) {
-        audioRef.current?.play().catch(() => { });
-      }
+      const filteredMessages = isGroupChat
+        ? allMessages.filter((msg) => {
+          const isMyMsg = msg.receiver === activeUser;
+          return isMyMsg;
+        })
+        : allMessages
+          .filter((msg) => {
+            const isMyMsg = msg.sender === userEmail && msg.receiver === activeUser;
+            const isTheirMsg = msg.sender === activeUser &&
+              (msg.receiver === userEmail || !msg.receiver);
+            return isMyMsg || isTheirMsg;
+          });
 
-      const users = new Set();
-      roomMessages.forEach((msg) => {
-        if (msg.sender !== userName) {
-          users.add(msg.sender);
-        }
-      });
-
-      const usersArray = Array.from(users);
-      setChatUsers(usersArray);
-
-      if (!activeUser && usersArray.length > 0) {
-        setActiveUser(usersArray[usersArray.length - 1]);
-      }
-      console
-      // console.log("photo", usersArray[usersArray.length - 1]);
-      // console.log("photo", filteredFriends[filteredFriends.length - 1].photoURL);
-      const fetchUserPhotos = async () => {
-        // สร้าง object เพื่อเก็บ URL รูปโปรไฟล์
-        const userPhotoURLs = {};
-
-        // วนลูปผ่าน users เพื่อหารูปโปรไฟล์
-        users.forEach(user => {
-          // หาเพื่อนที่ตรงกับ user email
-          const friend = filteredFriends.find(f => f.displayName === user);
-          // ถ้าเจอเพื่อนและมีรูปโปรไฟล์
-          if (friend && friend.photoURL) {
-            userPhotoURLs[user.email] = friend.photoURL;
-            console.log("photouser", userPhotoURLs[user.email]);
-          } else {
-            // ถ้าไม่เจอหรือไม่มีรูป ใช้รูป default
-            userPhotoURLs[user.email] = "https://blog.wu.ac.th/wp-content/uploads/2023/01/8.jpg";
-          }
-        });
-
-        // บันทึกรูปโปรไฟล์ทั้งหมดลง state
-        setUserPhotos(filteredFriends);
-      };
-      fetchUserPhotos();
-    });
-    scrollToBottom();
-    return () => unsubscribe();
-  }, [userName, activeUser, roomId]);
-  ////////Chat one to Many//////////
-  useEffect(() => {
-    if (!roomId) return;
-
-    // 1. ดึงข้อมูลห้องจาก Firestore เพื่อตรวจสอบประเภท
-    const roomRef = doc(firestore, "rooms", roomId);
-    const roomUnsubscribe = onSnapshot(roomRef, (doc) => {
-      const roomData = doc.data();
-      setIsGroupChat(roomData?.type === "group");
-    });
-
-    // 2. ดึงข้อความ (ปรับ query สำหรับกลุ่ม)
-    const messagesQuery = query(
-      collection(firestore, "rooms", roomId, "messages"),
-      orderBy("timestamp")
-    );
-
-    const messagesUnsubscribe = onSnapshot(messagesQuery, (snapshot) => {
-      const roomMessages = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-
-      setMessages(roomMessages);
-
-      // เล่นเสียงเมื่อมีข้อความใหม่จากคนอื่น (เฉพาะกลุ่ม)
-      const lastMsg = roomMessages[roomMessages.length - 1];
-      if (lastMsg && lastMsg.sender !== userEmail) {
-        audioRef.current?.play().catch(() => { });
-      }
-
-      // อัปเดตรายชื่อผู้ร่วมแชท (สำหรับกลุ่ม)
-      if (isGroupChat) {
-        const uniqueSenders = [...new Set(roomMessages.map(msg => msg.sender))];
-        setChatUsers(uniqueSenders);
-      }
+      console.log("Filtered Messages:", filteredMessages); // Debug
+      setMessages(filteredMessages);
+      scrollToBottom();
     });
 
     return () => {
+      unsubscribe();
       roomUnsubscribe();
-      messagesUnsubscribe();
     };
-  }, [roomId, userEmail, isGroupChat]);
-  ////////////////////////////////
+  }, [roomId, userEmail, isGroupChat, activeUser]);
+
   const handleSend = async () => {
     if (input.trim() === "" || !activeUser) return;
     console.log("input:", input);
@@ -441,39 +379,36 @@ const Chat = () => {
     console.log("serverTimestamp:", serverTimestamp());
 
 
-    // สำหรับห้องกลุ่ม
-    if (isGroupChat) {
-      await addDoc(collection(firestore, "rooms", roomId, "messages"), {
-        sender: userEmail,
-        content: input,
-        timestamp: serverTimestamp()
-      });
+    const messageData = {
+      sender: userEmail,
+      content: input,
+      timestamp: serverTimestamp(),
+      roomId: roomId
+    };
+
+    // เพิ่ม receiver สำหรับแชทส่วนตัว
+    if (!isGroupChat && activeUser) {
+      messageData.receiver = activeUser;
     }
-    // สำหรับแชทส่วนตัว
-    else {
-      await addDoc(messagesRef, {
-        text: input,
-        sender: userEmail,
-        receiver: activeUser,
-        timestamp: serverTimestamp()
-      });
+    confirm
+    if (isGroupChat == true) {
+      // สำหรับแชทกลุ่ม
+      messageData.type = "group";
+      // ไม่ต้องใส่ receiver หรือจะใส่เป็นสมาชิกทั้งหมดก็ได้
+      // messageData.receiver = roomData?.members; 
     }
-    console;
+
+    await addDoc(messagesRef, messageData);
     setInput("");
   };
-  const filteredMessages = messages.filter((msg) => {
-    const isMyMsg = msg.sender === userEmail && msg.receiver === activeUser;
-    const isTheirMsg =
-      msg.sender === activeUser && (msg.receiver === userEmail || !msg.receiver);
-    return isMyMsg || isTheirMsg;
-  });
+
   const filteredFriends = friends.filter((friend) =>
     friend.displayName.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
   const setProfilebar = (displayName) => {
     setFriendsBar({ displayName });
   };
@@ -521,6 +456,7 @@ const Chat = () => {
                             displayName: friend.displayName
                           });
                           setActiveUser(friend.email)
+                          setIsGroupChat(false);
                         }}
                       >
                         <img
@@ -649,11 +585,12 @@ const Chat = () => {
                           {allRooms.map((room) =>
                             room.name === name ? (
                               <li
-                                key={room.roomId}
+                                // key={room.roomId}
                                 className="chat-friend-item"
                                 onClick={() => {
                                   setActiveUser(room.name),
                                     setRoombar(room.image, room.name)
+                                  setIsGroupChat(true);
                                 }}
                               >
                                 <img
@@ -722,11 +659,23 @@ const Chat = () => {
         </div>
         <div className="chat-container">
           <div className="show-info">
-            <img src={users.find(u => u.email === activeUser)?.photoURL || RoomsBar.roomImage || userPhoto} alt="Profile" className="chat-profile" />
-            <h2>{users.find(u => u.email === activeUser)?.displayName || RoomsBar.roomName || userName}</h2>
+            {/* <img src={users.find(u => u.email === activeUser)?.photoURL || RoomsBar.roomImage || userPhoto} alt="Profile" className="chat-profile" /> */}
+            <img
+              src={isGroupChat
+                ? roomData?.image
+                : users.find(u => u.email === activeUser)?.photoURL || RoomsBar.roomImage || userPhoto}
+              alt="Profile"
+              className="chat-profile"
+            />
+            {/* <h2>{users.find(u => u.email === activeUser)?.displayName || RoomsBar.roomName || userName}</h2> */}
+            <h2>
+              {isGroupChat
+                ? roomData?.name
+                : users.find(u => u.email === activeUser)?.displayName || RoomsBar.roomName || userName}
+            </h2>
           </div>
           <div className="chat-box">
-            {filteredMessages.map((msg) => {
+            {messages.map((msg) => {
               const isCurrentUser = msg.sender === userEmail;
               const senderInfo = users.find(user => user.email?.toLowerCase() === msg.sender?.toLowerCase());
               const messageDate = msg.timestamp?.toDate();
@@ -743,15 +692,15 @@ const Chat = () => {
                     />
                   )}
 
-                  <div className="message-content">
-                    <div className="message-time">
+                  <div className={`message-content ${isCurrentUser ? 'current' : 'other'}`}>
+                    <div className={`message-time ${isCurrentUser ? 'current' : 'other'}`}>
                       {messageDate && messageDate.toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit',
                       })}
                     </div>
                     <div className={`message-bubble ${isCurrentUser ? 'current' : 'other'}`}>
-                      {msg.text}
+                      {msg.content || msg.text}
 
                     </div>
 
@@ -775,7 +724,8 @@ const Chat = () => {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
+              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              placeholder={isGroupChat ? "พิมพ์ถึงกลุ่ม..." : "พิมพ์ข้อความ..."}
               className="chat-input"
             />
             <button onClick={handleSend} className="chat-send-button">

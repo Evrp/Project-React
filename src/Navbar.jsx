@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FiMenu, FiX } from "react-icons/fi";
-import { Link, useLocation,useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import "./Navbar.css";
 import { useAuth } from "./firebase/Authcontext";
 import { FaUsers, FaUser, FaUserFriends, FaCog } from "react-icons/fa";
@@ -99,7 +99,9 @@ const Navbar = () => {
         </Link>
 
         {user ? (
-          <li className="logout-link" onClick={handleLogout}>
+          <li className="logout-link" 
+          onClick={handleLogout}
+          >
             <span>LOGOUT</span>
           </li>
         ) : (
