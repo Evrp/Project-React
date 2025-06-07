@@ -394,8 +394,7 @@ const Chat = () => {
     if (isGroupChat == true) {
       // สำหรับแชทกลุ่ม
       messageData.type = "group";
-      // ไม่ต้องใส่ receiver หรือจะใส่เป็นสมาชิกทั้งหมดก็ได้
-      // messageData.receiver = roomData?.members; 
+      messageData.receiver = activeUser;
     }
 
     await addDoc(messagesRef, messageData);
@@ -659,20 +658,20 @@ const Chat = () => {
         </div>
         <div className="chat-container">
           <div className="show-info">
-            {/* <img src={users.find(u => u.email === activeUser)?.photoURL || RoomsBar.roomImage || userPhoto} alt="Profile" className="chat-profile" /> */}
-            <img
+            <img src={users.find(u => u.email === activeUser)?.photoURL || RoomsBar.roomImage || userPhoto} alt="Profile" className="chat-profile" />
+            {/* <img
               src={isGroupChat
                 ? roomData?.image
                 : users.find(u => u.email === activeUser)?.photoURL || RoomsBar.roomImage || userPhoto}
               alt="Profile"
               className="chat-profile"
-            />
-            {/* <h2>{users.find(u => u.email === activeUser)?.displayName || RoomsBar.roomName || userName}</h2> */}
-            <h2>
+            /> */}
+            <h2>{users.find(u => u.email === activeUser)?.displayName || RoomsBar.roomName || userName}</h2>
+            {/* <h2>
               {isGroupChat
                 ? roomData?.name
                 : users.find(u => u.email === activeUser)?.displayName || RoomsBar.roomName || userName}
-            </h2>
+            </h2> */}
           </div>
           <div className="chat-box">
             {messages.map((msg) => {
