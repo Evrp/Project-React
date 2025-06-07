@@ -296,11 +296,12 @@
   flex-direction: row;
 }
 
-.message-content.ohter {
+.message-content.other {
   max-width: 70%;
   display: flex;
+
   /* justify-content: flex-end; */
-  /* flex-direction: row-reverse; */
+  flex-direction: row-reverse;
 }
 
 .sender-name {
@@ -342,7 +343,7 @@
   font-size: 0.7rem;
   align-content: end;
   text-align: left;
-  margin-right: 8px;
+  margin-left: 8px;
   opacity: 0.8;
 }
 

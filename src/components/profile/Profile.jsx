@@ -36,6 +36,7 @@ const Profile = () => {
   const userEmail = localStorage.getItem("userEmail");
   const navigate = useNavigate();
   const [originalGenres, setOriginalGenres] = useState([]);
+  const [nickName, setNickName] = useState("");
 
   const [selectedGenres, setSelectedGenres] = useState(
     JSON.parse(localStorage.getItem("selectedGenres")) || []
@@ -110,6 +111,44 @@ const Profile = () => {
       }
     } catch (error) {
       console.error("🚨 Error:", error);
+    }
+  };
+  useEffect(() => {
+    const savedNickName = localStorage.getItem('nickName');
+    if (savedNickName) {
+      setNickName(savedNickName);
+    }
+  }, []);
+  const updateNickName = async (newNickName) => {
+    try {
+      const email = localStorage.getItem("userEmail");
+      if (!email) {
+        console.error("❌ ไม่พบอีเมลผู้ใช้");
+        return;
+      }
+      setNickName(newNickName);
+
+      localStorage.setItem('nickName', newNickName);
+
+      const response = await fetch('http://localhost:8080/api/save-user-info', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          nickName: newNickName
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update nickname in database');
+      }
+
+      console.log('Nickname updated successfully');
+    } catch (error) {
+      console.error('Error updating nickname:', error);
+      // สามารถแสดง error ให้ผู้ใช้เห็นได้
     }
   };
   const fetchUserInfo = async () => {
@@ -199,14 +238,14 @@ const Profile = () => {
     }
   };
   const handleChange = (e) => {
-    setUserName(e.target.value);
+    setNickName(e.target.value);
   };
   const handleBlur = async () => {
     const email = localStorage.getItem("userEmail");
 
-    if (!email || !userName.trim()) {
+    if (!email || !nickName.trim()) {
       console.error("ชื่อว่างหรือไม่มีอีเมล");
-      setUserName(previousUserName); // ย้อนค่ากลับเดิม
+      setNickName(previousUserName); // ย้อนค่ากลับเดิม
       return;
     }
 
@@ -239,7 +278,7 @@ const Profile = () => {
   useEffect(() => {
     const savedName = localStorage.getItem("userName");
     if (savedName) {
-      setUserName(savedName);
+      setNickName(savedName);
     }
   }, []);
 
@@ -294,7 +333,7 @@ const Profile = () => {
           {isEditing ? (
             <input
               type="text"
-              value={userName}
+              value={nickName}
               onChange={handleChange}
               onBlur={handleBlur} // เมื่อผู้ใช้หยุดพิมพ์และคลิกออก จะบันทึก
               autoFocus
@@ -310,7 +349,7 @@ const Profile = () => {
             />
           ) : (
             <span style={{ fontSize: "30px", fontWeight: "600" }}>
-              {userName || "ใส่ชื่อของคุณ"}
+              {nickName || userEmail}
             </span>
           )}
 

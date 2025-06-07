@@ -495,9 +495,9 @@ app.post("/api/update-display-name", async (req, res) => {
   }
 
   try {
-    const user = await Gmail.findOneAndUpdate(
+    const user = await Info.findOneAndUpdate(
       { email },
-      { displayName },
+      { userInfo },
       { new: true }
     );
 

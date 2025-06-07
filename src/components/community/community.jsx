@@ -259,9 +259,9 @@ const Newcommu = () => {
             ) : (
               matches.map((friend, index) => (
                 <div key={index} className="friend-card">
-                  <div className="rf">
                     <div className="dfd"></div>
                     <div className="header-friend-card">
+                      <h1 className="ee">ee</h1>
                       <img
                         src={friend.photoURL}
                         alt="profile"
@@ -279,7 +279,7 @@ const Newcommu = () => {
                         />
                       </div>
                     </div>
-                  </div>
+                 
 
                   <h3>{friend.displayName}</h3>
                   <p>{friend.email}</p>
