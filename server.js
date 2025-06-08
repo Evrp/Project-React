@@ -378,16 +378,16 @@ app.delete("/api/delete-rooms/:name", async (req, res) => {
       {
         $pull: {
           joinedRooms: {
-            roomId: roomIdToDelete
-          }
-        }
+            roomId: roomIdToDelete,
+          },
+        },
       }
     );
 
     res.json({
       message: "Room deleted and removed from user joinedRooms",
       deletedRoom,
-      updatedUsers: result.modifiedCount
+      updatedUsers: result.modifiedCount,
     });
   } catch (err) {
     console.error("Delete error:", err);
@@ -395,63 +395,65 @@ app.delete("/api/delete-rooms/:name", async (req, res) => {
   }
 });
 ////////////Delete Joined Room///////////////
-app.delete("/api/delete-joined-rooms/:roomName/:userEmail", async (req, res) => {
-  const { roomName, userEmail } = req.params;
+app.delete(
+  "/api/delete-joined-rooms/:roomName/:userEmail",
+  async (req, res) => {
+    const { roomName, userEmail } = req.params;
 
-  try {
-    // 1. หาข้อมูลห้องจากชื่อ
-    const room = await Room.findOne({ name: roomName });
-    console.log("Found room:", room);
+    try {
+      // 1. หาข้อมูลห้องจากชื่อ
+      const room = await Room.findOne({ name: roomName });
+      console.log("Found room:", room);
 
-    if (!room) {
-      return res.status(404).json({
-        success: false,
-        message: "Room not found"
-      });
-    }
-
-    const roomId = room._id.toString();
-    console.log("Room ID:", roomId);
-    // 2. ลบห้องออกจาก joinedRooms (ทั้งรูปแบบ String และ Object)
-    const result = await Info.updateOne(
-      { email: userEmail },
-      {
-        $pull: {
-          joinedRooms: {
-            $or: [
-              { roomId: roomId },          // กรณีเป็น String
-              { roomName: roomName }        // กรณีเป็น Object
-            ]
-          }
-        }
+      if (!room) {
+        return res.status(404).json({
+          success: false,
+          message: "Room not found",
+        });
       }
-    );
 
-    console.log("Update result:", result);
+      const roomId = room._id.toString();
+      console.log("Room ID:", roomId);
+      // 2. ลบห้องออกจาก joinedRooms (ทั้งรูปแบบ String และ Object)
+      const result = await Info.updateOne(
+        { email: userEmail },
+        {
+          $pull: {
+            joinedRooms: {
+              $or: [
+                { roomId: roomId }, // กรณีเป็น String
+                { roomName: roomName }, // กรณีเป็น Object
+              ],
+            },
+          },
+        }
+      );
 
-    if (result.modifiedCount === 0) {
-      return res.status(404).json({
+      console.log("Update result:", result);
+
+      if (result.modifiedCount === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "User or room not found in joinedRooms",
+        });
+      }
+
+      res.json({
+        success: true,
+        message: "Room removed from user's joinedRooms",
+        roomName: roomName,
+        userEmail: userEmail,
+      });
+    } catch (err) {
+      console.error("Delete error:", err);
+      res.status(500).json({
         success: false,
-        message: "User or room not found in joinedRooms"
+        message: "Delete failed",
+        error: err.message,
       });
     }
-
-    res.json({
-      success: true,
-      message: "Room removed from user's joinedRooms",
-      roomName: roomName,
-      userEmail: userEmail
-    });
-
-  } catch (err) {
-    console.error("Delete error:", err);
-    res.status(500).json({
-      success: false,
-      message: "Delete failed",
-      error: err.message
-    });
   }
-});
+);
 // POST /api/save-user-info
 app.post("/api/save-user-info", async (req, res) => {
   const { email, userInfo } = req.body;
@@ -467,6 +469,65 @@ app.post("/api/save-user-info", async (req, res) => {
   } catch (error) {
     console.error("❌ Error saving user info:", error);
     res.status(500).json({ message: "Server error" });
+  }
+});
+// ในไฟล์ backend (เช่น server.js)
+app.post("/api/save-user-name", async (req, res) => {
+  const { userEmail, nickName } = req.body;
+
+  try {
+    // ✅ อัปเดต nickname ใน Info collection
+    const infoUpdate = await Info.findOneAndUpdate(
+      { email: userEmail },
+      {
+        $set: {
+          nickname: nickName,
+          updatedAt: new Date(),
+        },
+      },
+      { new: true }
+    );
+
+    // ✅ อัปเดต displayName ใน Gmail collection
+    const gmailUpdate = await Gmail.findOneAndUpdate(
+      { email: userEmail },
+      {
+        $set: {
+          displayName: nickName,
+          updatedAt: new Date(),
+        },
+      },
+      { new: true }
+    );
+
+    if (!infoUpdate && !gmailUpdate) {
+      return res.status(404).json({ message: "ไม่พบผู้ใช้นี้ในทั้งสอง collection" });
+    }
+
+    res.json({
+      message: "อัปเดต nickname และ displayName เรียบร้อย",
+      info: infoUpdate,
+      gmail: gmailUpdate,
+    });
+
+  } catch (error) {
+    console.error("Database error:", error);
+    res.status(500).json({ message: "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์" });
+  }
+});
+
+
+app.get("/api/get-user", async (req, res) => {
+  const { email } = req.query;
+  try {
+    const user = await Info.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "ไม่พบผู้ใช้" });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error("Database error:", err);
+    res.status(500).json({ message: "เกิดข้อผิดพลาด" });
   }
 });
 
@@ -487,30 +548,6 @@ app.get("/api/user-info/:email", async (req, res) => {
   }
 });
 
-app.post("/api/update-display-name", async (req, res) => {
-  const { email, displayName } = req.body;
-
-  if (!email || !displayName) {
-    return res.status(400).json({ message: "Missing email or displayName" });
-  }
-
-  try {
-    const user = await Info.findOneAndUpdate(
-      { email },
-      { userInfo },
-      { new: true }
-    );
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.status(200).json({ message: "Display name updated", user });
-  } catch (error) {
-    console.error("Error updating display name:", error);
-    res.status(500).json({ message: "Server error" });
-  }
-});
 ///////////////Create Room/////////////
 app.post("/api/createroom", async (req, res) => {
   try {

@@ -34,9 +34,9 @@ const Profile = () => {
   // const userName = localStorage.getItem("userName");
   const userPhoto = localStorage.getItem("userPhoto");
   const userEmail = localStorage.getItem("userEmail");
+  const displayName = localStorage.getItem("userName");
   const navigate = useNavigate();
   const [originalGenres, setOriginalGenres] = useState([]);
-  const [nickName, setNickName] = useState("");
 
   const [selectedGenres, setSelectedGenres] = useState(
     JSON.parse(localStorage.getItem("selectedGenres")) || []
@@ -49,15 +49,13 @@ const Profile = () => {
       extra: "รายละเอียดอื่น ๆ ที่น่าสนใจเพิ่มเติม...",
     }
   );
-
+  const [nickName, setNickName] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
   const [editingGenres, setEditingGenres] = useState(false);
   const [editingField, setEditingField] = useState(null); // ช่องที่กำลังแก้ไข
   const [selectedSubGenres, setSelectedSubGenres] = useState({});
   const [tempInfo, setTempInfo] = useState({ ...userInfo }); // เก็บค่าที่แก้ไว้ชั่วคราว
-  const [isEditing, setIsEditing] = useState(false);
-  const [userName, setUserName] = useState(
-    localStorage.getItem("userName") || ""
-  );
+
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
 
@@ -114,43 +112,12 @@ const Profile = () => {
     }
   };
   useEffect(() => {
-    const savedNickName = localStorage.getItem('nickName');
+    const savedNickName = localStorage.getItem("nickName");
     if (savedNickName) {
       setNickName(savedNickName);
     }
   }, []);
-  const updateNickName = async (newNickName) => {
-    try {
-      const email = localStorage.getItem("userEmail");
-      if (!email) {
-        console.error("❌ ไม่พบอีเมลผู้ใช้");
-        return;
-      }
-      setNickName(newNickName);
-
-      localStorage.setItem('nickName', newNickName);
-
-      const response = await fetch('http://localhost:8080/api/save-user-info', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          nickName: newNickName
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update nickname in database');
-      }
-
-      console.log('Nickname updated successfully');
-    } catch (error) {
-      console.error('Error updating nickname:', error);
-      // สามารถแสดง error ให้ผู้ใช้เห็นได้
-    }
-  };
+ 
   const fetchUserInfo = async () => {
     const email = localStorage.getItem("userEmail");
     if (!email) return;
@@ -166,7 +133,6 @@ const Profile = () => {
       console.log("data", data);
       setUserInfo(data);
       setTempInfo(data); // ตั้งค่าช่วงแก้ไขให้เหมือนกัน
-
     } catch (err) {
       console.error("❌ ดึงข้อมูล userInfo ไม่สำเร็จ:", err);
     }
@@ -241,48 +207,22 @@ const Profile = () => {
     setNickName(e.target.value);
   };
   const handleBlur = async () => {
-    const email = localStorage.getItem("userEmail");
-
-    if (!email || !nickName.trim()) {
-      console.error("ชื่อว่างหรือไม่มีอีเมล");
-      setNickName(previousUserName); // ย้อนค่ากลับเดิม
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        "http://localhost:8080/api/update-display-name",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, displayName: userName.trim() }),
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("✅ อัปเดตชื่อสำเร็จ:", data);
-        localStorage.setItem("userName", userName.trim());
-      } else {
-        console.error("❌ อัปเดตชื่อไม่สำเร็จ");
-      }
-    } catch (error) {
-      console.error("🚨 เกิดข้อผิดพลาด:", error);
-    }
-
     setIsEditing(false);
+    try {
+      await axios.post("http://localhost:8080/api/save-user-name", {
+        userEmail,
+        nickName,
+      });
+      console.log("บันทึกชื่อเล่นแล้ว");
+    } catch (err) {
+      console.error("บันทึก nickname ล้มเหลว:", err);
+    }
   };
   const handleClick = () => {
     setIsEditing(true);
   };
-  useEffect(() => {
-    const savedName = localStorage.getItem("userName");
-    if (savedName) {
-      setNickName(savedName);
-    }
-  }, []);
 
-  if (!userName || !userPhoto) {
+  if (!userEmail || !userPhoto) {
     return (
       <div className="container-profile">
         <div className="text-center mt-8">
@@ -320,6 +260,20 @@ const Profile = () => {
     fetchUserInfo();
     console.log("userInfo", userInfo);
   }, []);
+  useEffect(() => {
+    const fetchNickname = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:8080/api/get-user?email=${userEmail}`
+        );
+        setNickName(res.data.nickname || ""); // กำหนดชื่อที่ได้มาจาก backend
+      } catch (err) {
+        console.error("โหลด nickname ล้มเหลว:", err);
+      }
+    };
+    handleBlur();
+    fetchNickname();
+  }, [userEmail]);
 
   return (
     <div className="container-profile">
@@ -349,7 +303,7 @@ const Profile = () => {
             />
           ) : (
             <span style={{ fontSize: "30px", fontWeight: "600" }}>
-              {nickName || userEmail}
+              {nickName || displayName}
             </span>
           )}
 
@@ -421,8 +375,9 @@ const Profile = () => {
                     <button
                       key={genre}
                       onClick={() => toggleGenre(genre)}
-                      className={`genre-button ${selectedGenres.includes(genre) ? "selected" : ""
-                        }`}
+                      className={`genre-button ${
+                        selectedGenres.includes(genre) ? "selected" : ""
+                      }`}
                     >
                       {genre}
                     </button>
@@ -451,16 +406,16 @@ const Profile = () => {
                   </Button>
                   {JSON.stringify(originalGenres) !==
                     JSON.stringify(selectedGenres) && (
-                      <Button
-                        onClick={() => {
-                          setSelectedGenres(originalGenres);
-                          setEditingGenres(false);
-                        }}
-                        className="edit-button-cancel-button"
-                      >
-                        ย้อนกลับ
-                      </Button>
-                    )}
+                    <Button
+                      onClick={() => {
+                        setSelectedGenres(originalGenres);
+                        setEditingGenres(false);
+                      }}
+                      className="edit-button-cancel-button"
+                    >
+                      ย้อนกลับ
+                    </Button>
+                  )}
                 </>
               ) : (
                 <Button
@@ -498,10 +453,11 @@ const Profile = () => {
                           <button
                             key={sub}
                             onClick={() => toggleSubGenre(genre, sub)}
-                            className={`subgenre-button ${selectedSubGenres[genre]?.includes(sub)
-                              ? "selected"
-                              : ""
-                              }`}
+                            className={`subgenre-button ${
+                              selectedSubGenres[genre]?.includes(sub)
+                                ? "selected"
+                                : ""
+                            }`}
                           >
                             {sub}
                           </button>
