@@ -23,6 +23,7 @@ const Friend = () => {
   const [openMenuFor, setOpenMenuFor] = useState(null);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [getnickName, getNickName] = useState("");
   const dropdownRefs = useRef({});
 
   const userEmail = localStorage.getItem("userEmail");
@@ -270,6 +271,20 @@ const Friend = () => {
       console.error("Error fetching follow info:", error);
     }
   };
+  useEffect(() => {
+    const getNickNameF = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:8080/api/get-all-nicknames"
+        );
+        console.log("NickName:", res.data);
+        getNickName(res.data);
+      } catch (err) {
+        console.error("โหลด nickname ล้มเหลว:", err);
+      }
+    }
+    getNickNameF();
+  }, []);
 
   return (
     <RequireLogin>
@@ -294,11 +309,13 @@ const Friend = () => {
               <li key={index} className="button-friend-item">
                 <img
                   src={friend.photoURL}
-                  alt={friend.displayName}
+                  // alt={friend.displayName}
                   className="friend-photo"
                 />
                 <div className="friend-detailss">
-                  <span className="friend-name">{friend.displayName}</span>
+                  <span className="friend-name">{
+                    getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
+                  }</span>
                   <span className="friend-email">{friend.email}</span>
                 </div>
                 <div className="con-right">
@@ -391,7 +408,9 @@ const Friend = () => {
                     className="friend-photo"
                   />
                   <div className="friend-detailss">
-                    <span className="friend-name">{user.displayName}</span>
+                    <span className="friend-name">{
+                      getnickName.find(n => n.email === user.email)?.nickname || user.displayName
+                    }</span>
                     <span className="friend-email">{user.email}</span>
                   </div>
                   <div className="con-right">
@@ -471,7 +490,9 @@ const Friend = () => {
                   alt={selectedUser.displayName}
                   className="profile-photo"
                 />
-                <h2>{selectedUser.displayName}</h2>
+                <h2>{
+                  getnickName.find(n => n.email === selectedUser.email)?.nickname || selectedUser.displayName
+                }</h2>
                 <div className="tabs">
                   <ul className="followers">
                     <li>{followers.length} followers</li>

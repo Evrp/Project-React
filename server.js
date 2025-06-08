@@ -225,6 +225,15 @@ app.get("/api/users", async (req, res) => {
     res.status(500).json({ error: "ไม่สามารถโหลดผู้ใช้ได้" });
   }
 });
+////////////Get all nickNames ////////////
+app.get("/api/get-all-nicknames", async (req, res) => {
+  try {
+    const users = await Info.find();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: "ไม่สามารถโหลดผู้ใช้ได้" });
+  }
+});
 
 ///////////สำหรับดึงข้อมูลเพื่อน
 app.get("/api/usersfriends", async (req, res) => {
@@ -471,7 +480,7 @@ app.post("/api/save-user-info", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-// ในไฟล์ backend (เช่น server.js)
+////////////Change Nickname////////////
 app.post("/api/save-user-name", async (req, res) => {
   const { userEmail, nickName } = req.body;
 
@@ -488,26 +497,14 @@ app.post("/api/save-user-name", async (req, res) => {
       { new: true }
     );
 
-    // ✅ อัปเดต displayName ใน Gmail collection
-    const gmailUpdate = await Gmail.findOneAndUpdate(
-      { email: userEmail },
-      {
-        $set: {
-          displayName: nickName,
-          updatedAt: new Date(),
-        },
-      },
-      { new: true }
-    );
-
-    if (!infoUpdate && !gmailUpdate) {
+    if (!infoUpdate) {
       return res.status(404).json({ message: "ไม่พบผู้ใช้นี้ในทั้งสอง collection" });
     }
 
     res.json({
       message: "อัปเดต nickname และ displayName เรียบร้อย",
       info: infoUpdate,
-      gmail: gmailUpdate,
+
     });
 
   } catch (error) {
