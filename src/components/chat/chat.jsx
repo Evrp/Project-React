@@ -16,7 +16,7 @@ import {
   query,
   orderBy,
   doc,
-  Timestamp
+  Timestamp,
 } from "firebase/firestore";
 import "../chat/Chat.css";
 import axios from "axios";
@@ -38,8 +38,6 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [loadingFriendEmail, setLoadingFriendEmail] = useState(null);
   const [loadingFriendRooms, setLoadingRoomId] = useState(null);
-  const [chatUsers, setChatUsers] = useState([]);
-  const [userPhotos, setUserPhotos] = useState({});
   const [activeUser, setActiveUser] = useState(null);
   const [currentUserfollow, setCurrentUserfollow] = useState(null);
   const userEmail = localStorage.getItem("userEmail");
@@ -59,7 +57,6 @@ const Chat = () => {
   const photoURL = localStorage.getItem("userPhoto");
   const [openMenuFor, setOpenMenuFor] = useState(null);
   const [isGroupChat, setIsGroupChat] = useState(false);
-  const [roomData, setRoomData] = useState({});
   const defaultProfileImage = userPhoto;
 
   const fetchUsersAndFriends = async () => {
@@ -167,8 +164,9 @@ const Chat = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `http://localhost:8080/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
-      }/${targetEmail}`;
+    const url = `http://localhost:8080/api/users/${userEmail}/${
+      isFollowing ? "unfollow" : "follow"
+    }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -211,14 +209,13 @@ const Chat = () => {
       );
 
       // อัปเดต state ทันที
-      setJoinedRooms(prev => ({
+      setJoinedRooms((prev) => ({
         ...prev,
-        roomNames: prev.roomNames.filter(name => name !== roomName),
-        roomIds: prev.roomIds.filter(id => id !== roomName) // ใช้ roomName ถ้าเก็บเป็นชื่อ
+        roomNames: prev.roomNames.filter((name) => name !== roomName),
+        roomIds: prev.roomIds.filter((id) => id !== roomName), // ใช้ roomName ถ้าเก็บเป็นชื่อ
       }));
 
       toast.success("ลบห้องสําเร็จ!");
-
     } catch (error) {
       console.error("ลบห้องล้มเหลว:", error);
       toast.error("ลบห้องล้มเหลว!");
@@ -245,10 +242,18 @@ const Chat = () => {
       console.error("Error joining room:", err);
     }
   };
+ 
+  useEffect(() => {
+    try {
+      const res = axios.get(`http://localhost:8080/api/users`);
+      setNickName(res.data);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+    }
+  }, []);
   useEffect(() => {
     fetchUsersAndFriends();
   }, []);
-
   useEffect(() => {
     if (!userEmail) return;
 
@@ -338,23 +343,26 @@ const Chat = () => {
 
     const q = query(messagesRef, orderBy("timestamp"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const allMessages = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })).filter(msg => msg.roomId === roomId); // กรองเฉพาะข้อความในห้องนี้
+      const allMessages = snapshot.docs
+        .map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+        .filter((msg) => msg.roomId === roomId); // กรองเฉพาะข้อความในห้องนี้
 
       console.log("All Messages:", allMessages); // Debug
       console.log(" isGroupChat:", isGroupChat); // Debug
 
       const filteredMessages = isGroupChat
         ? allMessages.filter((msg) => {
-          const isMyMsg = msg.receiver === activeUser;
-          return isMyMsg;
-        })
-        : allMessages
-          .filter((msg) => {
-            const isMyMsg = msg.sender === userEmail && msg.receiver === activeUser;
-            const isTheirMsg = msg.sender === activeUser &&
+            const isMyMsg = msg.receiver === activeUser;
+            return isMyMsg;
+          })
+        : allMessages.filter((msg) => {
+            const isMyMsg =
+              msg.sender === userEmail && msg.receiver === activeUser;
+            const isTheirMsg =
+              msg.sender === activeUser &&
               (msg.receiver === userEmail || !msg.receiver);
             return isMyMsg || isTheirMsg;
           });
@@ -378,19 +386,18 @@ const Chat = () => {
     console.log("roomId:", roomId);
     console.log("serverTimestamp:", serverTimestamp());
 
-
     const messageData = {
       sender: userEmail,
       content: input,
       timestamp: serverTimestamp(),
-      roomId: roomId
+      roomId: roomId,
     };
 
     // เพิ่ม receiver สำหรับแชทส่วนตัว
     if (!isGroupChat && activeUser) {
       messageData.receiver = activeUser;
     }
-    confirm
+    confirm;
     if (isGroupChat == true) {
       // สำหรับแชทกลุ่ม
       messageData.type = "group";
@@ -452,9 +459,9 @@ const Chat = () => {
                         onClick={() => {
                           setProfilebar({
                             photoURL: friend.photoURL,
-                            displayName: friend.displayName
+                            displayName: friend.displayName,
                           });
-                          setActiveUser(friend.email)
+                          setActiveUser(friend.email);
                           setIsGroupChat(false);
                         }}
                       >
@@ -471,8 +478,9 @@ const Chat = () => {
                         </div>
                         <div className="con-right">
                           <span
-                            className={`status ${friend.isOnline ? "online" : "offline"
-                              }`}
+                            className={`status ${
+                              friend.isOnline ? "online" : "offline"
+                            }`}
                           >
                             {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                           </span>
@@ -527,9 +535,9 @@ const Chat = () => {
                                   {Array.isArray(
                                     currentUserfollow?.following
                                   ) &&
-                                    currentUserfollow.following.includes(
-                                      friend.email
-                                    )
+                                  currentUserfollow.following.includes(
+                                    friend.email
+                                  )
                                     ? "🔔 กำลังติดตาม"
                                     : "➕ ติดตาม"}
                                 </button>
@@ -588,7 +596,7 @@ const Chat = () => {
                                 className="chat-friend-item"
                                 onClick={() => {
                                   setActiveUser(room.name),
-                                    setRoombar(room.image, room.name)
+                                    setRoombar(room.image, room.name);
                                   setIsGroupChat(true);
                                 }}
                               >
@@ -627,7 +635,6 @@ const Chat = () => {
 
                                   {openMenuFor === room.name && (
                                     <div className="dropdown-menu">
-
                                       <button
                                         className="dropdown-item"
                                         onClick={(e) => {
@@ -635,7 +642,9 @@ const Chat = () => {
                                           handleDeleteRoom(room.name);
                                           setOpenMenuFor(null);
                                         }}
-                                        disabled={loadingFriendRooms === room.name}
+                                        disabled={
+                                          loadingFriendRooms === room.name
+                                        }
                                       >
                                         {loadingFriendRooms === room.name
                                           ? "กำลังลบ..."
@@ -658,7 +667,15 @@ const Chat = () => {
         </div>
         <div className="chat-container">
           <div className="show-info">
-            <img src={users.find(u => u.email === activeUser)?.photoURL || RoomsBar.roomImage || userPhoto} alt="Profile" className="chat-profile" />
+            <img
+              src={
+                users.find((u) => u.email === activeUser)?.photoURL ||
+                RoomsBar.roomImage ||
+                userPhoto
+              }
+              alt="Profile"
+              className="chat-profile"
+            />
             {/* <img
               src={isGroupChat
                 ? roomData?.image
@@ -666,7 +683,11 @@ const Chat = () => {
               alt="Profile"
               className="chat-profile"
             /> */}
-            <h2>{users.find(u => u.email === activeUser)?.displayName || RoomsBar.roomName || userName}</h2>
+            <h2>
+              {users.find((u) => u.email === activeUser)?.displayName ||
+                RoomsBar.roomName ||
+                userName}
+            </h2>
             {/* <h2>
               {isGroupChat
                 ? roomData?.name
@@ -676,13 +697,19 @@ const Chat = () => {
           <div className="chat-box">
             {messages.map((msg) => {
               const isCurrentUser = msg.sender === userEmail;
-              const senderInfo = users.find(user => user.email?.toLowerCase() === msg.sender?.toLowerCase());
+              const senderInfo = users.find(
+                (user) =>
+                  user.email?.toLowerCase() === msg.sender?.toLowerCase()
+              );
               const messageDate = msg.timestamp?.toDate();
 
               return (
                 <div
                   key={msg.id}
-                  className={`chat-message ${isCurrentUser ? "my-message" : "other-message"}`}                >
+                  className={`chat-message ${
+                    isCurrentUser ? "my-message" : "other-message"
+                  }`}
+                >
                   {!isCurrentUser && (
                     <img
                       src={senderInfo?.photoURL || defaultProfileImage}
@@ -691,18 +718,29 @@ const Chat = () => {
                     />
                   )}
 
-                  <div className={`message-content ${isCurrentUser ? 'current' : 'other'}`}>
-                    <div className={`message-time ${isCurrentUser ? 'current' : 'other'}`}>
-                      {messageDate && messageDate.toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
+                  <div
+                    className={`message-content ${
+                      isCurrentUser ? "current" : "other"
+                    }`}
+                  >
+                    <div
+                      className={`message-time ${
+                        isCurrentUser ? "current" : "other"
+                      }`}
+                    >
+                      {messageDate &&
+                        messageDate.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                     </div>
-                    <div className={`message-bubble ${isCurrentUser ? 'current' : 'other'}`}>
+                    <div
+                      className={`message-bubble ${
+                        isCurrentUser ? "current" : "other"
+                      }`}
+                    >
                       {msg.content || msg.text}
-
                     </div>
-
                   </div>
 
                   {isCurrentUser && (
@@ -723,7 +761,7 @@ const Chat = () => {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+              onKeyPress={(e) => e.key === "Enter" && handleSend()}
               placeholder={isGroupChat ? "พิมพ์ถึงกลุ่ม..." : "พิมพ์ข้อความ..."}
               className="chat-input"
             />
@@ -764,7 +802,7 @@ const Chat = () => {
         )}
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       </div>
-    </RequireLogin >
+    </RequireLogin>
   );
 };
 

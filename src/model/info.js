@@ -7,6 +7,7 @@ const infoSchema = new mongoose.Schema(
       description: String,
       extra: String,
     },
+    nickname: String,
     joinedRooms: [{
       roomId: { type: String, required: true },
       roomName: { type: String, required: true }
