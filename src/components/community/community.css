@@ -114,3 +114,31 @@ button:hover {
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+.filter-button {
+  margin-top: 1rem;
+  padding: 10px 10px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+  gap: 6px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.filter-button.active {
+  background-color: #0056b3;
+}
+
+.filter-button:hover {
+  background-color: #0056b3;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+.filter-container{
+  display: flex;
+  justify-content: start;
+  flex-direction: row;
+}

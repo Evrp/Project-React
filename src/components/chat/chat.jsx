@@ -57,6 +57,7 @@ const Chat = () => {
   const photoURL = localStorage.getItem("userPhoto");
   const [openMenuFor, setOpenMenuFor] = useState(null);
   const [isGroupChat, setIsGroupChat] = useState(false);
+  const [getnickName, getNickName] = useState("");
   const defaultProfileImage = userPhoto;
 
   const fetchUsersAndFriends = async () => {
@@ -164,9 +165,8 @@ const Chat = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `http://localhost:8080/api/users/${userEmail}/${
-      isFollowing ? "unfollow" : "follow"
-    }/${targetEmail}`;
+    const url = `http://localhost:8080/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
+      }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -242,7 +242,7 @@ const Chat = () => {
       console.error("Error joining room:", err);
     }
   };
- 
+
   useEffect(() => {
     try {
       const res = axios.get(`http://localhost:8080/api/users`);
@@ -355,17 +355,17 @@ const Chat = () => {
 
       const filteredMessages = isGroupChat
         ? allMessages.filter((msg) => {
-            const isMyMsg = msg.receiver === activeUser;
-            return isMyMsg;
-          })
+          const isMyMsg = msg.receiver === activeUser;
+          return isMyMsg;
+        })
         : allMessages.filter((msg) => {
-            const isMyMsg =
-              msg.sender === userEmail && msg.receiver === activeUser;
-            const isTheirMsg =
-              msg.sender === activeUser &&
-              (msg.receiver === userEmail || !msg.receiver);
-            return isMyMsg || isTheirMsg;
-          });
+          const isMyMsg =
+            msg.sender === userEmail && msg.receiver === activeUser;
+          const isTheirMsg =
+            msg.sender === activeUser &&
+            (msg.receiver === userEmail || !msg.receiver);
+          return isMyMsg || isTheirMsg;
+        });
 
       console.log("Filtered Messages:", filteredMessages); // Debug
       setMessages(filteredMessages);
@@ -421,6 +421,20 @@ const Chat = () => {
   const setRoombar = (roomImage, roomName) => {
     setRoomBar({ roomImage, roomName });
   };
+  useEffect(() => {
+    const getNickNameF = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:8080/api/get-all-nicknames"
+        );
+        console.log("NickName:", res.data);
+        getNickName(res.data);
+      } catch (err) {
+        console.error("โหลด nickname ล้มเหลว:", err);
+      }
+    }
+    getNickNameF();
+  }, []);
 
   return (
     <RequireLogin>
@@ -467,20 +481,23 @@ const Chat = () => {
                       >
                         <img
                           src={friend.photoURL}
-                          alt={friend.displayName}
+                          alt={
+                            getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
+                          }
                           className="friend-photo"
                         />
                         <div className="friend-detailss">
                           <span className="friend-name">
-                            {friend.displayName}
+                            {
+                              getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
+                            }
                           </span>
                           <span className="friend-email">{friend.email}</span>
                         </div>
                         <div className="con-right">
                           <span
-                            className={`status ${
-                              friend.isOnline ? "online" : "offline"
-                            }`}
+                            className={`status ${friend.isOnline ? "online" : "offline"
+                              }`}
                           >
                             {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                           </span>
@@ -535,9 +552,9 @@ const Chat = () => {
                                   {Array.isArray(
                                     currentUserfollow?.following
                                   ) &&
-                                  currentUserfollow.following.includes(
-                                    friend.email
-                                  )
+                                    currentUserfollow.following.includes(
+                                      friend.email
+                                    )
                                     ? "🔔 กำลังติดตาม"
                                     : "➕ ติดตาม"}
                                 </button>
@@ -676,23 +693,17 @@ const Chat = () => {
               alt="Profile"
               className="chat-profile"
             />
-            {/* <img
-              src={isGroupChat
-                ? roomData?.image
-                : users.find(u => u.email === activeUser)?.photoURL || RoomsBar.roomImage || userPhoto}
-              alt="Profile"
-              className="chat-profile"
-            /> */}
+
             <h2>
-              {users.find((u) => u.email === activeUser)?.displayName ||
-                RoomsBar.roomName ||
-                userName}
+              {Array.isArray(getnickName) &&
+                (getnickName.find(u => u.email === activeUser)?.nickname ||
+                  users.find(u => u.email === activeUser)?.displayName ||
+                  RoomsBar.roomName ||
+                  userName)}
+
+
             </h2>
-            {/* <h2>
-              {isGroupChat
-                ? roomData?.name
-                : users.find(u => u.email === activeUser)?.displayName || RoomsBar.roomName || userName}
-            </h2> */}
+
           </div>
           <div className="chat-box">
             {messages.map((msg) => {
@@ -706,9 +717,8 @@ const Chat = () => {
               return (
                 <div
                   key={msg.id}
-                  className={`chat-message ${
-                    isCurrentUser ? "my-message" : "other-message"
-                  }`}
+                  className={`chat-message ${isCurrentUser ? "my-message" : "other-message"
+                    }`}
                 >
                   {!isCurrentUser && (
                     <img
@@ -719,14 +729,12 @@ const Chat = () => {
                   )}
 
                   <div
-                    className={`message-content ${
-                      isCurrentUser ? "current" : "other"
-                    }`}
+                    className={`message-content ${isCurrentUser ? "current" : "other"
+                      }`}
                   >
                     <div
-                      className={`message-time ${
-                        isCurrentUser ? "current" : "other"
-                      }`}
+                      className={`message-time ${isCurrentUser ? "current" : "other"
+                        }`}
                     >
                       {messageDate &&
                         messageDate.toLocaleTimeString([], {
@@ -735,9 +743,8 @@ const Chat = () => {
                         })}
                     </div>
                     <div
-                      className={`message-bubble ${
-                        isCurrentUser ? "current" : "other"
-                      }`}
+                      className={`message-bubble ${isCurrentUser ? "current" : "other"
+                        }`}
                     >
                       {msg.content || msg.text}
                     </div>
@@ -779,10 +786,14 @@ const Chat = () => {
               <div className="profile-info">
                 <img
                   src={selectedUser.photoURL}
-                  alt={selectedUser.displayName}
+                  alt={
+                    getnickName.find(n => n.email === selectedUser.email)?.nickname || selectedUser.displayName
+                  }
                   className="profile-photo"
                 />
-                <h2>{selectedUser.displayName}</h2>
+                <h2>{
+                  getnickName.find(n => n.email === selectedUser.email)?.nickname || selectedUser.displayName
+                }</h2>
                 <div className="tabs">
                   <ul className="followers">
                     <li>{followers.length} followers</li>

@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 import "./roomlist.css";
 import { toast } from "react-toastify";
 
-const RoomList = () => {
+const RoomList = ({ showOnlyMyRooms }) => {
   const userEmail = localStorage.getItem("userEmail");
+  const displayName = localStorage.getItem("userName");
   const [rooms, setRooms] = useState([]);
   const navigate = useNavigate();
 
@@ -20,9 +21,13 @@ const RoomList = () => {
     };
     fetchRooms();
 
-    
+
   }, []);
-  
+  console.log("showOnlyMyRooms", showOnlyMyRooms);
+  const filteredRooms = showOnlyMyRooms
+    ? rooms.filter((room) => room.createdBy === displayName)
+    : rooms;
+
   const handleAddCommunity = async (roomId, roomName) => {
     console.log("Adding friend:", roomId);
     console.log("User email:", userEmail);
@@ -38,7 +43,7 @@ const RoomList = () => {
     } catch (error) {
       console.error("Error adding friend:", error);
       toast.error("ไม่สามารถเพิ่มเพื่อนได้");
-    } 
+    }
   };
 
   const handleEnterRoom = (roomId, roomName) => {
@@ -46,7 +51,7 @@ const RoomList = () => {
     handleAddCommunity(roomId, roomName);
   };
 
-   const handleDeleteRoom = async (id) => {
+  const handleDeleteRoom = async (id) => {
     const confirm = window.confirm("คุณแน่ใจว่าต้องการลบกิจกรรมนี้หรือไม่?");
     if (!confirm) return;
 
@@ -58,9 +63,9 @@ const RoomList = () => {
     }
   };
 
-  return (
+ return (
     <div className="room-list">
-      {rooms.map((room) => (
+      {filteredRooms.map((room) => (
         <div
           key={room._id}
           className="room-container"

@@ -50,6 +50,7 @@ const Profile = () => {
     }
   );
   const [nickName, setNickName] = useState("");
+
   const [isEditing, setIsEditing] = useState(false);
   const [editingGenres, setEditingGenres] = useState(false);
   const [editingField, setEditingField] = useState(null); // ช่องที่กำลังแก้ไข
@@ -117,7 +118,7 @@ const Profile = () => {
       setNickName(savedNickName);
     }
   }, []);
- 
+
   const fetchUserInfo = async () => {
     const email = localStorage.getItem("userEmail");
     if (!email) return;
@@ -207,16 +208,18 @@ const Profile = () => {
     setNickName(e.target.value);
   };
   const handleBlur = async () => {
-    setIsEditing(false);
+
     try {
       await axios.post("http://localhost:8080/api/save-user-name", {
         userEmail,
         nickName,
       });
-      console.log("บันทึกชื่อเล่นแล้ว");
+
+
     } catch (err) {
       console.error("บันทึก nickname ล้มเหลว:", err);
     }
+    setIsEditing(false);
   };
   const handleClick = () => {
     setIsEditing(true);
@@ -271,9 +274,10 @@ const Profile = () => {
         console.error("โหลด nickname ล้มเหลว:", err);
       }
     };
-    handleBlur();
+
     fetchNickname();
   }, [userEmail]);
+
 
   return (
     <div className="container-profile">
@@ -375,9 +379,8 @@ const Profile = () => {
                     <button
                       key={genre}
                       onClick={() => toggleGenre(genre)}
-                      className={`genre-button ${
-                        selectedGenres.includes(genre) ? "selected" : ""
-                      }`}
+                      className={`genre-button ${selectedGenres.includes(genre) ? "selected" : ""
+                        }`}
                     >
                       {genre}
                     </button>
@@ -406,16 +409,16 @@ const Profile = () => {
                   </Button>
                   {JSON.stringify(originalGenres) !==
                     JSON.stringify(selectedGenres) && (
-                    <Button
-                      onClick={() => {
-                        setSelectedGenres(originalGenres);
-                        setEditingGenres(false);
-                      }}
-                      className="edit-button-cancel-button"
-                    >
-                      ย้อนกลับ
-                    </Button>
-                  )}
+                      <Button
+                        onClick={() => {
+                          setSelectedGenres(originalGenres);
+                          setEditingGenres(false);
+                        }}
+                        className="edit-button-cancel-button"
+                      >
+                        ย้อนกลับ
+                      </Button>
+                    )}
                 </>
               ) : (
                 <Button
@@ -453,11 +456,10 @@ const Profile = () => {
                           <button
                             key={sub}
                             onClick={() => toggleSubGenre(genre, sub)}
-                            className={`subgenre-button ${
-                              selectedSubGenres[genre]?.includes(sub)
-                                ? "selected"
-                                : ""
-                            }`}
+                            className={`subgenre-button ${selectedSubGenres[genre]?.includes(sub)
+                              ? "selected"
+                              : ""
+                              }`}
                           >
                             {sub}
                           </button>

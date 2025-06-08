@@ -23,12 +23,14 @@ const Newcommu = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const dropdownRefs = useRef({});
+  const [showOnlyMyRooms, setShowOnlyMyRooms] = useState(false);
   const userEmail = localStorage.getItem("userEmail");
   const displayName = localStorage.getItem("userName");
   const photoURL = localStorage.getItem("userPhoto");
   const [friends, setFriends] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [getnickName, getNickName] = useState("");
 
   useEffect(() => {
     fetchGmailUser(); // ดึงข้อมูล Gmail user จาก backend
@@ -120,9 +122,8 @@ const Newcommu = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(friendEmail);
-    const url = `http://localhost:8080/api/users/${userEmail}/${
-      isFollowing ? "unfollow" : "follow"
-    }/${friendEmail}`;
+    const url = `http://localhost:8080/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
+      }/${friendEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -237,6 +238,21 @@ const Newcommu = () => {
       console.error("Error fetching follow info:", error);
     }
   };
+  useEffect(() => {
+    const getNickNameF = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:8080/api/get-all-nicknames"
+        );
+        console.log("NickName:", res.data);
+        getNickName(res.data);
+      } catch (err) {
+        console.error("โหลด nickname ล้มเหลว:", err);
+      }
+    }
+    getNickNameF();
+  }, []);
+
 
   return (
     <RequireLogin>
@@ -246,11 +262,18 @@ const Newcommu = () => {
           <span className="divider">|</span>
           <img src={userPhoto} alt="Profile" className="profile-image-com" />
         </div>
+        <div className="filter-container">
+          <CreateRoom onRoomCreated={handleNewRoom} />
+          <button
+            className={"filter-button " + (showOnlyMyRooms ? "active" : "")}
+            onClick={() => setShowOnlyMyRooms(!showOnlyMyRooms)}
+          >
+            {showOnlyMyRooms ? "All rooms" : "My rooms"} 
+          </button>
 
-        <CreateRoom onRoomCreated={handleNewRoom} />
-
+        </div>
         <div className="container-content">
-          <RoomList rooms={rooms} />
+          <RoomList showOnlyMyRooms={showOnlyMyRooms} rooms={rooms} />
 
           <div className="recommentfreind">
             <h2 className="grd">FREIND MATCH</h2>
@@ -259,29 +282,31 @@ const Newcommu = () => {
             ) : (
               matches.map((friend, index) => (
                 <div key={index} className="friend-card">
-                    <div className="dfd"></div>
-                    <div className="header-friend-card">
-                      <h1 className="ee">ee</h1>
-                      <img
-                        src={friend.photoURL}
-                        alt="profile"
-                        className="friend-image"
-                        style={{ borderRadius: "50%", width: "60px" }}
+                  <div className="dfd"></div>
+                  <div className="header-friend-card">
+                    <h1 className="ee">ee</h1>
+                    <img
+                      src={friend.photoURL}
+                      alt="profile"
+                      className="friend-image"
+                      style={{ borderRadius: "50%", width: "60px" }}
+                    />
+                    <div className="rr">
+                      <DropdownMenu
+                        user={friend}
+                        currentUserfollow={currentUserfollow}
+                        loadingFriendEmail={loadingFriendEmail}
+                        onProfileClick={handleProfileClick}
+                        onFollow={handleFollow}
+                        fetchFollowInfo={fetchFollowInfo}
                       />
-                      <div className="rr">
-                        <DropdownMenu
-                          user={friend}
-                          currentUserfollow={currentUserfollow}
-                          loadingFriendEmail={loadingFriendEmail}
-                          onProfileClick={handleProfileClick}
-                          onFollow={handleFollow}
-                          fetchFollowInfo={fetchFollowInfo}
-                        />
-                      </div>
                     </div>
-                 
+                  </div>
 
-                  <h3>{friend.displayName}</h3>
+
+                  <h3>{
+                    getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
+                  }</h3>
                   <p>{friend.email}</p>
                   <p>หมวดหมู่: {friend.genres.join(", ")}</p>
 
@@ -306,10 +331,14 @@ const Newcommu = () => {
                   <div className="profile-info">
                     <img
                       src={selectedUser.photoURL}
-                      alt={selectedUser.displayName}
+                      alt={
+                        getnickName.find(n => n.email === selectedUser.email)?.nickname || selectedUser.displayName
+                      }
                       className="profile-photo"
                     />
-                    <h2>{selectedUser.displayName}</h2>
+                    <h2>{
+                      getnickName.find(n => n.email === selectedUser.email)?.nickname || selectedUser.displayName
+                    }</h2>
                     <div className="tabs">
                       <ul className="followers">
                         <li>{followers.length} followers</li>
