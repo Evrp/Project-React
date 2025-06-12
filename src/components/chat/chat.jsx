@@ -451,7 +451,7 @@ const Chat = () => {
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
-              className="search-input"
+              className="search-input-friend"
             />
           </div>
           <div className="favorite-container">
@@ -463,7 +463,13 @@ const Chat = () => {
               <span>Favorite</span>
             </div>
             {isOpen && (
-              <div className="favorite-container">
+              <div className={
+                !isOpencom && isOpen
+                  ? "favorite-container-special"
+                  : isOpen
+                    ? "favorite-container-open"
+                    : "favorite-container"
+              }>
                 <ul className="friend-list-chat">
                   {filteredFriends.length > 0 ? (
                     filteredFriends.map((friend, index) => (
@@ -492,7 +498,7 @@ const Chat = () => {
                               getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
                             }
                           </span>
-                          <span className="friend-email">{friend.email}</span>
+                          {/* <span className="friend-email">{friend.email}</span> */}
                         </div>
                         <div className="con-right">
                           <span
@@ -594,8 +600,15 @@ const Chat = () => {
               <span>Community</span>
             </div>
             {isOpencom && (
-              <div className="favorite-container">
-                <ul className="friend-list-chat">
+              <div
+                className={
+                  !isOpen && isOpencom
+                    ? "group-container-special"
+                    : isOpencom
+                      ? "group-container-open"
+                      : "group-container"
+                }
+              >              <ul className="friend-list-chat">
                   {joinedRooms.roomNames?.map((name, index) => {
                     const roomId = joinedRooms.roomNames?.[index];
 

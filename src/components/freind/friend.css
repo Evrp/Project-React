@@ -1,11 +1,14 @@
 .fr-container {
   background-color: #f7f8fc;
-  min-height: 100vh; /* ให้ความสูงเต็มหน้าจอ */
-  width: 100%; /* ขยายให้เต็มความกว้าง */
+  min-height: 100vh;
+  /* ให้ความสูงเต็มหน้าจอ */
+  width: 100%;
+  /* ขยายให้เต็มความกว้าง */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* ตั้งตำแหน่งเนื้อหาขึ้นบนสุด */
+  justify-content: flex-start;
+  /* ตั้งตำแหน่งเนื้อหาขึ้นบนสุด */
 }
 
 .Freind {
@@ -32,6 +35,7 @@
 .search-input:focus {
   border-color: #6c63ff;
 }
+
 .search-friend-con {
   margin-top: 2rem;
   width: 100%;
@@ -50,6 +54,7 @@
   border-radius: 10px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); */
 }
+
 .friend-recommend {
   list-style-type: none;
   padding: 0;
@@ -59,10 +64,12 @@
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); */
   padding: 20px;
 }
+
 .friend-email {
   margin-left: 12px;
   width: 70%;
 }
+
 /* รูปโปรไฟล์ของเพื่อน */
 .friend-photo {
   border-radius: 50%;
@@ -85,6 +92,7 @@
   color: #ccc;
   text-align: center;
 }
+
 .status {
   font-size: 0.9rem;
   font-weight: bold;
@@ -94,12 +102,15 @@
 }
 
 .online {
-  color: #4caf50; /* สีเขียวสำหรับออนไลน์ */
+  color: #4caf50;
+  /* สีเขียวสำหรับออนไลน์ */
 }
 
 .offline {
-  color: #f44336; /* สีแดงสำหรับออฟไลน์ */
+  color: #f44336;
+  /* สีแดงสำหรับออฟไลน์ */
 }
+
 /* สไตล์สำหรับ modal */
 /* สไตล์สำหรับ modal */
 .profile-modal {
@@ -138,6 +149,7 @@
 .close-btn:hover {
   background-color: #d32f2f;
 }
+
 .profile-info {
   margin-top: 20px;
 }
@@ -152,6 +164,7 @@
   margin-top: 10px;
   font-size: 20px;
 }
+
 /* สไตล์สำหรับปุ่มลบเพื่อน */
 .remove-friend-btn {
   background-color: #f44336;
@@ -166,17 +179,20 @@
 .remove-friend-btn:hover {
   background-color: #d32f2f;
 }
+
 .friend-details {
   width: 100%;
   display: flex;
   justify-content: space-between;
 }
+
 .friend-detailss {
   width: 70%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
+
 .add-friend-btn {
   background-color: #4caf50;
   color: white;
@@ -197,6 +213,7 @@
   color: #f44336;
   max-width: fit-content;
 }
+
 .button-friend-item {
   width: 600px;
   height: fit-content;
@@ -210,13 +227,16 @@
   margin-bottom: 1rem;
   transition: transform 0.2s, box-shadow 0.2s;
 }
+
 .button-friend-item:hover {
   transform: scale(1.03);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
+
 .profile-btn-follow {
   padding: 2;
 }
+
 .div-con button {
   background-color: #ffffff;
   color: #000000;
@@ -228,12 +248,15 @@
   border-radius: 5px;
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
+
 .div-con button:hover {
   background-color: #ef9494;
 }
+
 .dropdown {
   width: 150px;
 }
+
 .dropdown-wrapper {
   position: relative;
   display: inline-block;
@@ -266,16 +289,19 @@
   padding: 8px 0;
   animation: fadeIn 0.2s ease-in-out;
 }
+
 .dropdown-menu::after {
   content: "";
   position: absolute;
   top: -8px;
-  right: 12px; /* หรือปรับค่าตามตำแหน่งปุ่ม */
+  right: 12px;
+  /* หรือปรับค่าตามตำแหน่งปุ่ม */
   width: 14px;
   height: 14px;
   background-color: white;
   transform: rotate(45deg);
-  box-shadow: -1px -1px 1px rgba(0, 0, 0, 0.05); /* เบาลง */
+  box-shadow: -1px -1px 1px rgba(0, 0, 0, 0.05);
+  /* เบาลง */
   border-left: 1px solid #ddd;
   border-top: 1px solid #ddd;
   z-index: -1;
@@ -312,6 +338,7 @@
     opacity: 0;
     transform: translateY(-6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -320,6 +347,80 @@
 
 .con-right {
   display: flex;
-  justify-content:end;
+  justify-content: end;
   width: 100%;
+}
+
+.con-friend-list {
+  height: calc(100vh - 420px);
+  /* height: fit-content; */
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.empty-friend-list {
+  height: fit-content;
+}
+
+.con-friend-list::-webkit-scrollbar {
+  display: none;
+}
+
+.con-friend-recommand {
+  height: calc(100vh - 507px);
+  /* height: fit-content; */
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.empty-friend-recommand {
+  height: fit-content;
+}
+
+.con-friend-recommand::-webkit-scrollbar {
+  display: none;
+}
+
+.special-friend-recommand {
+  height: calc(100vh - 280px);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.special-friend-recommand::-webkit-scrollbar {
+  display: none;
+}
+.special-friend-list {
+  height: calc(100vh - 262px);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.special-friend-list::-webkit-scrollbar {
+  display: none;
+}
+
+.empty-friend {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 1rem 0 1rem 0;
+  align-items: center;
+}
+
+.empty-friend p {
+  font-weight: bold;
+  font-size: 20px;
+  color: #333;
+  text-align: center;
 }

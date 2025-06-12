@@ -277,6 +277,23 @@ const Profile = () => {
 
     fetchNickname();
   }, [userEmail]);
+  useEffect(() => {
+    try{ 
+      const getGenres = async () => {
+        try {
+          const res = await axios.get(
+            `http://localhost:8080/api/filters/${userEmail}`
+          );
+          setGenres(res.data);
+        } catch (err) {
+          console.error("โหลด Gmail currentUser ไม่ได้:", err);
+        }
+      }
+      getGenres();
+    } catch (err) {
+      console.error("โหลด Gmail currentUser ไม่ได้:", err);
+    }
+  }, [userEmail])
 
 
   return (

@@ -75,10 +75,20 @@ button:hover {
   background-color: #fff;
   border-radius: 12px;
   padding: 20px;
-  margin: 20px auto;
+  /* margin: 20px auto; */
+  height: calc(100vh - 160px);
   max-width: 900px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   margin-right: 1rem;
+}
+.con-card {
+  height: calc(70vh - 60px);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.con-card::-webkit-scrollbar {
+  display: none;
 }
 
 .friend-card {
@@ -91,15 +101,23 @@ button:hover {
   align-items: center;
   padding: 1rem;
   transition: background-color 0.3s ease, transform 0.2s ease;
+  word-wrap: break-word;
+
+  word-break: break-word;
+  overflow-wrap: break-word;
+  text-align: center;
+  max-width: 100%;
 }
 
 .friend-image {
   left: 50%;
   margin: 1rem;
 }
-.ee{
+
+.ee {
   color: transparent;
 }
+
 .header-friend-card {
   display: flex;
   justify-content: space-between;
@@ -114,6 +132,7 @@ button:hover {
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+
 .filter-button {
   margin-top: 1rem;
   padding: 10px 10px;
@@ -129,6 +148,7 @@ button:hover {
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
+
 .filter-button.active {
   background-color: #0056b3;
 }
@@ -137,7 +157,8 @@ button:hover {
   background-color: #0056b3;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
-.filter-container{
+
+.filter-container {
   display: flex;
   justify-content: start;
   flex-direction: row;

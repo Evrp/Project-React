@@ -7,6 +7,7 @@ import DropdownMenu from "../ui/dropdown";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import io from "socket.io-client";
+import { get } from "mongoose";
 const socket = io("http://localhost:8080");
 
 const Newcommu = () => {
@@ -30,6 +31,7 @@ const Newcommu = () => {
   const [friends, setFriends] = useState([]);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [genres, setGenres] = useState([]);
   const [getnickName, getNickName] = useState("");
 
   useEffect(() => {
@@ -98,7 +100,7 @@ const Newcommu = () => {
   const fetchCurrentUserFollow = async () => {
     try {
       const res = await fetch(
-        `http://localhost:8080/api/users/gmail/${loggedInEmail}`
+        `http://localhost:8080/api/users/${loggedInEmail}`
       );
       const data = await res.json();
       setCurrentUserfollow(data);
@@ -108,7 +110,19 @@ const Newcommu = () => {
   };
 
   useEffect(() => {
-    if (loggedInEmail) {
+    const getGenres = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:8080/api/filters/${loggedInEmail}`
+        );
+        setGenres(res.data);
+      } catch (err) {
+        console.error("โหลด Gmail currentUser ไม่ได้:", err);
+      }
+    }
+    getGenres();
+    console.log("genres:", genres);
+    if (!genres) {
       fetchMatches();
       fetchCurrentUserFollow();
     }
@@ -141,7 +155,7 @@ const Newcommu = () => {
   const fetchGmailUser = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/users/gmail/${userEmail}`
+        `http://localhost:8080/api/users/${userEmail}`
       );
       setCurrentUserfollow(res.data);
     } catch (err) {
@@ -268,7 +282,7 @@ const Newcommu = () => {
             className={"filter-button " + (showOnlyMyRooms ? "active" : "")}
             onClick={() => setShowOnlyMyRooms(!showOnlyMyRooms)}
           >
-            {showOnlyMyRooms ? "All rooms" : "My rooms"} 
+            {showOnlyMyRooms ? "All rooms" : "My rooms"}
           </button>
 
         </div>
@@ -277,54 +291,57 @@ const Newcommu = () => {
 
           <div className="recommentfreind">
             <h2 className="grd">FREIND MATCH</h2>
-            {matches.length === 0 ? (
-              <p>ไม่พบเพื่อนที่มีความสนใจเหมือนกัน</p>
-            ) : (
-              matches.map((friend, index) => (
-                <div key={index} className="friend-card">
-                  <div className="dfd"></div>
-                  <div className="header-friend-card">
-                    <h1 className="ee">ee</h1>
-                    <img
-                      src={friend.photoURL}
-                      alt="profile"
-                      className="friend-image"
-                      style={{ borderRadius: "50%", width: "60px" }}
-                    />
-                    <div className="rr">
-                      <DropdownMenu
-                        user={friend}
-                        currentUserfollow={currentUserfollow}
-                        loadingFriendEmail={loadingFriendEmail}
-                        onProfileClick={handleProfileClick}
-                        onFollow={handleFollow}
-                        fetchFollowInfo={fetchFollowInfo}
+            <div className="con-card">
+              {matches.length === 0 ? (
+                <p>ไม่พบเพื่อนที่มีความสนใจเหมือนกัน</p>
+              ) : (
+                matches.map((friend, index) => (
+                  <div key={index} className="friend-card">
+                    <div className="dfd"></div>
+                    <div className="header-friend-card">
+                      <h1 className="ee">ee</h1>
+                      <img
+                        src={friend.photoURL}
+                        alt="profile"
+                        className="friend-image"
+                        style={{ borderRadius: "50%", width: "60px" }}
                       />
+                      <div className="rr">
+                        <DropdownMenu
+                          user={friend}
+                          currentUserfollow={currentUserfollow}
+                          loadingFriendEmail={loadingFriendEmail}
+                          onProfileClick={handleProfileClick}
+                          onFollow={handleFollow}
+                          fetchFollowInfo={fetchFollowInfo}
+                        />
+                      </div>
                     </div>
+
+
+                    <h3>{
+                      getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
+                    }</h3>
+                    <p>{friend.email}</p>
+                    <p>หมวดหมู่: {friend.genres.join(", ")}</p>
+
+                    {friend.subGenres &&
+                      Object.keys(friend.subGenres).length > 0 && (
+                        <ul>
+                          {Object.entries(friend.subGenres).map(
+                            ([category, topics]) => (
+                              <li key={category}>
+                                {category}: {topics.join(", ")}
+                              </li>
+                            )
+                          )}
+                        </ul>
+                      )}
                   </div>
+                ))
+              )}
+            </div>
 
-
-                  <h3>{
-                    getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
-                  }</h3>
-                  <p>{friend.email}</p>
-                  <p>หมวดหมู่: {friend.genres.join(", ")}</p>
-
-                  {friend.subGenres &&
-                    Object.keys(friend.subGenres).length > 0 && (
-                      <ul>
-                        {Object.entries(friend.subGenres).map(
-                          ([category, topics]) => (
-                            <li key={category}>
-                              {category}: {topics.join(", ")}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    )}
-                </div>
-              ))
-            )}
             {isModalOpen && selectedUser && (
               <div className="profile-modal">
                 <div className="modal-content" ref={modalRef}>

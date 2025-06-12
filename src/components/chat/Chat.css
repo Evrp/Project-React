@@ -4,6 +4,7 @@
   width: 80%;
   height: 100%;
 }
+
 .show-info {
   width: 100%;
   display: flex;
@@ -13,6 +14,7 @@
   align-items: center;
   border-bottom: 2px solid #9d9d9d;
 }
+
 .show-info h2 {
   margin-left: 1rem;
 }
@@ -34,19 +36,24 @@
 
 .chat-box {
   /* border: 1px solid gray; */
-  height: 680px;
+  height: calc(100vh - 227px);
   overflow-y: scroll;
-  margin: 1rem 2rem 1rem 2rem;
-  scrollbar-width: none; /* สำหรับ Firefox */
-  -ms-overflow-style: none; /* สำหรับ IE และ Edge เก่า */
+  margin: 0 2rem 0 2rem;
+  scrollbar-width: none;
+  /* สำหรับ Firefox */
+  -ms-overflow-style: none;
+  /* สำหรับ IE และ Edge เก่า */
   display: flex;
   flex-direction: column;
   padding: 10px;
   overflow-y: auto;
 }
+
 .chat::-webkit-scrollbar {
-  display: none; /* สำหรับ Chrome, Safari และ Opera */
+  display: none;
+  /* สำหรับ Chrome, Safari และ Opera */
 }
+
 .chat-message {
   display: flex;
   align-items: flex-end;
@@ -63,8 +70,9 @@
   align-items: center;
   border-top: 2px solid #9D9D9D;
 }
+
 .my-message {
-  justify-content: flex-end;  
+  justify-content: flex-end;
   /* flex-direction: row-reverse; */
 }
 
@@ -89,11 +97,14 @@
 .chat-send-button:hover {
   background-color: #005a8c;
 }
+
 .main-container {
   display: flex;
-  align-items: start; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+  align-items: start;
+  /* จัดให้อยู่ตรงกลางแนวตั้ง */
   width: 100%;
 }
+
 .user-container {
   display: flex;
   flex-direction: column;
@@ -102,6 +113,7 @@
   height: 100%;
   background-color: #EDEDED;
 }
+
 .chat {
   width: 100%;
   display: flex;
@@ -110,6 +122,7 @@
   align-items: center;
   border-bottom: 2px solid #9d9d9d;
 }
+
 .chat h2 {
   margin: 2rem 0 2rem 0;
   font-size: 50px;
@@ -117,6 +130,7 @@
   color: #716a6a;
   align-items: center;
 }
+
 .list-user {
   width: 100%;
   height: 10vh;
@@ -126,12 +140,14 @@
   flex-direction: column;
   margin-top: 1rem;
 }
+
 .user-photo {
   margin: 10px 20px 10px 20px;
   width: 80px;
   height: 80px;
   border-radius: 50%;
 }
+
 .user-name {
   /* margin: 10px 10px 10px 20px; */
   margin: 10px 10px 5px 0px;
@@ -139,6 +155,7 @@
   font-weight: bold;
   color: #fff;
 }
+
 .user-item {
   display: flex;
   align-items: center;
@@ -147,20 +164,24 @@
   background-color: #ada9a9;
   border: 1px solid #b9b6b6;
 }
+
 .row-name-message {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
 }
+
 .last-message-time {
   margin: 12px 10px 5px 0px;
 }
+
 .bg {
   display: flex;
   justify-content: space-between;
   width: 100%;
 }
+
 .other-message {
   justify-content: flex-start;
 }
@@ -171,17 +192,21 @@
   border-radius: 50%;
   margin: 0 10px;
 }
+
 .my-message .message-bubble {
-  background-color: #dcf8c6; /* สีเขียวอ่อนเหมือนในไลน์ */
+  background-color: #dcf8c6;
+  /* สีเขียวอ่อนเหมือนในไลน์ */
 }
 
 .other-message .message-bubble {
   background-color: #ffffff;
 }
+
 .user-item.active {
   background-color: #e0f7fa;
   border-left: 4px solid #007bff;
 }
+
 .friend-search {
   margin-top: 20px;
 }
@@ -202,6 +227,18 @@
 .friend-details {
   flex-grow: 1;
 }
+.friend-email{
+  font-size: 12px;
+}
+.friend-name {
+  font-size: 16px;
+  font-weight: bold;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 
 .add-friend-btn {
   background-color: #4caf50;
@@ -211,28 +248,39 @@
   cursor: pointer;
   border-radius: 4px;
 }
+
 .search-con {
   position: relative;
   width: 100%;
-  max-width: 300px; /* หรือขนาดที่เหมาะกับคุณ */
+  max-width: 300px;
 }
 
 .search-icon {
   position: absolute;
-  top: 50%;
+  top: 60%;
   left: 12px;
   transform: translateY(-50%);
   color: #888;
   pointer-events: none;
 }
 
-.search-input {
+.search-input-friend {
   width: 100%;
-  padding: 10px 12px 10px 36px; /* padding-left มากขึ้นให้มีที่ว่างสำหรับไอคอน */
+  padding: 10px 35px 10px 35px;
   border-radius: 2rem;
   font-size: 16px;
-  margin-top: 17px;
+  margin: 30px 0 10px 0;
+  /* padding: 10px; */
+  max-width: 100%;
+  background-color: #f5f5f5;
+  border-radius: 25px;
+  border: 1px solid #ddd;
+  font-size: 1rem;
+  font-weight: bold;
+  outline: none;
+  transition: border-color 0.3s ease;
 }
+
 .favorite-toggle {
   display: flex;
   align-items: center;
@@ -253,32 +301,65 @@
   /* box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); */
   transition: transform 0.2s, box-shadow 0.2s;
 }
+
 .chat-friend-item:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   border-left: 4px solid #a5a1a5;
 }
-.favorite-container {
- width: 100%;
+
+.favorite-container-open{
+  width: 100%;
+  height: calc(100vh - 450px);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+.favorite-container-open::-webkit-scrollbar {
+  display: none;
+}
+.favorite-container{
+  width: 100%;
+}
+.group-container-open{
+  width: 100%;
+  height: calc(100vh - 535px);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+.group-container-open::-webkit-scrollbar {
+  display: none;
+}
+.group-container{
+  width: 100%;
+}
+.group-container-special{
+  width: 100%;
+  height: calc(100vh - 280px);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+.group-container-special::-webkit-scrollbar {
+  display: none;
+}
+.favorite-container-special{
+  width: 100%;
+  height: calc(100vh - 300px);
+  /* height: fit-content; */
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+.favorite-container-special::-webkit-scrollbar {
+  display: none;
 }
 .favorite-toggle {
   margin-left: 1rem;
 }
+
 /* โครงสร้างหลัก */
 .message-container {
   display: flex;
   margin: 8px 0;
   padding: 0 12px;
 }
-
-/* .current-user {
-  justify-content: flex-start;
-}
-
-.other-user {
-  justify-content: flex-start;
-} */
-
-/* รูปโปรไฟล์ */
 .message-avatar {
   width: 36px;
   height: 36px;
@@ -339,6 +420,7 @@
   margin-right: 8px;
   opacity: 0.8;
 }
+
 .message-time.other {
   font-size: 0.7rem;
   align-content: end;

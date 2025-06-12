@@ -1,10 +1,3 @@
-.container-profile {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  align-items: center;
-}
-
 .text-xl-font-semibold {
   border-bottom: 2px solid #9d9d9d;
   width: 100%;
@@ -70,6 +63,7 @@
   justify-content: space-between;
   align-items: center;
 }
+
 .data-blocks {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -88,9 +82,12 @@
 .profile-container {
   flex-grow: 1;
   overflow-y: auto;
-  max-height: calc(100vh - 100px);
+  max-height: calc(100vh - 70px);
   padding: 20px;
   text-align: center;
+}
+.profile-container::-webkit-scrollbar {
+  display: none;
 }
 
 .profile-image {
@@ -122,6 +119,7 @@
   flex-direction: column;
   justify-content: center;
 }
+
 @media screen and (max-width: 768px) {
   .info-box {
     width: 300px;
@@ -132,10 +130,13 @@
 .container-profile {
   display: flex;
   justify-content: center;
+  flex-direction: column;
+  width: 100%;
   align-items: center;
   min-height: 100vh;
   background-color: #f7f8fc;
 }
+
 
 /* กล่องข้อความเมื่อผู้ใช้ไม่ได้ล็อกอิน */
 .text-center {
@@ -199,13 +200,16 @@
   font-weight: 600;
   box-shadow: 0 0 5px rgba(111, 43, 238, 0.5);
 }
+
 .flex-wrap {
   display: flex;
   flex-wrap: wrap;
 }
+
 .gap-2 {
   gap: 10px;
 }
+
 .filter-genres {
   display: flex;
   flex-wrap: wrap;
@@ -213,6 +217,7 @@
   gap: 10px;
   margin: 1rem 0;
 }
+
 .edit-button {
   padding: 2px 20px;
   border: 1px solid #ccc;
@@ -227,7 +232,8 @@
 
 .edit-button:hover {
   background-color: #ddd;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* เพิ่มเงา */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  /* เพิ่มเงา */
   transition: box-shadow 0.2s ease;
 }
 
@@ -246,9 +252,11 @@
 
 .edit-button-cancel-button:hover {
   background-color: #ddd;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* เพิ่มเงา */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  /* เพิ่มเงา */
   transition: box-shadow 0.2s ease;
 }
+
 .edit-button.selected {
   background-color: #6f2bee;
   color: white;
@@ -256,11 +264,13 @@
   font-weight: 600;
   box-shadow: 0 0 5px rgba(111, 43, 238, 0.5);
 }
+
 .center-wrapper {
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 textarea {
   width: 100%;
   min-height: 100px;
@@ -308,6 +318,7 @@ textarea::placeholder {
 .save-button:hover {
   background-color: #ddd;
 }
+
 .cancel-button {
   margin-left: 10px;
   background-color: #ccc;
@@ -320,6 +331,7 @@ textarea::placeholder {
   margin-top: 4px;
   text-align: right;
 }
+
 .subgenre-container {
   /* margin-top: 10px; */
   display: flex;
@@ -349,6 +361,7 @@ textarea::placeholder {
   color: white;
   border-color: #6c63ff;
 }
+
 .genreshow-button {
   padding: 6px 12px;
   margin-top: 6px;
@@ -359,6 +372,7 @@ textarea::placeholder {
   border-color: #6c63ff;
   margin-right: 5px;
 }
+
 .profile-container input {
   width: 100%;
   padding: 10px;
@@ -371,7 +385,8 @@ textarea::placeholder {
   outline: none;
   overflow: hidden;
   transition: none;
-  background-color: transparent; /* ✅ แก้ตรงนี้ */
+  background-color: transparent;
+  /* ✅ แก้ตรงนี้ */
   text-align: center;
 }
 
@@ -380,9 +395,11 @@ textarea::placeholder {
   box-shadow: none;
   outline: none;
 }
+
 .edit-icon {
   margin-left: 5px;
 }
+
 .tab-button {
   flex: 1;
   padding: 12px;
@@ -391,11 +408,13 @@ textarea::placeholder {
   border-bottom: 2px solid transparent;
   transition: all 0.2s ease-in-out;
 }
+
 .tab-button.active {
   border-color: #3b82f6;
   font-weight: 600;
   color: #3b82f6;
 }
+
 .tabs ul {
   list-style: none;
   padding: 0;
@@ -403,6 +422,7 @@ textarea::placeholder {
   display: inline-block;
   font-weight: bold;
 }
+
 .tabs ul li {
   font-size: 16px;
   color: #333;
