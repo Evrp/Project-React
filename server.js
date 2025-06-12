@@ -334,13 +334,13 @@ app.post("/api/save-event", async (req, res) => {
 app.get("/api/filters/:email", async (req, res) => {
   try {
     const filter = await Filter.findOne({ email: req.params.email }); // ดึงตาม email
-    if (!filter) return res.status(404).json({ message: "ไม่พบข้อมูล" });
-    res.json(filter);
+    res.json(filter || null); // ถ้าไม่เจอให้ส่ง null
   } catch (error) {
     console.error("Error fetching filter:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
+
 // 📌 API ดึง Event ไปแสดงใน React
 app.get("/api/events", async (req, res) => {
   const email = req.query.email;

@@ -14,7 +14,7 @@ const Newcommu = () => {
           </div>
         </div>
         <div className="event-list">
-          <EventList />
+          <h2 className="event-title">Community Recommand</h2>           <EventList />
         </div>
       </div>
     </RequireLogin>

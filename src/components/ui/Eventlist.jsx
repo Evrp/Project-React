@@ -76,7 +76,6 @@ const EventList = () => {
 
   return (
     <div className="event-container">
-      <h2 className="event-title">Community Recommand</h2> 
       {events.length === 0 ? (
         <p className="empty-text">ยังไม่มีกิจกรรม</p>
       ) : (
