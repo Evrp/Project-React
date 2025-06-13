@@ -303,160 +303,47 @@ const Friend = () => {
             className="search-input"
           />
         </div>
-        <h2>Favorite</h2>
-        <div className={
-          filteredFriends.length === filteredUsers.length
-            ? "special-friend-list"
-            : filteredFriends.length > 0
-              ? "con-friend-list"
-              : "empty-friend-list"
-        }>
+        <div className="slide-con">
+          <h2>Favorite</h2>
+          <div className={
+            filteredFriends.length === filteredUsers.length
+              ? "special-friend-list"
+              : filteredFriends.length > 0
+                ? "con-friend-list"
+                : "empty-friend-list"
+          }>
 
-          <ul className="friend-list">
-            {filteredFriends.length > 0 ? (
-              filteredFriends.map((friend, index) => (
-                <li key={index} className="button-friend-item">
-                  <img
-                    src={friend.photoURL}
-                    // alt={friend.displayName}
-                    className="friend-photo"
-                  />
-                  <div className="friend-detailss">
-                    <span className="friend-name">{
-                      getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
-                    }</span>
-                    <span className="friend-email">{friend.email}</span>
-                  </div>
-                  <div className="con-right">
-                    <span
-                      className={`status ${friend.isOnline ? "online" : "offline"
-                        }`}
-                    >
-                      {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
-                    </span>
-
-                    <div
-                      className="dropdown-wrapper"
-                      ref={(el) => (dropdownRefs.current[friend.email] = el)}
-                    >
-                      <button
-                        onClick={() =>
-                          setOpenMenuFor((prev) =>
-                            prev === friend.email ? null : friend.email
-                          )
-                        }
-                        className="dropdown-toggle"
-                      >
-                        <BsThreeDots size={20} />
-                      </button>
-
-                      {openMenuFor === friend.email && (
-                        <div className="dropdown-menu">
-                          <button
-                            className="dropdown-item"
-                            onClick={() => {
-                              handleProfileClick(friend);
-                              fetchFollowInfo(friend.email);
-                              setOpenMenuFor(null);
-                            }}
-                          >
-                            👤 ดูโปรไฟล์
-                          </button>
-
-                          <button
-                            className="dropdown-item"
-                            onClick={() => {
-                              if (
-                                !currentUserfollow ||
-                                !Array.isArray(currentUserfollow.following)
-                              )
-                                return;
-                              handleFollow(friend.email);
-                            }}
-                          >
-                            {Array.isArray(currentUserfollow?.following) &&
-                              currentUserfollow.following.includes(friend.email)
-                              ? "🔔 กำลังติดตาม"
-                              : "➕ ติดตาม"}
-                          </button>
-
-                          <button
-                            className="dropdown-item danger"
-                            onClick={() => {
-                              handleRemoveFriend(friend.email);
-                              setOpenMenuFor(null);
-                            }}
-                            disabled={loadingFriendEmail === friend.email}
-                          >
-                            {loadingFriendEmail === friend.email
-                              ? "กำลังลบ..."
-                              : "🗑️ ลบเพื่อน"}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </li>
-              ))
-            ) : (
-              <div className="empty-friend">
-                <p>No friends found</p>
-              </div>
-
-            )}
-          </ul>
-        </div>
-        <h2>Other</h2>
-        <div className={
-          filteredUsers.length > 0 && filteredFriends.length === 0
-            ? "special-friend-recommand"
-            : filteredUsers.length === filteredFriends.length
-              ? "empty-friend-recommand"
-              : "con-friend-recommand"
-        }>
-          <ul className="friend-recommend">
-            {!loadingCurrentUser &&
-              filteredUsers
-                .filter((user) => !isFriend(user.email))
-                .map((user, index) => (
+            <ul className="friend-list">
+              {filteredFriends.length > 0 ? (
+                filteredFriends.map((friend, index) => (
                   <li key={index} className="button-friend-item">
                     <img
-                      src={user.photoURL}
-                      alt={user.displayName}
+                      src={friend.photoURL}
+                      // alt={friend.displayName}
                       className="friend-photo"
                     />
                     <div className="friend-detailss">
                       <span className="friend-name">{
-                        getnickName.find(n => n.email === user.email)?.nickname || user.displayName
+                        getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
                       }</span>
-                      <span className="friend-email">{user.email}</span>
+                      <span className="friend-email">{friend.email}</span>
                     </div>
                     <div className="con-right">
                       <span
-                        className={`status ${user.isOnline ? "online" : "offline"
+                        className={`status ${friend.isOnline ? "online" : "offline"
                           }`}
                       >
-                        {user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
+                        {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                       </span>
-                      <button
-                        className="add-friend-btn"
-                        onClick={() => handleAddFriend(user.email)}
-                        disabled={loadingFriendEmail === user.email}
-                      >
-                        {loadingFriendEmail === user.email ? (
-                          "กำลังเพิ่ม..."
-                        ) : (
-                          <IoMdPersonAdd />
-                        )}
-                      </button>
+
                       <div
                         className="dropdown-wrapper"
-                        ref={(el) => (dropdownRefs.current[user.email] = el)}
+                        ref={(el) => (dropdownRefs.current[friend.email] = el)}
                       >
                         <button
                           onClick={() =>
                             setOpenMenuFor((prev) =>
-                              prev === user.email ? null : user.email
+                              prev === friend.email ? null : friend.email
                             )
                           }
                           className="dropdown-toggle"
@@ -464,17 +351,19 @@ const Friend = () => {
                           <BsThreeDots size={20} />
                         </button>
 
-                        {openMenuFor === user.email && (
+                        {openMenuFor === friend.email && (
                           <div className="dropdown-menu">
                             <button
                               className="dropdown-item"
                               onClick={() => {
-                                handleProfileClick(user);
+                                handleProfileClick(friend);
+                                fetchFollowInfo(friend.email);
                                 setOpenMenuFor(null);
                               }}
                             >
                               👤 ดูโปรไฟล์
                             </button>
+
                             <button
                               className="dropdown-item"
                               onClick={() => {
@@ -483,23 +372,135 @@ const Friend = () => {
                                   !Array.isArray(currentUserfollow.following)
                                 )
                                   return;
-                                handleFollow(user.email);
+                                handleFollow(friend.email);
                               }}
                             >
                               {Array.isArray(currentUserfollow?.following) &&
-                                currentUserfollow.following.includes(user.email)
+                                currentUserfollow.following.includes(friend.email)
                                 ? "🔔 กำลังติดตาม"
                                 : "➕ ติดตาม"}
+                            </button>
+
+                            <button
+                              className="dropdown-item danger"
+                              onClick={() => {
+                                handleRemoveFriend(friend.email);
+                                setOpenMenuFor(null);
+                              }}
+                              disabled={loadingFriendEmail === friend.email}
+                            >
+                              {loadingFriendEmail === friend.email
+                                ? "กำลังลบ..."
+                                : "🗑️ ลบเพื่อน"}
                             </button>
                           </div>
                         )}
                       </div>
                     </div>
                   </li>
-                ))}
-          </ul>
-        </div>
+                ))
+              ) : (
+                <div className="empty-friend">
+                  <p>No friends found</p>
+                </div>
 
+              )}
+            </ul>
+          </div>
+          <h2>Other</h2>
+          <div className={
+            filteredUsers.length > 0 && filteredFriends.length === 0
+              ? "special-friend-recommand"
+              : filteredUsers.length === filteredFriends.length
+                ? "empty-friend-recommand"
+                : "con-friend-recommand"
+          }>
+            <ul className="friend-recommend">
+              {!loadingCurrentUser &&
+                filteredUsers
+                  .filter((user) => !isFriend(user.email))
+                  .map((user, index) => (
+                    <li key={index} className="button-friend-item">
+                      <img
+                        src={user.photoURL}
+                        alt={user.displayName}
+                        className="friend-photo"
+                      />
+                      <div className="friend-detailss">
+                        <span className="friend-name">{
+                          getnickName.find(n => n.email === user.email)?.nickname || user.displayName
+                        }</span>
+                        <span className="friend-email">{user.email}</span>
+                      </div>
+                      <div className="con-right">
+                        <span
+                          className={`status ${user.isOnline ? "online" : "offline"
+                            }`}
+                        >
+                          {user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
+                        </span>
+                        <button
+                          className="add-friend-btn"
+                          onClick={() => handleAddFriend(user.email)}
+                          disabled={loadingFriendEmail === user.email}
+                        >
+                          {loadingFriendEmail === user.email ? (
+                            "กำลังเพิ่ม..."
+                          ) : (
+                            <IoMdPersonAdd />
+                          )}
+                        </button>
+                        <div
+                          className="dropdown-wrapper"
+                          ref={(el) => (dropdownRefs.current[user.email] = el)}
+                        >
+                          <button
+                            onClick={() =>
+                              setOpenMenuFor((prev) =>
+                                prev === user.email ? null : user.email
+                              )
+                            }
+                            className="dropdown-toggle"
+                          >
+                            <BsThreeDots size={20} />
+                          </button>
+
+                          {openMenuFor === user.email && (
+                            <div className="dropdown-menu">
+                              <button
+                                className="dropdown-item"
+                                onClick={() => {
+                                  handleProfileClick(user);
+                                  setOpenMenuFor(null);
+                                }}
+                              >
+                                👤 ดูโปรไฟล์
+                              </button>
+                              <button
+                                className="dropdown-item"
+                                onClick={() => {
+                                  if (
+                                    !currentUserfollow ||
+                                    !Array.isArray(currentUserfollow.following)
+                                  )
+                                    return;
+                                  handleFollow(user.email);
+                                }}
+                              >
+                                {Array.isArray(currentUserfollow?.following) &&
+                                  currentUserfollow.following.includes(user.email)
+                                  ? "🔔 กำลังติดตาม"
+                                  : "➕ ติดตาม"}
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+            </ul>
+          </div>
+        </div>
 
         {isModalOpen && selectedUser && (
           <div className="profile-modal">
