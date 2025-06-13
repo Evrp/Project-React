@@ -2,6 +2,7 @@
 
 .chat-container {
   width: 80%;
+  background-color: white;
   height: 100%;
 }
 
@@ -38,7 +39,7 @@
   /* border: 1px solid gray; */
   height: calc(100vh - 227px);
   overflow-y: scroll;
-  margin: 0 2rem 0 2rem;
+  margin: 0 1rem 0 1rem;
   scrollbar-width: none;
   /* สำหรับ Firefox */
   -ms-overflow-style: none;
@@ -226,18 +227,23 @@
 
 .friend-details {
   flex-grow: 1;
+  /* width: fit-content; */
+  display: flex;
+  flex-direction: column;
 }
 .friend-email{
   font-size: 12px;
 }
 .friend-name {
-  font-size: 16px;
+  font-size: 12px;
   font-weight: bold;
   max-width: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  text-align: start;
 }
+
 
 
 .add-friend-btn {
@@ -309,7 +315,8 @@
 
 .favorite-container-open{
   width: 100%;
-  height: calc(100vh - 450px);
+  /* height: calc(100vh - 450px); */
+  height: fit-content;
   overflow-y: auto;
   scroll-behavior: smooth;
 }
@@ -321,7 +328,8 @@
 }
 .group-container-open{
   width: 100%;
-  height: calc(100vh - 535px);
+  /* height: calc(100vh - 535px); */
+  height: fit-content;
   overflow-y: auto;
   scroll-behavior: smooth;
 }
@@ -333,7 +341,8 @@
 }
 .group-container-special{
   width: 100%;
-  height: calc(100vh - 280px);
+  /* height: calc(100vh - 280px); */
+  height: fit-content;
   overflow-y: auto;
   scroll-behavior: smooth;
 }
@@ -342,8 +351,8 @@
 }
 .favorite-container-special{
   width: 100%;
-  height: calc(100vh - 300px);
-  /* height: fit-content; */
+  /* height: calc(100vh - 300px); */
+  height: fit-content;
   overflow-y: auto;
   scroll-behavior: smooth;
 }
@@ -435,4 +444,62 @@
 
 .message-bubble.other .message-time {
   color: rgba(0, 0, 0, 0.6);
+}
+.slide-chat{
+  width: 100%;
+  height: calc(100vh - 210px);
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+.slide-chat::-webkit-scrollbar {
+  width: 8px;
+}
+
+.slide-chat::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+.slide-chat::-webkit-scrollbar-thumb {
+  background: rgb(98, 96, 96);
+  border-radius: 8px;
+}
+
+.slide-chat::-webkit-scrollbar-thumb:hover {
+  background: rgb(148, 144, 144);
+}
+.chat-date-divider {
+  text-align: center;
+  margin: 20px 0 10px;
+  padding: 5px 10px;
+  /* background-color: #eee; */
+  border-radius: 12px;
+  font-size: 14px;
+  color: #555;
+  font-weight: bold;
+}
+.colum-message{
+  display: flex;
+  flex-direction: column;
+  text-align: end;
+}
+.last-message {
+  font-size: 12px;
+  color: #555;
+  margin-top: 4px;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  margin-left: 12px;
+}
+
+.message-time {
+  font-size: 10px;
+  color: #999;
+  margin: 4px 0px 0px 1rem;
+}
+.row-last-time{
+  display: flex;
+  flex-direction: row;
 }
