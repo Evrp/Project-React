@@ -5,8 +5,12 @@ import { useParams } from "react-router-dom";
 import RequireLogin from "../ui/RequireLogin";
 import { FaSearch } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
+import { TiMicrophoneOutline } from "react-icons/ti";
 import "react-toastify/dist/ReactToastify.css";
 import { BsThreeDots } from "react-icons/bs";
+import { MdAttachFile } from "react-icons/md";
+import { IoCameraOutline } from "react-icons/io5";
+import { BsEmojiSmile } from "react-icons/bs";
 import io from "socket.io-client";
 import {
   collection,
@@ -169,8 +173,9 @@ const Chat = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `http://localhost:8080/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
-      }/${targetEmail}`;
+    const url = `http://localhost:8080/api/users/${userEmail}/${
+      isFollowing ? "unfollow" : "follow"
+    }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -244,7 +249,6 @@ const Chat = () => {
       console.error("Error joining room:", err);
     }
   };
-
 
   useEffect(() => {
     fetchUsersAndFriends();
@@ -343,20 +347,19 @@ const Chat = () => {
         }))
         .filter((msg) => msg.roomId === roomId); // กรองเฉพาะข้อความในห้องนี้
 
-
       const filteredMessages = isGroupChat
         ? allMessages.filter((msg) => {
-          const isMyMsg = msg.receiver === activeUser;
-          return isMyMsg;
-        })
+            const isMyMsg = msg.receiver === activeUser;
+            return isMyMsg;
+          })
         : allMessages.filter((msg) => {
-          const isMyMsg =
-            msg.sender === userEmail && msg.receiver === activeUser;
-          const isTheirMsg =
-            msg.sender === activeUser &&
-            (msg.receiver === userEmail || !msg.receiver);
-          return isMyMsg || isTheirMsg;
-        });
+            const isMyMsg =
+              msg.sender === userEmail && msg.receiver === activeUser;
+            const isTheirMsg =
+              msg.sender === activeUser &&
+              (msg.receiver === userEmail || !msg.receiver);
+            return isMyMsg || isTheirMsg;
+          });
 
       setMessages(filteredMessages);
       scrollToBottom();
@@ -370,7 +373,6 @@ const Chat = () => {
 
   const handleSend = async () => {
     if (input.trim() === "" || !activeUser) return;
-
 
     const messageData = {
       sender: userEmail,
@@ -394,7 +396,6 @@ const Chat = () => {
     await addDoc(messagesRef, messageData);
     setInput("");
   };
-
 
   useEffect(() => {
     const markMessagesAsSeen = async () => {
@@ -424,7 +425,6 @@ const Chat = () => {
     }
   }, [messages, userEmail, roomId]);
 
-
   const filteredFriends = friends.filter((friend) =>
     friend.displayName.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -447,7 +447,7 @@ const Chat = () => {
       } catch (err) {
         console.error("โหลด nickname ล้มเหลว:", err);
       }
-    }
+    };
     getNickNameF();
   }, []);
   const formatChatDate = (date) => {
@@ -467,8 +467,8 @@ const Chat = () => {
       // แสดงวัน เดือน ปี ค.ศ. และเวลา
       return date.toLocaleString("en-GB", {
         day: "2-digit",
-        month: "short",   // Jan, Feb, ...
-        year: "numeric",  // 2025
+        month: "short", // Jan, Feb, ...
+        year: "numeric", // 2025
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
@@ -478,9 +478,10 @@ const Chat = () => {
 
   const getLastMessage = (email) => {
     const friendMessages = messages
-      .filter(msg =>
-        (msg.sender === email && msg.receiver === userEmail) ||
-        (msg.sender === userEmail && msg.receiver === email)
+      .filter(
+        (msg) =>
+          (msg.sender === email && msg.receiver === userEmail) ||
+          (msg.sender === userEmail && msg.receiver === email)
       )
       .sort((a, b) => b.timestamp?.seconds - a.timestamp?.seconds); // ใหม่สุดก่อน
 
@@ -507,7 +508,7 @@ const Chat = () => {
   useEffect(() => {
     const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const newMessages = snapshot.docs.map(doc => ({
+      const newMessages = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
@@ -516,8 +517,9 @@ const Chat = () => {
 
       // อัปเดตข้อความล่าสุดของแต่ละ friend
       const latest = {};
-      newMessages.forEach(msg => {
-        const friendEmail = msg.sender === userEmail ? msg.receiver : msg.sender;
+      newMessages.forEach((msg) => {
+        const friendEmail =
+          msg.sender === userEmail ? msg.receiver : msg.sender;
         if (!latest[friendEmail]) latest[friendEmail] = msg;
       });
 
@@ -530,7 +532,7 @@ const Chat = () => {
   useEffect(() => {
     const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const newMessages = snapshot.docs.map(doc => ({
+      const newMessages = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
@@ -564,8 +566,6 @@ const Chat = () => {
     return timeB - timeA; // เรียงจากใหม่ -> เก่า
   });
 
-
-
   return (
     <RequireLogin>
       <div className="main-container">
@@ -594,13 +594,15 @@ const Chat = () => {
                 <span>Favorite</span>
               </div>
               {isOpen && (
-                <div className={
-                  !isOpencom && isOpen
-                    ? "favorite-container-special"
-                    : isOpen
+                <div
+                  className={
+                    !isOpencom && isOpen
+                      ? "favorite-container-special"
+                      : isOpen
                       ? "favorite-container-open"
                       : "favorite-container"
-                }>
+                  }
+                >
                   <ul className="friend-list-chat">
                     {sortedFriends.length > 0 ? (
                       sortedFriends.map((friend, index) => (
@@ -619,31 +621,38 @@ const Chat = () => {
                           <img
                             src={friend.photoURL}
                             alt={
-                              getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
+                              getnickName.find((n) => n.email === friend.email)
+                                ?.nickname || friend.displayName
                             }
                             className="friend-photo"
                           />
                           <div className="friend-details">
                             <span className="friend-name">
-                              {getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName}
+                              {getnickName.find((n) => n.email === friend.email)
+                                ?.nickname || friend.displayName}
                             </span>
                             <div className="row-last-time">
                               <span className="last-message">
-                                {lastMessages[friend.email]?.content || "ยังไม่มีข้อความ"}
+                                {lastMessages[friend.email]?.content ||
+                                  "ยังไม่มีข้อความ"}
                               </span>
 
                               <span className="message-time">
                                 {lastMessages[friend.email]?.timestamp &&
-                                  formatRelativeTime(lastMessages[friend.email].timestamp.toDate())}
+                                  formatRelativeTime(
+                                    lastMessages[
+                                      friend.email
+                                    ].timestamp.toDate()
+                                  )}
                               </span>
                             </div>
                           </div>
 
-
                           <div className="con-right">
                             <span
-                              className={`status ${friend.isOnline ? "online" : "offline"
-                                }`}
+                              className={`status ${
+                                friend.isOnline ? "online" : "offline"
+                              }`}
                             >
                               {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                             </span>
@@ -698,9 +707,9 @@ const Chat = () => {
                                     {Array.isArray(
                                       currentUserfollow?.following
                                     ) &&
-                                      currentUserfollow.following.includes(
-                                        friend.email
-                                      )
+                                    currentUserfollow.following.includes(
+                                      friend.email
+                                    )
                                       ? "🔔 กำลังติดตาม"
                                       : "➕ ติดตาม"}
                                   </button>
@@ -712,7 +721,9 @@ const Chat = () => {
                                       handleRemoveFriend(friend.email);
                                       setOpenMenuFor(null);
                                     }}
-                                    disabled={loadingFriendEmail === friend.email}
+                                    disabled={
+                                      loadingFriendEmail === friend.email
+                                    }
                                   >
                                     {loadingFriendEmail === friend.email
                                       ? "กำลังลบ..."
@@ -745,10 +756,12 @@ const Chat = () => {
                     !isOpen && isOpencom
                       ? "group-container-special"
                       : isOpencom
-                        ? "group-container-open"
-                        : "group-container"
+                      ? "group-container-open"
+                      : "group-container"
                   }
-                >              <ul className="friend-list-chat">
+                >
+                  {" "}
+                  <ul className="friend-list-chat">
                     {joinedRooms.roomNames?.map((name, index) => {
                       const roomId = joinedRooms.roomNames?.[index];
 
@@ -850,14 +863,11 @@ const Chat = () => {
 
             <h2>
               {Array.isArray(getnickName) &&
-                (getnickName.find(u => u.email === activeUser)?.nickname ||
-                  users.find(u => u.email === activeUser)?.displayName ||
+                (getnickName.find((u) => u.email === activeUser)?.nickname ||
+                  users.find((u) => u.email === activeUser)?.displayName ||
                   RoomsBar.roomName ||
                   userName)}
-
-
             </h2>
-
           </div>
           <div className="chat-box">
             {messages.map((msg, index) => {
@@ -871,7 +881,8 @@ const Chat = () => {
                 index > 0 ? messages[index - 1].timestamp?.toDate() : null;
               const isNewDay =
                 !previousMessageDate ||
-                messageDate?.toDateString() !== previousMessageDate?.toDateString();
+                messageDate?.toDateString() !==
+                  previousMessageDate?.toDateString();
 
               return (
                 <React.Fragment key={msg.id}>
@@ -882,11 +893,10 @@ const Chat = () => {
                   )}
 
                   <div
-
-                    className={`chat-message ${isCurrentUser ? "my-message" : "other-message"
-                      }`}
+                    className={`chat-message ${
+                      isCurrentUser ? "my-message" : "other-message"
+                    }`}
                   >
-
                     {!isCurrentUser && (
                       <img
                         src={senderInfo?.photoURL || defaultProfileImage}
@@ -896,23 +906,15 @@ const Chat = () => {
                     )}
 
                     <div
-                      className={`message-content ${isCurrentUser ? "current" : "other"
-                        }`}
+                      className={`message-content ${
+                        isCurrentUser ? "current" : "other"
+                      }`}
                     >
-                      {/* <div
-                        className={`message-time ${isCurrentUser ? "current" : "other"
-                          }`}
-                      >
-                        {messageDate &&
-                          messageDate.toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                      </div> */}
                       <div className="colum-message">
                         <div
-                          className={`message-bubble ${isCurrentUser ? "current" : "other"
-                            }`}
+                          className={`message-bubble ${
+                            isCurrentUser ? "current" : "other"
+                          }`}
                         >
                           {msg.content || msg.text}
                         </div>
@@ -921,17 +923,8 @@ const Chat = () => {
                             {msg.isSeen ? "Seen" : ""}
                           </div>
                         )}
-
                       </div>
                     </div>
-
-                    {/* {isCurrentUser && (
-                      <img
-                        src={userPhoto || defaultProfileImage}
-                        alt="You"
-                        className="message-avatar"
-                      />
-                    )} */}
                   </div>
                 </React.Fragment>
               );
@@ -940,17 +933,25 @@ const Chat = () => {
             <div ref={endOfMessagesRef} />
           </div>
           <div className="chat-input-container">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSend()}
-              placeholder={isGroupChat ? "พิมพ์ถึงกลุ่ม..." : "พิมพ์ข้อความ..."}
-              className="chat-input"
-            />
-            <button onClick={handleSend} className="chat-send-button">
+            <div className="chat-border">
+              <TiMicrophoneOutline />
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                placeholder={
+                  isGroupChat ? "พิมพ์ถึงกลุ่ม..." : "พิมพ์ข้อความ..."
+                }
+                className="chat-input"
+              />
+              <MdAttachFile />
+              <IoCameraOutline />
+              <BsEmojiSmile />
+              {/* <button onClick={handleSend} className="chat-send-button">
               Send
-            </button>
+            </button> */}
+            </div>
           </div>
         </div>
 
@@ -963,13 +964,15 @@ const Chat = () => {
                 <img
                   src={selectedUser.photoURL}
                   alt={
-                    getnickName.find(n => n.email === selectedUser.email)?.nickname || selectedUser.displayName
+                    getnickName.find((n) => n.email === selectedUser.email)
+                      ?.nickname || selectedUser.displayName
                   }
                   className="profile-photo"
                 />
-                <h2>{
-                  getnickName.find(n => n.email === selectedUser.email)?.nickname || selectedUser.displayName
-                }</h2>
+                <h2>
+                  {getnickName.find((n) => n.email === selectedUser.email)
+                    ?.nickname || selectedUser.displayName}
+                </h2>
                 <div className="tabs">
                   <ul className="followers">
                     <li>{followers.length} followers</li>
