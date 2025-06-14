@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../ui/Eventlist.css";
+import { useTheme } from "../../context/themecontext";
+
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
   const [eventsImage, setEventsImage] = useState([]);
   const [loading, setLoading] = useState(true);
   const email = localStorage.getItem("userEmail");
+  const { isDarkMode, setIsDarkMode } = useTheme();
+
   const user = { email };
 
   const fetchimage = async () => {
@@ -69,17 +73,18 @@ const EventList = () => {
     fetchEvents();
     fetchimage();
   }, []);
-/////aa
+  /////aa
 
 
   if (loading) return <p className="loading-text">กำลังโหลด...</p>;
 
   return (
-    <div className="event-container">
+    <div className={`event-container ${isDarkMode ? "dark-mode" : ""}`}>
+
       {events.length === 0 ? (
         <p className="empty-text">ยังไม่มีกิจกรรม</p>
       ) : (
-        <div className="event-list"> 
+        <div className="event-list">
           {events.map((event) => (
             <div key={event._id} className="event-card">
               {eventsImage.map((item) => {

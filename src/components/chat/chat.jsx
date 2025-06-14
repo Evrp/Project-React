@@ -29,7 +29,7 @@ import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 const socket = io("http://localhost:8080");
-import { useTheme } from "../ThemeContext";
+import { useTheme } from "../../context/themecontext";
 
 const Chat = () => {
   const { isDarkMode, setIsDarkMode } = useTheme();

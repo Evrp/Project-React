@@ -7,6 +7,8 @@ import "./friend.css";
 import { IoMdPersonAdd } from "react-icons/io";
 import RequireLogin from "../ui/RequireLogin";
 import { BsThreeDots } from "react-icons/bs";
+import { useTheme } from "../../context/ThemeContext";
+
 const socket = io("http://localhost:8080");
 
 const Friend = () => {
@@ -25,6 +27,7 @@ const Friend = () => {
   const [following, setFollowing] = useState([]);
   const [getnickName, getNickName] = useState("");
   const dropdownRefs = useRef({});
+  const { isDarkMode, setIsDarkMode } = useTheme();
 
   const userEmail = localStorage.getItem("userEmail");
   const displayName = localStorage.getItem("userName");
@@ -290,7 +293,7 @@ const Friend = () => {
 
   return (
     <RequireLogin>
-      <div className="fr-container">
+      <div className={`fr-container ${isDarkMode ? "dark-mode" : ""}`}>
         <div className="text-xl-font-semibold">
           <h1>Friend</h1>
         </div>
@@ -300,7 +303,7 @@ const Friend = () => {
             placeholder="🔍 Search Friend"
             value={searchTerm}
             onChange={handleSearch}
-            className="search-input"
+            className="search-input-friend"
           />
         </div>
         <div className="slide-con">
@@ -361,7 +364,7 @@ const Friend = () => {
                                 setOpenMenuFor(null);
                               }}
                             >
-                              👤 ดูโปรไฟล์
+                              Profile
                             </button>
 
                             <button
@@ -377,8 +380,8 @@ const Friend = () => {
                             >
                               {Array.isArray(currentUserfollow?.following) &&
                                 currentUserfollow.following.includes(friend.email)
-                                ? "🔔 กำลังติดตาม"
-                                : "➕ ติดตาม"}
+                                ? "Following"
+                                : "Follow"}
                             </button>
 
                             <button
@@ -390,8 +393,8 @@ const Friend = () => {
                               disabled={loadingFriendEmail === friend.email}
                             >
                               {loadingFriendEmail === friend.email
-                                ? "กำลังลบ..."
-                                : "🗑️ ลบเพื่อน"}
+                                ? "Deleting..."
+                                : "Delete Friend"}
                             </button>
                           </div>
                         )}
@@ -474,7 +477,7 @@ const Friend = () => {
                                   setOpenMenuFor(null);
                                 }}
                               >
-                                👤 ดูโปรไฟล์
+                                Profile
                               </button>
                               <button
                                 className="dropdown-item"
@@ -489,8 +492,8 @@ const Friend = () => {
                               >
                                 {Array.isArray(currentUserfollow?.following) &&
                                   currentUserfollow.following.includes(user.email)
-                                  ? "🔔 กำลังติดตาม"
-                                  : "➕ ติดตาม"}
+                                  ? "Follwing"
+                                  : "Follow"}
                               </button>
                             </div>
                           )}
