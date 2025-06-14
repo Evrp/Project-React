@@ -1,0 +1,149 @@
+.container-profile {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #ededed;
+}
+.header {
+  height: 100px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.container-profile h1 {
+  font-size: 32px;
+}
+.search-input-setup {
+  height: 100px;
+  width: 100%;
+}
+.chat-input-setup {
+  width: 100%;
+  border-radius: 5px;
+  padding: 8px;
+  border: none; /* ลบขอบ */
+  outline: none;
+  margin: 5px 0 5px 0;
+  background-color: transparent;
+}
+.row-setup-input {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 2rem 3rem;
+  border: 1px solid #ccc;
+  border-radius: 30px;
+  background-color: #f5f5f5;
+}
+.bg-setup-content {
+  height: 100vh;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+}
+.bg-setup-content::-webkit-scrollbar {
+  display: none;
+}
+.bg-card-content {
+  /* width: 100%; */
+  height: 100%;
+  padding: 2rem;
+  margin: 0 3rem;
+  background-color: #ffffff;
+  border-radius: 30px;
+}
+.card-title{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.card-con {
+  background-color: #f5f5f5;
+  border-radius: 20px;
+  align-items: center;
+  padding: 20px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+.card-svg {
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  padding: 20px;
+}
+.setting-actions {
+  display: flex;
+  gap: 1rem;
+  position: absolute;
+  right: 2rem;
+  top: 2.5rem;
+}
+
+.setting-actions button,
+.setting-actions select {
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.dark-mode {
+  background-color: #1e1e1e;
+  color: #ffffff;
+}
+
+.dark-mode .row-setup-input {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+}
+
+.dark-mode .bg-card-content,
+.dark-mode .card-con {
+  background-color: #2e2e2e;
+  color: #fff;
+}
+
+.dark-mode .chat-input-setup {
+  background-color: transparent;
+  color: #fff;
+}
+.dark-mode .card-detail-content {
+  background-color: #2a2a2a;
+  color: white;
+}
+.dark-mode .card-svg {
+  background-color: transparent;
+  border-radius: 10px;
+  padding: 20px;
+}
+.card-detail-wrapper {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+  width: 100%;
+}
+
+.card-detail-wrapper.open {
+  max-height: 500px; /* หรือใช้ค่าใหญ่ๆพอครอบเนื้อหา เช่น 1000px */
+  width: 100%;
+}
+
+.card-detail-content {
+  padding: 1rem 1.5rem;
+  /* background-color: #fff; */
+  border-top: 1px solid #ddd;
+  color: #333;
+  width: 100%;
+}
+
+/* รองรับ dark mode */
+.dark-mode .card-detail-content {
+  background-color: #2a2a2a;
+  color: white;
+}

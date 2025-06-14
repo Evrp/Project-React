@@ -29,8 +29,10 @@ import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 const socket = io("http://localhost:8080");
+import { useTheme } from "../ThemeContext";
 
 const Chat = () => {
+  const { isDarkMode, setIsDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(true);
   const [isOpencom, setIsOpencom] = useState(true);
   const { roomId } = useParams();
@@ -65,6 +67,7 @@ const Chat = () => {
   const [isGroupChat, setIsGroupChat] = useState(false);
   const [getnickName, getNickName] = useState("");
   const [lastMessages, setLastMessages] = useState({});
+  const [darkMode, setDarkMode] = useState(false);
 
   const defaultProfileImage = userPhoto;
 
@@ -568,7 +571,8 @@ const Chat = () => {
 
   return (
     <RequireLogin>
-      <div className="main-container">
+      {/* <div className="main-container"> */}
+      <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
         <div className="user-container">
           <div className="chat">
             <h2>Chat</h2>
@@ -934,20 +938,22 @@ const Chat = () => {
           </div>
           <div className="chat-input-container">
             <div className="chat-border">
-              <TiMicrophoneOutline />
+              <div className="emoji-right">
+                <TiMicrophoneOutline />
+              </div>
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                placeholder={
-                  isGroupChat ? "พิมพ์ถึงกลุ่ม..." : "พิมพ์ข้อความ..."
-                }
+                placeholder={"Writing something..."}
                 className="chat-input"
               />
-              <MdAttachFile />
-              <IoCameraOutline />
-              <BsEmojiSmile />
+              <div className="emoji">
+                <MdAttachFile />
+                <IoCameraOutline />
+                <BsEmojiSmile />
+              </div>
               {/* <button onClick={handleSend} className="chat-send-button">
               Send
             </button> */}
