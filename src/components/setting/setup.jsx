@@ -2,16 +2,14 @@ import React, { useState, useEffect } from "react";
 import RequireLogin from "../ui/RequireLogin";
 import { IoIosSearch } from "react-icons/io";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
+import { useTheme } from "../../context/themecontext";
 import "./setup.css";
 
 const setup = () => {
   // const [darkMode, setDarkMode] = useState(false);
   const [language, setLanguage] = useState("en");
   const [openSettings, setOpenSettings] = useState({});
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    // ดึงค่าจาก localStorage ตอนเริ่มโหลดแอป
-    return localStorage.getItem("darkMode") === "true";
-  });
+  const { isDarkMode, setIsDarkMode } = useTheme();
 
   const settingsList = [
     {
@@ -63,20 +61,21 @@ const setup = () => {
   return (
     <RequireLogin>
       <div className={`container-profile ${isDarkMode ? "dark-mode" : ""}`}>
-        <div className="header">
-          <h1>{language === "th" ? "ตั้งค่า" : "Setup"}</h1>
-          <div className="setting-actions">
-            <button onClick={toggleDarkMode}>{isDarkMode ? "☀️" : "🌙"}</button>
-            <select
-              onChange={(e) => changeLanguage(e.target.value)}
-              value={language}
-            >
-              <option value="en">EN</option>
-              <option value="th">TH</option>
-            </select>
+        <div className="con-header">
+          <div className="header-setup">
+            <h1>{language === "th" ? "ตั้งค่า" : "Setup"}</h1>
+            <div className="setting-actions">
+              <button onClick={() => setIsDarkMode((prev) => !prev)}>{isDarkMode ? "☀️" : "🌙"}</button>
+              <select
+                onChange={(e) => changeLanguage(e.target.value)}
+                value={language}
+              >
+                <option value="en">EN</option>
+                <option value="th">TH</option>
+              </select>
+            </div>
           </div>
         </div>
-
         <div className="search-input-setup">
           <div className="row-setup-input">
             <div className="emoji-right">
@@ -113,9 +112,8 @@ const setup = () => {
                 </div>
 
                 <div
-                  className={`card-detail-wrapper ${
-                    openSettings[setting.key] ? "open" : ""
-                  }`}
+                  className={`card-detail-wrapper ${openSettings[setting.key] ? "open" : ""
+                    }`}
                 >
                   <div className="card-detail-content">
                     <p>รายละเอียดของ {setting.title}</p>

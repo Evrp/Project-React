@@ -4,28 +4,47 @@
   flex-direction: column;
   background-color: #ededed;
 }
-.header {
+
+.header-setup {
   height: 100px;
   display: flex;
-  justify-content: center;
-  width: 100%;
+  align-items: center;
+  text-align: center;
 }
-.container-profile h1 {
-  font-size: 32px;
+
+.header h1 {
+  font-size: 32;
+}
+.con-header {
+  width: 100%;
+  height: fit-content;
+  border-bottom: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+}
+.dark-mode .con-header {
+  width: 100%;
+  height: fit-content;
+  border-bottom: 1px solid #444;
+  display: flex;
+  justify-content: center;
 }
 .search-input-setup {
   height: 100px;
   width: 100%;
 }
+
 .chat-input-setup {
   width: 100%;
   border-radius: 5px;
   padding: 8px;
-  border: none; /* ลบขอบ */
+  border: none;
+  /* ลบขอบ */
   outline: none;
   margin: 5px 0 5px 0;
   background-color: transparent;
 }
+
 .row-setup-input {
   display: flex;
   flex-direction: row;
@@ -36,15 +55,18 @@
   border-radius: 30px;
   background-color: #f5f5f5;
 }
+
 .bg-setup-content {
   height: 100vh;
   overflow-y: auto;
   scroll-behavior: smooth;
   width: 100%;
 }
+
 .bg-setup-content::-webkit-scrollbar {
   display: none;
 }
+
 .bg-card-content {
   /* width: 100%; */
   height: 100%;
@@ -53,13 +75,15 @@
   background-color: #ffffff;
   border-radius: 30px;
 }
-.card-title{
+
+.card-title {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   width: 100%;
 }
+
 .card-con {
   background-color: #f5f5f5;
   border-radius: 20px;
@@ -71,11 +95,13 @@
   margin-bottom: 1rem;
   width: 100%;
 }
+
 .card-svg {
   background-color: #f5f5f5;
   border-radius: 10px;
   padding: 20px;
 }
+
 .setting-actions {
   display: flex;
   gap: 1rem;
@@ -113,15 +139,18 @@
   background-color: transparent;
   color: #fff;
 }
+
 .dark-mode .card-detail-content {
   background-color: #2a2a2a;
   color: white;
 }
+
 .dark-mode .card-svg {
   background-color: transparent;
   border-radius: 10px;
   padding: 20px;
 }
+
 .card-detail-wrapper {
   max-height: 0;
   overflow: hidden;
@@ -130,7 +159,8 @@
 }
 
 .card-detail-wrapper.open {
-  max-height: 500px; /* หรือใช้ค่าใหญ่ๆพอครอบเนื้อหา เช่น 1000px */
+  max-height: 500px;
+  /* หรือใช้ค่าใหญ่ๆพอครอบเนื้อหา เช่น 1000px */
   width: 100%;
 }
 

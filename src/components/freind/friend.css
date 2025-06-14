@@ -19,7 +19,7 @@
 }
 
 /* ช่องค้นหาชื่อเพื่อน */
-.search-input {
+.search-input-friend {
   padding: 10px;
   margin-bottom: 20px;
   width: 80%;
@@ -32,13 +32,27 @@
   transition: border-color 0.3s ease;
 }
 
+.dark-mode .search-input-friend {
+  padding: 10px;
+  margin-bottom: 20px;
+  width: 80%;
+  max-width: 500px;
+  background-color: #4d4d4d;
+  border-radius: 25px;
+  border: 1px solid #444;
+  font-size: 1rem;
+  font-weight: bold;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
 .search-input:focus {
   border-color: #6c63ff;
 }
 
 .search-friend-con {
-  margin-top: 2rem;
-  width: 100%;
+  /* margin-top: 2rem; */
+  width: 55%;
   align-items: center;
   justify-content: center;
   display: flex;
@@ -128,6 +142,15 @@
 
 .modal-content {
   background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+
+.dark-mode .modal-content {
+  background-color: #4d4d4d;
   padding: 20px;
   border-radius: 8px;
   max-width: 400px;
@@ -228,6 +251,20 @@
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
+.dark-mode .button-friend-item {
+  width: 600px;
+  height: fit-content;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #4d4d4d;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
 .button-friend-item:hover {
   transform: scale(1.03);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -262,6 +299,17 @@
   display: inline-block;
 }
 
+.dropdown-item {
+  color: #4d4d4d;
+  font-weight: bold;
+}
+
+.dark-mode .dropdown-item {
+  color: #f5f5f5;
+  font-weight: bold;
+
+}
+
 .dropdown-toggle {
   padding: 8px;
   border: none;
@@ -271,8 +319,23 @@
   transition: background 0.2s ease-in-out;
 }
 
+.dropdown-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+.darkmode .dropdown-toggle svg {
+  width: 20px;
+  height: 20px;
+  color: #f5f5f5;
+}
+
 .dropdown-toggle:hover {
   background-color: #f0f0f0;
+}
+
+.dark-mode .dropdown-toggle:hover {
+  background-color: #444;
 }
 
 .dropdown-menu {
@@ -283,6 +346,21 @@
   width: 180px;
   background-color: white;
   border: 1px solid #ddd;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  z-index: 999;
+  padding: 8px 0;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.dark-mode .dropdown-menu {
+  position: absolute;
+  margin-top: 1rem;
+  top: 36px;
+  right: 0;
+  width: 180px;
+  background-color: #4d4d4d;
+  border: 1px solid #444;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   z-index: 999;
@@ -307,6 +385,23 @@
   z-index: -1;
 }
 
+.dark-mode .dropdown-menu::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  right: 12px;
+  /* หรือปรับค่าตามตำแหน่งปุ่ม */
+  width: 14px;
+  height: 14px;
+  background-color: #4d4d4d;
+  transform: rotate(45deg);
+  box-shadow: -1px -1px 1px rgba(0, 0, 0, 0.05);
+  /* เบาลง */
+  border-left: 1px solid #444;
+  border-top: 1px solid #444;
+  z-index: -1;
+}
+
 
 .dropdown-menu button {
   width: 100%;
@@ -321,6 +416,10 @@
 
 .dropdown-menu button:hover {
   background-color: #f5f5f5;
+}
+
+.dark-mode .dropdown-menu button:hover {
+  background-color: #666;
 }
 
 .dropdown-menu button.danger {
