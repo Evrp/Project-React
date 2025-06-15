@@ -78,6 +78,7 @@ const Newcommu = () => {
     } catch (error) {
       console.error("Error fetching users and friends:", error);
     }
+    
   };
 
   const fetchMatches = async () => {

@@ -7,7 +7,7 @@ import "./friend.css";
 import { IoMdPersonAdd } from "react-icons/io";
 import RequireLogin from "../ui/RequireLogin";
 import { BsThreeDots } from "react-icons/bs";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../context/themecontext";
 
 const socket = io("http://localhost:8080");
 
@@ -63,7 +63,6 @@ const Friend = () => {
         setFriends(filteredFriends);
       } else {
         setFriends([]);
-
       }
     } catch (error) {
       console.error("Error fetching current user or friends:", error);
@@ -74,19 +73,26 @@ const Friend = () => {
     if (!userEmail) return;
 
     fetchCurrentUserAndFriends();
-    socket.emit("user-online", { displayName, photoURL, email: userEmail });
 
-    socket.on("update-users", (onlineUsers) => {
+    // ส่งสถานะออนไลน์
+    socket.emit("user-online", {
+      displayName,
+      photoURL,
+      email: userEmail,
+    });
+
+    // ฟังสถานะอัปเดต
+    socket.on("update-users", (onlineEmails) => {
       setUsers((prevUsers) =>
         prevUsers.map((user) => ({
           ...user,
-          isOnline: onlineUsers.includes(user.email),
+          isOnline: onlineEmails.includes(user.email),
         }))
       );
       setFriends((prevFriends) =>
         prevFriends.map((friend) => ({
           ...friend,
-          isOnline: onlineUsers.includes(friend.email),
+          isOnline: onlineEmails.includes(friend.email),
         }))
       );
     });
@@ -222,8 +228,9 @@ const Friend = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `http://localhost:8080/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
-      }/${targetEmail}`;
+    const url = `http://localhost:8080/api/users/${userEmail}/${
+      isFollowing ? "unfollow" : "follow"
+    }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -285,7 +292,7 @@ const Friend = () => {
       } catch (err) {
         console.error("โหลด nickname ล้มเหลว:", err);
       }
-    }
+    };
     getNickNameF();
   }, []);
   console.log("filteredFriends:", filteredFriends);
@@ -308,14 +315,15 @@ const Friend = () => {
         </div>
         <div className="slide-con">
           <h2>Favorite</h2>
-          <div className={
-            filteredFriends.length === filteredUsers.length
-              ? "special-friend-list"
-              : filteredFriends.length > 0
+          <div
+            className={
+              filteredFriends.length === filteredUsers.length
+                ? "special-friend-list"
+                : filteredFriends.length > 0
                 ? "con-friend-list"
                 : "empty-friend-list"
-          }>
-
+            }
+          >
             <ul className="friend-list">
               {filteredFriends.length > 0 ? (
                 filteredFriends.map((friend, index) => (
@@ -326,15 +334,17 @@ const Friend = () => {
                       className="friend-photo"
                     />
                     <div className="friend-detailss">
-                      <span className="friend-name">{
-                        getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
-                      }</span>
+                      <span className="friend-name">
+                        {getnickName.find((n) => n.email === friend.email)
+                          ?.nickname || friend.displayName}
+                      </span>
                       <span className="friend-email">{friend.email}</span>
                     </div>
                     <div className="con-right">
                       <span
-                        className={`status ${friend.isOnline ? "online" : "offline"
-                          }`}
+                        className={`status ${
+                          friend.isOnline ? "online" : "offline"
+                        }`}
                       >
                         {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                       </span>
@@ -379,7 +389,7 @@ const Friend = () => {
                               }}
                             >
                               {Array.isArray(currentUserfollow?.following) &&
-                                currentUserfollow.following.includes(friend.email)
+                              currentUserfollow.following.includes(friend.email)
                                 ? "Following"
                                 : "Follow"}
                             </button>
@@ -406,18 +416,19 @@ const Friend = () => {
                 <div className="empty-friend">
                   <p>No friends found</p>
                 </div>
-
               )}
             </ul>
           </div>
           <h2>Other</h2>
-          <div className={
-            filteredUsers.length > 0 && filteredFriends.length === 0
-              ? "special-friend-recommand"
-              : filteredUsers.length === filteredFriends.length
+          <div
+            className={
+              filteredUsers.length > 0 && filteredFriends.length === 0
+                ? "special-friend-recommand"
+                : filteredUsers.length === filteredFriends.length
                 ? "empty-friend-recommand"
                 : "con-friend-recommand"
-          }>
+            }
+          >
             <ul className="friend-recommend">
               {!loadingCurrentUser &&
                 filteredUsers
@@ -430,15 +441,17 @@ const Friend = () => {
                         className="friend-photo"
                       />
                       <div className="friend-detailss">
-                        <span className="friend-name">{
-                          getnickName.find(n => n.email === user.email)?.nickname || user.displayName
-                        }</span>
+                        <span className="friend-name">
+                          {getnickName.find((n) => n.email === user.email)
+                            ?.nickname || user.displayName}
+                        </span>
                         <span className="friend-email">{user.email}</span>
                       </div>
                       <div className="con-right">
                         <span
-                          className={`status ${user.isOnline ? "online" : "offline"
-                            }`}
+                          className={`status ${
+                            user.isOnline ? "online" : "offline"
+                          }`}
                         >
                           {user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                         </span>
@@ -491,7 +504,7 @@ const Friend = () => {
                                 }}
                               >
                                 {Array.isArray(currentUserfollow?.following) &&
-                                  currentUserfollow.following.includes(user.email)
+                                currentUserfollow.following.includes(user.email)
                                   ? "Follwing"
                                   : "Follow"}
                               </button>
@@ -514,9 +527,10 @@ const Friend = () => {
                   alt={selectedUser.displayName}
                   className="profile-photo"
                 />
-                <h2>{
-                  getnickName.find(n => n.email === selectedUser.email)?.nickname || selectedUser.displayName
-                }</h2>
+                <h2>
+                  {getnickName.find((n) => n.email === selectedUser.email)
+                    ?.nickname || selectedUser.displayName}
+                </h2>
                 <div className="tabs">
                   <ul className="followers">
                     <li>{followers.length} followers</li>
