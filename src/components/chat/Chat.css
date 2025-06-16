@@ -4,6 +4,7 @@
   width: 80%;
   background-color: white;
   height: 100%;
+   background-color: #ffffff;
 }
 .dark-mode .chat-container {
   background-color: #1e1e1e;
@@ -145,8 +146,8 @@
 .chat-send-button {
   padding: 8px 16px;
   margin-right: 2rem;
-  background-color: #0078d4;
-  color: white;
+  background-color: #490bda;
+  color: rgb(255, 255, 255);
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -203,7 +204,7 @@
   margin: 2rem 0 2rem 0;
   font-size: 50px;
   font-weight: bold;
-  color: #716a6a;
+  color: #ffffff;
   align-items: center;
 }
 .dark-mode .chat h2 {
@@ -245,8 +246,8 @@
   align-items: center;
   height: 100%;
   width: 100%;
-  background-color: #ada9a9;
-  border: 1px solid #b9b6b6;
+  background-color: #ffffff;
+  border: 1px solid #ffffff;
 }
 
 .row-name-message {

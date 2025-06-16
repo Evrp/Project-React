@@ -10,7 +10,10 @@
   top: 0;
 }
 
-/* .dark-mode .navbar-con  {
+body {
+  margin: 0;
+}
+.navbar-con {
   background: rgb(255, 255, 255);
   display: flex;
   width: 18vh;
