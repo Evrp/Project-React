@@ -9,7 +9,7 @@ import RequireLogin from "../ui/RequireLogin";
 import { BsThreeDots } from "react-icons/bs";
 import { useTheme } from "../../context/themecontext";
 
-const socket = io("http://localhost:8080");
+const socket = io("https://project-react-2.onrender.com");
 
 const Friend = () => {
   const [users, setUsers] = useState([]);
