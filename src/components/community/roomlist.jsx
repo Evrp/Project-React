@@ -6,13 +6,20 @@ import { toast } from "react-toastify";
 import { useTheme } from "../../context/themecontext";
 
 
-const RoomList = ({ showOnlyMyRooms }) => {
+const RoomList = ({ showOnlyMyRooms, isDeleteMode, selectedRooms, setSelectedRooms }) => {
   const userEmail = localStorage.getItem("userEmail");
   const displayName = localStorage.getItem("userName");
   const { isDarkMode, setIsDarkMode } = useTheme();
-
   const [rooms, setRooms] = useState([]);
   const navigate = useNavigate();
+  const handleRoomSelect = (roomId) => {
+    setSelectedRooms(prev =>
+      prev.includes(roomId)
+        ? prev.filter(id => id !== roomId)
+        : [...prev, roomId]
+    );
+  };
+
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -66,16 +73,26 @@ const RoomList = ({ showOnlyMyRooms }) => {
     }
   };
 
+
   return (
     <div className={`room-list ${isDarkMode ? "dark-mode" : ""}`}>
       {filteredRooms.map((room) => (
         <div
           key={room._id}
-          className="room-container"
-          onClick={() => handleEnterRoom(room._id, room.name)}
-        >
+          className={`room-container ${selectedRooms.includes(room._id) ? 'selected' : ''}`}
+          onClick={() => isDeleteMode ? handleRoomSelect(room._id) : handleEnterRoom(room._id, room.name)}        >
           {room.image && (
             <img src={room.image} alt="room" className="room-image" />
+          )}
+          {isDeleteMode && (
+            <div className="room-checkbox">
+              <input
+                type="checkbox"
+                checked={selectedRooms.includes(room._id)}
+                onChange={() => handleRoomSelect(room._id)}
+                onClick={(e) => e.stopPropagation()}
+              />
+            </div>
           )}
           <div className="room-info">
             <h4>{room.name}</h4>
