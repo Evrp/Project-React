@@ -46,6 +46,7 @@ io.on("connection", (socket) => {
   console.log("🟢 New client connected", socket.id);
 
   socket.on("user-online", (user) => {
+    console.log("🟢 User online", user.email);
     const { email } = user;
     socket.email = email;
 
@@ -56,10 +57,12 @@ io.on("connection", (socket) => {
     onlineUsers.get(email).add(socket.id);
 
     // อัปเดตให้ทุก client
+    console.log("🧑‍💻 Online user", user);
     io.emit("update-users", Array.from(onlineUsers.keys()));
   });
 
   socket.on("disconnect", () => {
+    console.log("🔴 Client disconnected", socket.id);
     const email = socket.email;
     if (email && onlineUsers.has(email)) {
       onlineUsers.get(email).delete(socket.id);
@@ -738,4 +741,4 @@ app.get("/api/get-image-genres", async (req, res) => {
 });
 
 // เริ่มต้นเซิร์ฟเวอร์
-server.listen(port, () => console.log(`🚀 Server is running on port ${port}`));
+server.listen(port, () => console.log(`🚀 Server is running on port ${8080, "0.0.0.0"}`));
