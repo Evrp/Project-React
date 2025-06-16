@@ -66,6 +66,7 @@ io.on("connection", (socket) => {
     onlineUsers.get(email).add(socket.id);
 
     // อัปเดตให้ทุก client
+    console.log("🧑‍💻 Online user", user);
     io.emit("update-users", Array.from(onlineUsers.keys()));
   });
 
@@ -749,4 +750,4 @@ app.get("/api/get-image-genres", async (req, res) => {
 });
 
 // เริ่มต้นเซิร์ฟเวอร์
-server.listen(port, () => console.log(`🚀 Server is running on port ${port}`));
+server.listen(port, () => console.log(`🚀 Server is running on port ${8080, "0.0.0.0"}`));

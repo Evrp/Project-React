@@ -76,7 +76,6 @@ const Friend = () => {
 
     fetchCurrentUserAndFriends();
 
-    // ส่งสถานะออนไลน์
     socket.emit("user-online", {
       displayName,
       photoURL,
@@ -89,13 +88,13 @@ const Friend = () => {
       setUsers((prevUsers) =>
         prevUsers.map((user) => ({
           ...user,
-          isOnline: onlineEmails.includes(user.email),
+          isOnline: onlineUserEmails.includes(user.email),
         }))
       );
       setFriends((prevFriends) =>
         prevFriends.map((friend) => ({
           ...friend,
-          isOnline: onlineEmails.includes(friend.email),
+          isOnline: onlineUserEmails.includes(friend.email),
         }))
       );
     });
@@ -104,6 +103,7 @@ const Friend = () => {
       socket.off("update-users");
     };
   }, [userEmail]);
+
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value.toLowerCase());
@@ -322,8 +322,8 @@ const Friend = () => {
               filteredFriends.length === filteredUsers.length
                 ? "special-friend-list"
                 : filteredFriends.length > 0
-                ? "con-friend-list"
-                : "empty-friend-list"
+                  ? "con-friend-list"
+                  : "empty-friend-list"
             }
           >
             <ul className="friend-list">
@@ -344,9 +344,8 @@ const Friend = () => {
                     </div>
                     <div className="con-right">
                       <span
-                        className={`status ${
-                          friend.isOnline ? "online" : "offline"
-                        }`}
+                        className={`status ${friend.isOnline ? "online" : "offline"
+                          }`}
                       >
                         {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                       </span>
@@ -391,7 +390,7 @@ const Friend = () => {
                               }}
                             >
                               {Array.isArray(currentUserfollow?.following) &&
-                              currentUserfollow.following.includes(friend.email)
+                                currentUserfollow.following.includes(friend.email)
                                 ? "Following"
                                 : "Follow"}
                             </button>
@@ -427,8 +426,8 @@ const Friend = () => {
               filteredUsers.length > 0 && filteredFriends.length === 0
                 ? "special-friend-recommand"
                 : filteredUsers.length === filteredFriends.length
-                ? "empty-friend-recommand"
-                : "con-friend-recommand"
+                  ? "empty-friend-recommand"
+                  : "con-friend-recommand"
             }
           >
             <ul className="friend-recommend">
@@ -451,9 +450,8 @@ const Friend = () => {
                       </div>
                       <div className="con-right">
                         <span
-                          className={`status ${
-                            user.isOnline ? "online" : "offline"
-                          }`}
+                          className={`status ${user.isOnline ? "online" : "offline"
+                            }`}
                         >
                           {user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                         </span>
@@ -506,7 +504,7 @@ const Friend = () => {
                                 }}
                               >
                                 {Array.isArray(currentUserfollow?.following) &&
-                                currentUserfollow.following.includes(user.email)
+                                  currentUserfollow.following.includes(user.email)
                                   ? "Follwing"
                                   : "Follow"}
                               </button>
