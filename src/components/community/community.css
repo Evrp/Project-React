@@ -11,6 +11,7 @@
   padding: 12px 24px;
   border-bottom: 1px solid #9d9d9d;
 }
+
 .dark-mode .profile-section {
   display: flex;
   justify-content: flex-end;
@@ -88,6 +89,7 @@ button:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   margin-right: 1rem;
 }
+
 .dark-mode .recommentfreind {
   width: 30%;
   text-align: center;
@@ -100,6 +102,7 @@ button:hover {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   margin-right: 1rem;
 }
+
 .con-card {
   height: calc(70vh - 60px);
   overflow-y: auto;
@@ -181,4 +184,52 @@ button:hover {
   display: flex;
   justify-content: start;
   flex-direction: row;
+}
+
+.delete-button-all-room {
+  margin-top: 1rem;
+  padding: 10px 10px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+  gap: 6px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.delete-button-all-room:hover {
+  background-color: #ff1a1a;
+  color: white;
+}
+/* ในไฟล์ community.css */
+.room-container.selected {
+  border: 2px solid #ff4d4d;
+  background-color: rgba(255, 77, 77, 0.1);
+}
+
+.room-checkbox {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+}
+
+.delete-button-all-room.active {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.confirm-delete-button {
+  background-color: #ff4d4d;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  margin-left: 10px;
+  cursor: pointer;
 }

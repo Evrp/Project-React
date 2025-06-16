@@ -3,7 +3,7 @@ import CreateRoom from "./createroom";
 import RoomList from "./roomlist";
 import { useState, useEffect, useRef } from "react";
 import RequireLogin from "../ui/RequireLogin";
-import DropdownMenu from "../ui/dropdown";
+import DropdownMenu from "../../context/dropdownuser";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import io from "socket.io-client";
@@ -34,7 +34,8 @@ const Newcommu = () => {
   const [following, setFollowing] = useState([]);
   const [genres, setGenres] = useState([]);
   const { isDarkMode, setIsDarkMode } = useTheme();
-
+  const [selectedRooms, setSelectedRooms] = useState([]);
+  const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [getnickName, getNickName] = useState("");
 
   useEffect(() => {
@@ -47,6 +48,33 @@ const Newcommu = () => {
   const handleClickOutside = (e) => {
     if (modalRef.current && !modalRef.current.contains(e.target)) {
       handleCloseModal();
+    }
+  };
+  const handleDeleteSelectedRooms = async () => {
+    if (selectedRooms.length === 0) {
+      toast.warning("กรุณาเลือกห้องที่ต้องการลบ");
+      return;
+    }
+
+    const confirm = window.confirm(`คุณแน่ใจว่าต้องการลบ ${selectedRooms.length} ห้องหรือไม่?`);
+    if (!confirm) return;
+
+    try {
+      await axios.post("http://localhost:8080/api/delete-rooms", {
+        roomIds: selectedRooms,
+        userEmail: userEmail // ตรวจสอบสิทธิ์
+      });
+
+      // อัปเดตรายการห้องหลังลบ
+      const res = await axios.get("http://localhost:8080/api/allrooms");
+      setRooms(res.data);
+
+      toast.success(`ลบห้องสำเร็จ ${selectedRooms.length} ห้อง`);
+      setSelectedRooms([]);
+      setIsDeleteMode(false);
+    } catch (error) {
+      console.error("Error deleting rooms:", error);
+      toast.error("เกิดข้อผิดพลาดในการลบห้อง");
     }
   };
 
@@ -78,7 +106,7 @@ const Newcommu = () => {
     } catch (error) {
       console.error("Error fetching users and friends:", error);
     }
-    
+
   };
 
   const fetchMatches = async () => {
@@ -288,10 +316,36 @@ const Newcommu = () => {
           >
             {showOnlyMyRooms ? "All rooms" : "My rooms"}
           </button>
-
+          <button
+            className={`delete-button-all-room ${isDeleteMode ? 'active' : ''}`}
+            onClick={() => {
+              if (showOnlyMyRooms) {
+                setIsDeleteMode(!isDeleteMode);
+                if (isDeleteMode) setSelectedRooms([]);
+              } else {
+                toast.warning("สามารถลบห้องได้เฉพาะในโหมด 'My rooms' เท่านั้น");
+              }
+            }}
+          >
+            {isDeleteMode ? "ยกเลิก" : "ลบห้อง"}
+          </button>
+          {isDeleteMode && selectedRooms.length > 0 && (
+            <button
+              className="confirm-delete-button"
+              onClick={handleDeleteSelectedRooms}
+            >
+              ยืนยันการลบ ({selectedRooms.length})
+            </button>
+          )}
         </div>
         <div className="container-content">
-          <RoomList showOnlyMyRooms={showOnlyMyRooms} rooms={rooms} />
+          <RoomList
+            showOnlyMyRooms={showOnlyMyRooms}
+            rooms={rooms}
+            isDeleteMode={isDeleteMode}
+            selectedRooms={selectedRooms}
+            setSelectedRooms={setSelectedRooms}
+          />
 
           <div className="recommentfreind">
             <h2 className="grd">FREIND MATCH</h2>
