@@ -21,12 +21,12 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173"],
+    origin: ["http://project-react-mocha-eta.vercel.app"],
     methods: ["GET", "POST"],
   },
 });
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8080 ;
 const MONGO_URI = process.env.MONGO_URI;
 const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL;
 
@@ -46,6 +46,7 @@ io.on("connection", (socket) => {
   console.log("🟢 New client connected", socket.id);
 
   socket.on("user-online", (user) => {
+    console.log("🧑‍💻 Online user", user); // <<< เพิ่ม log นี้
     console.log("🟢 User online", user.email);
     const { email } = user;
     socket.email = email;
@@ -63,12 +64,13 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("🔴 Client disconnected", socket.id);
+    console.log("🔴 Client disconnected", socket.id);
     const email = socket.email;
     if (email && onlineUsers.has(email)) {
       onlineUsers.get(email).delete(socket.id);
       if (onlineUsers.get(email).size === 0) {
         onlineUsers.delete(email); // ไม่มี socket เหลือแล้ว
-      }
+      }  
     }
 
     // ส่ง user list ไปให้ทุก client

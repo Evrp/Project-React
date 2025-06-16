@@ -9,8 +9,7 @@ import RequireLogin from "../ui/RequireLogin";
 import { BsThreeDots } from "react-icons/bs";
 import { useTheme } from "../../context/themecontext";
 
-// const socket = io("http://localhost:8080");
-const socket = io("http://172.20.10.3:8080");
+const socket = io("https://project-react-2.onrender.com");
 
 const Friend = () => {
   const [users, setUsers] = useState([]);
@@ -81,8 +80,9 @@ const Friend = () => {
       email: userEmail,
     });
 
-    socket.on("update-users", (onlineUserEmails) => {
-      console.log("✅ update-users:", onlineUserEmails); // ดู log ตรงนี้ด้วย
+    // ฟังสถานะอัปเดต
+    socket.on("update-users", (onlineEmails) => {
+      console.log("Online emails:", onlineEmails);
       setUsers((prevUsers) =>
         prevUsers.map((user) => ({
           ...user,
@@ -295,8 +295,7 @@ const Friend = () => {
     };
     getNickNameF();
   }, []);
-  console.log("filteredFriends:", filteredFriends);
-  console.log("filteredUsers:", filteredUsers);
+
 
   return (
     <RequireLogin>
