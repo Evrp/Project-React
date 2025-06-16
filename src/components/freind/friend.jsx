@@ -83,6 +83,7 @@ const Friend = () => {
 
     // ฟังสถานะอัปเดต
     socket.on("update-users", (onlineEmails) => {
+      console.log("Online emails:", onlineEmails);
       setUsers((prevUsers) =>
         prevUsers.map((user) => ({
           ...user,
@@ -295,8 +296,7 @@ const Friend = () => {
     };
     getNickNameF();
   }, []);
-  console.log("filteredFriends:", filteredFriends);
-  console.log("filteredUsers:", filteredUsers);
+
 
   return (
     <RequireLogin>

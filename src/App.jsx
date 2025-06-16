@@ -7,7 +7,7 @@ import LoginForm from "./Log/NewLogin";
 import Community from "./components/community/community";
 import Setup from "./components/setting/setup";
 import Home from "./components/Home/Home";
-import Chat from "./components/chat/Chat";
+import Chat from "./components/chat/chat";
 import { Route, Routes, useLocation } from "react-router-dom";
 // import ForgotPassword from "./Log/ForgotForm";
 
