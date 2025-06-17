@@ -35,12 +35,13 @@ const Newcommu = () => {
   const [following, setFollowing] = useState([]);
   const [genres, setGenres] = useState([]);
   const { isDarkMode, setIsDarkMode } = useTheme();
-  const [selectedRooms, setSelectedRooms] = useState([]);
+  const [selectedRooms, setSelectedRooms] = useState([]); 
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [getnickName, getNickName] = useState("");
 
   useEffect(() => {
     fetchGmailUser(); // ดึงข้อมูล Gmail user จาก backend
+    console.log("isDeleteMode", isDeleteMode);
   }, []);
 
   const handleNewRoom = (room) => {
