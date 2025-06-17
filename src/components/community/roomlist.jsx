@@ -17,7 +17,7 @@ const RoomList = ({ showOnlyMyRooms }) => {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/allrooms");
+        const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/allrooms`);
         setRooms(res.data);
       } catch (error) {
         console.error("ไม่สามารถโหลดห้อง:", error);
@@ -38,7 +38,7 @@ const RoomList = ({ showOnlyMyRooms }) => {
     console.log("Room name:", roomName);
 
     try {
-      await axios.post("http://localhost:8080/api/join-community", {
+      await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/join-community`, {
         userEmail,
         roomId,
         roomName,
@@ -60,7 +60,7 @@ const RoomList = ({ showOnlyMyRooms }) => {
     if (!confirm) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/detele-events/${id}`);
+      await axios.delete(`${import.meta.env.VITE_APP_API_BASE_URL}/api/detele-events/${id}`);
       setEvents((prevEvents) => prevEvents.filter((event) => event._id !== id));
     } catch (error) {
       console.error("❌ Error deleting event:", error);

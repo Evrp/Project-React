@@ -15,7 +15,7 @@ const EventList = () => {
 
   const fetchimage = async () => {
     try {
-      const res = await axios.get("http://localhost:8080/api/get-image-genres");
+      const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/get-image-genres`);
       console.log("✅ Fetched:", res.data);
 
       const imageList = res.data.imageGenres;
@@ -41,7 +41,7 @@ const EventList = () => {
     if (!confirm) return;
 
     try {
-      await axios.delete(`http://localhost:8080/api/detele-events/${id}`);
+      await axios.delete(`${import.meta.env.VITE_APP_API_BASE_URL}/api/detele-events/${id}`);
       setEvents((prevEvents) => prevEvents.filter((event) => event._id !== id));
     } catch (error) {
       console.error("❌ Error deleting event:", error);
@@ -52,7 +52,7 @@ const EventList = () => {
     if (!confirm) return;
 
     try {
-      await axios.delete("http://localhost:8080/api/delete-all-events");
+      await axios.delete(`${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-all-events`);
       setEvents([]); // ล้าง state
     } catch (error) {
       console.error("❌ Error deleting all events:", error);
@@ -61,7 +61,7 @@ const EventList = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/api/events?email=${user.email}`);
+        const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/events?email=${user.email}`);
         setEvents(res.data);
       } catch (error) {
         console.error("❌ Error fetching events:", error);

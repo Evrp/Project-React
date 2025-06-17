@@ -37,7 +37,7 @@ const NewLogin = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       // ส่งข้อมูลผู้ใช้ไปยัง backend (MongoDB)
-      const response = await axios.post("http://localhost:8080/api/login", {
+      const response = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/login`, {
         displayName: user.displayName,
         email: user.email,
         photoURL: user.photoURL,

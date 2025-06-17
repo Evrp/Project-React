@@ -22,7 +22,7 @@ const CreateRoom = ({ onRoomCreated }) => {
     const createdBy = localStorage.getItem("userName") || "ไม่ระบุ";
 
     // เช็คชื่อห้องซ้ำ
-    const res = await axios.get(`http://localhost:8080/api/allrooms`);
+    const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/allrooms`);
     const allRooms = res.data;
     const isDuplicate = allRooms.some(
       (room) =>
@@ -35,7 +35,7 @@ const CreateRoom = ({ onRoomCreated }) => {
     }
 
     try {
-      const res = await axios.post("http://localhost:8080/api/createroom", {
+      const res = await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/createroom`, {
         ...roomData,
         createdBy,
         roomId,
