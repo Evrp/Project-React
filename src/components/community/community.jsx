@@ -7,7 +7,8 @@ import DropdownMenu from "../ui/dropdown";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import io from "socket.io-client";
-import { get } from "mongoose";
+import { useTheme } from "../../context/themecontext";
+
 const socket = io("http://localhost:8080");
 
 const Newcommu = () => {
@@ -32,6 +33,8 @@ const Newcommu = () => {
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [genres, setGenres] = useState([]);
+  const { isDarkMode, setIsDarkMode } = useTheme();
+
   const [getnickName, getNickName] = useState("");
 
   useEffect(() => {
@@ -75,6 +78,7 @@ const Newcommu = () => {
     } catch (error) {
       console.error("Error fetching users and friends:", error);
     }
+    
   };
 
   const fetchMatches = async () => {
@@ -270,7 +274,7 @@ const Newcommu = () => {
 
   return (
     <RequireLogin>
-      <div className="main-content-com">
+      <div className={`main-content-com ${isDarkMode ? "dark-mode" : ""}`}>
         <div className="profile-section">
           <span className="bell-icon">&#128276;</span>
           <span className="divider">|</span>

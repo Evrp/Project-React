@@ -1,5 +1,13 @@
 .text-xl-font-semibold {
-  border-bottom: 2px solid #9d9d9d;
+  border-bottom: 1px solid #9d9d9d;
+  width: 100%;
+  align-items: center;
+  display: flex;
+  height: 10vh;
+  justify-content: center;
+}
+.dark-mode .text-xl-font-semibold {
+  border-bottom: 1px solid #444;
   width: 100%;
   align-items: center;
   display: flex;
@@ -119,6 +127,21 @@
   flex-direction: column;
   justify-content: center;
 }
+.dark-mode .info-box {
+  width: 500px;
+  height: fit-content;
+  max-width: 600px;
+  background: #4d4d4d;
+  padding: 20px;
+  margin: 10px auto;
+  border-radius: 15px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 
 @media screen and (max-width: 768px) {
   .info-box {
@@ -128,6 +151,15 @@
 }
 
 .container-profile {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f7f8fc;
+}
+.dark-mode .container-profile {
   display: flex;
   justify-content: center;
   flex-direction: column;
@@ -200,6 +232,13 @@
   font-weight: 600;
   box-shadow: 0 0 5px rgba(111, 43, 238, 0.5);
 }
+.dark-mode .genre-button.selected {
+  background-color: #2a2a2a;
+  color: white;
+  border-color: #444;
+  font-weight: 600;
+  box-shadow: 0 0 5px rgba(111, 43, 238, 0.5);
+}
 
 .flex-wrap {
   display: flex;
@@ -261,6 +300,13 @@
   background-color: #6f2bee;
   color: white;
   border-color: #6f2bee;
+  font-weight: 600;
+  box-shadow: 0 0 5px rgba(111, 43, 238, 0.5);
+}
+.dark-mode .edit-button.selected {
+  background-color: #2a2a2a;
+  color: white;
+  border-color: #444;
   font-weight: 600;
   box-shadow: 0 0 5px rgba(111, 43, 238, 0.5);
 }
@@ -372,6 +418,22 @@ textarea::placeholder {
   border-color: #6c63ff;
   margin-right: 5px;
 }
+.dark-mode .subgenre-button.selected {
+  background-color: #2a2a2a;
+  color: white;
+  border-color: #444;
+}
+
+.dark-mode .genreshow-button {
+  padding: 6px 12px;
+  margin-top: 6px;
+  border: 1px solid #444;
+  border-radius: 20px;
+  background-color: #2a2a2a;
+  color: white;
+  border-color: #444;
+  margin-right: 5px;
+}
 
 .profile-container input {
   width: 100%;
@@ -414,6 +476,11 @@ textarea::placeholder {
   font-weight: 600;
   color: #3b82f6;
 }
+.dark-mode .tab-button.active {
+  border-color: #444;
+  font-weight: 600;
+  color: #3b82f6;
+}
 
 .tabs ul {
   list-style: none;
@@ -426,4 +493,8 @@ textarea::placeholder {
 .tabs ul li {
   font-size: 16px;
   color: #333;
+}
+.dark-mode .tabs ul li {
+  font-size: 16px;
+  color: #f5f5f5;
 }

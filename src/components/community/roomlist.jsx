@@ -3,10 +3,14 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./roomlist.css";
 import { toast } from "react-toastify";
+import { useTheme } from "../../context/themecontext";
+
 
 const RoomList = ({ showOnlyMyRooms }) => {
   const userEmail = localStorage.getItem("userEmail");
   const displayName = localStorage.getItem("userName");
+  const { isDarkMode, setIsDarkMode } = useTheme();
+
   const [rooms, setRooms] = useState([]);
   const navigate = useNavigate();
 
@@ -63,8 +67,8 @@ const RoomList = ({ showOnlyMyRooms }) => {
     }
   };
 
- return (
-    <div className="room-list">
+  return (
+    <div className={`room-list ${isDarkMode ? "dark-mode" : ""}`}>
       {filteredRooms.map((room) => (
         <div
           key={room._id}

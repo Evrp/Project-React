@@ -5,26 +5,34 @@ import { useParams } from "react-router-dom";
 import RequireLogin from "../ui/RequireLogin";
 import { FaSearch } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
+import { TiMicrophoneOutline } from "react-icons/ti";
 import "react-toastify/dist/ReactToastify.css";
 import { BsThreeDots } from "react-icons/bs";
+import { MdAttachFile } from "react-icons/md";
+import { IoCameraOutline } from "react-icons/io5";
+import { BsEmojiSmile } from "react-icons/bs";
 import io from "socket.io-client";
 import {
   collection,
   addDoc,
   serverTimestamp,
   onSnapshot,
+  updateDoc,
   query,
   orderBy,
+  getDocs,
   doc,
-  Timestamp,
+  where,
 } from "firebase/firestore";
 import "../chat/Chat.css";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 const socket = io("http://localhost:8080");
+import { useTheme } from "../../context/themecontext";
 
 const Chat = () => {
+  const { isDarkMode, setIsDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(true);
   const [isOpencom, setIsOpencom] = useState(true);
   const { roomId } = useParams();
@@ -58,6 +66,9 @@ const Chat = () => {
   const [openMenuFor, setOpenMenuFor] = useState(null);
   const [isGroupChat, setIsGroupChat] = useState(false);
   const [getnickName, getNickName] = useState("");
+  const [lastMessages, setLastMessages] = useState({});
+  const [darkMode, setDarkMode] = useState(false);
+
   const defaultProfileImage = userPhoto;
 
   const fetchUsersAndFriends = async () => {
@@ -165,8 +176,9 @@ const Chat = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `http://localhost:8080/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
-      }/${targetEmail}`;
+    const url = `http://localhost:8080/api/users/${userEmail}/${
+      isFollowing ? "unfollow" : "follow"
+    }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -187,7 +199,6 @@ const Chat = () => {
   };
   const fetchFollowInfo = async (targetEmail) => {
     try {
-      console.log(targetEmail);
       const res = await axios.get(
         `http://localhost:8080/api/user/${targetEmail}/follow-info`
       );
@@ -198,10 +209,10 @@ const Chat = () => {
       console.error("Error fetching follow info:", error);
     }
   };
-  const handleRoomProfileClick = (room) => {
-    // เช่น เปิด modal หรือ redirect ไปหน้าโปรไฟล์ห้อง
-    console.log("ดูโปรไฟล์ห้อง:", room);
-  };
+  // const handleRoomProfileClick = (room) => {
+  //   // เช่น เปิด modal หรือ redirect ไปหน้าโปรไฟล์ห้อง
+  //   console.log("ดูโปรไฟล์ห้อง:", room);
+  // };
   const handleDeleteRoom = async (roomName) => {
     try {
       const response = await axios.delete(
@@ -228,7 +239,6 @@ const Chat = () => {
       const res = await axios.get(
         `http://localhost:8080/api/user-rooms/${encodedEmail}`
       );
-      // console.log(res.data);
       setJoinedRooms(res.data);
     } catch (err) {
       console.error("Error fetching joined rooms:", err);
@@ -243,14 +253,6 @@ const Chat = () => {
     }
   };
 
-  useEffect(() => {
-    try {
-      const res = axios.get(`http://localhost:8080/api/users`);
-      setNickName(res.data);
-    } catch (err) {
-      console.error("Error fetching users:", err);
-    }
-  }, []);
   useEffect(() => {
     fetchUsersAndFriends();
   }, []);
@@ -332,12 +334,10 @@ const Chat = () => {
   /////////Chat One To One//////////
   useEffect(() => {
     if (!roomId) return;
-    console.log("Room ID:", roomId);
     const roomRef = doc(db, "messages", roomId);
     const roomUnsubscribe = onSnapshot(roomRef, (doc) => {
       const data = doc.data();
-      console.log("Room Data (Type):", data?.type); // Debug
-      console.log(isGroupChat);
+
       setIsGroupChat(isGroupChat == true);
     });
 
@@ -350,24 +350,20 @@ const Chat = () => {
         }))
         .filter((msg) => msg.roomId === roomId); // กรองเฉพาะข้อความในห้องนี้
 
-      console.log("All Messages:", allMessages); // Debug
-      console.log(" isGroupChat:", isGroupChat); // Debug
-
       const filteredMessages = isGroupChat
         ? allMessages.filter((msg) => {
-          const isMyMsg = msg.receiver === activeUser;
-          return isMyMsg;
-        })
+            const isMyMsg = msg.receiver === activeUser;
+            return isMyMsg;
+          })
         : allMessages.filter((msg) => {
-          const isMyMsg =
-            msg.sender === userEmail && msg.receiver === activeUser;
-          const isTheirMsg =
-            msg.sender === activeUser &&
-            (msg.receiver === userEmail || !msg.receiver);
-          return isMyMsg || isTheirMsg;
-        });
+            const isMyMsg =
+              msg.sender === userEmail && msg.receiver === activeUser;
+            const isTheirMsg =
+              msg.sender === activeUser &&
+              (msg.receiver === userEmail || !msg.receiver);
+            return isMyMsg || isTheirMsg;
+          });
 
-      console.log("Filtered Messages:", filteredMessages); // Debug
       setMessages(filteredMessages);
       scrollToBottom();
     });
@@ -380,17 +376,13 @@ const Chat = () => {
 
   const handleSend = async () => {
     if (input.trim() === "" || !activeUser) return;
-    console.log("input:", input);
-    console.log("userEmail:", userEmail);
-    console.log("activeUser:", activeUser);
-    console.log("roomId:", roomId);
-    console.log("serverTimestamp:", serverTimestamp());
 
     const messageData = {
       sender: userEmail,
       content: input,
       timestamp: serverTimestamp(),
       roomId: roomId,
+      isSeen: false,
     };
 
     // เพิ่ม receiver สำหรับแชทส่วนตัว
@@ -401,17 +393,44 @@ const Chat = () => {
     if (isGroupChat == true) {
       // สำหรับแชทกลุ่ม
       messageData.type = "group";
-      messageData.receiver = activeUser;
+      messageData.receiver = null;
     }
 
     await addDoc(messagesRef, messageData);
     setInput("");
   };
 
+  useEffect(() => {
+    const markMessagesAsSeen = async () => {
+      const q = query(
+        collection(db, "messages"),
+        where("roomId", "==", roomId),
+        where("isSeen", "==", false)
+      );
+
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(async (docSnap) => {
+        const msg = docSnap.data();
+
+        // เงื่อนไข: ถ้าเป็นข้อความที่ไม่ใช่ของเรา และเราคือคนรับ
+        const isNotMyMsg = msg.sender !== userEmail;
+        const isMyReceiver = !msg.receiver || msg.receiver === userEmail;
+
+        if (isNotMyMsg && isMyReceiver) {
+          await updateDoc(doc(db, "messages", docSnap.id), {
+            isSeen: true,
+          });
+        }
+      });
+    };
+    if (messages.length > 0) {
+      markMessagesAsSeen();
+    }
+  }, [messages, userEmail, roomId]);
+
   const filteredFriends = friends.filter((friend) =>
     friend.displayName.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -427,18 +446,133 @@ const Chat = () => {
         const res = await axios.get(
           "http://localhost:8080/api/get-all-nicknames"
         );
-        console.log("NickName:", res.data);
         getNickName(res.data);
       } catch (err) {
         console.error("โหลด nickname ล้มเหลว:", err);
       }
-    }
+    };
     getNickNameF();
   }, []);
+  const formatChatDate = (date) => {
+    const now = new Date();
+    const diffInMs = now - date;
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
+    if (diffInDays <= 7) {
+      // แสดงชื่อวันแบบย่อและเวลา (เช่น Mon 22:46)
+      return date.toLocaleString("en-GB", {
+        weekday: "short",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+    } else {
+      // แสดงวัน เดือน ปี ค.ศ. และเวลา
+      return date.toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short", // Jan, Feb, ...
+        year: "numeric", // 2025
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+    }
+  };
+
+  const getLastMessage = (email) => {
+    const friendMessages = messages
+      .filter(
+        (msg) =>
+          (msg.sender === email && msg.receiver === userEmail) ||
+          (msg.sender === userEmail && msg.receiver === email)
+      )
+      .sort((a, b) => b.timestamp?.seconds - a.timestamp?.seconds); // ใหม่สุดก่อน
+
+    return friendMessages[0];
+  };
+  const formatRelativeTime = (timestamp) => {
+    const now = new Date();
+    const diffMs = now - timestamp;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+
+    if (diffMin < 1) return "เมื่อสักครู่";
+    if (diffMin < 60) return `${diffMin} นาทีที่แล้ว`;
+    if (diffHour < 24) return `${diffHour} ชม.ที่แล้ว`;
+
+    return timestamp.toLocaleDateString("th-TH", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
+  useEffect(() => {
+    const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const newMessages = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setMessages(newMessages); // ให้ UI ทุกส่วนอัปเดตตามนี้
+
+      // อัปเดตข้อความล่าสุดของแต่ละ friend
+      const latest = {};
+      newMessages.forEach((msg) => {
+        const friendEmail =
+          msg.sender === userEmail ? msg.receiver : msg.sender;
+        if (!latest[friendEmail]) latest[friendEmail] = msg;
+      });
+
+      setLastMessages(latest);
+    });
+
+    return () => unsubscribe();
+  }, [userEmail]);
+  /////////////เรียงข้อความตามเวลา///////////////
+  useEffect(() => {
+    const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const newMessages = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // เก็บข้อความล่าสุดของแต่ละคู่
+      const latest = {};
+      newMessages.forEach((msg) => {
+        const isMyMessage = msg.sender === userEmail;
+        const otherEmail = isMyMessage ? msg.receiver : msg.sender;
+
+        // ใช้เฉพาะข้อความที่เกี่ยวกับ user
+        if (
+          msg.sender === userEmail ||
+          msg.receiver === userEmail ||
+          msg.receiver === null
+        ) {
+          if (!latest[otherEmail]) {
+            latest[otherEmail] = msg;
+          }
+        }
+      });
+
+      setLastMessages(latest);
+    });
+
+    return () => unsubscribe();
+  }, [userEmail]);
+  const sortedFriends = [...friends].sort((a, b) => {
+    const timeA = lastMessages[a.email]?.timestamp?.toDate()?.getTime() || 0;
+    const timeB = lastMessages[b.email]?.timestamp?.toDate()?.getTime() || 0;
+    return timeB - timeA; // เรียงจากใหม่ -> เก่า
+  });
 
   return (
     <RequireLogin>
-      <div className="main-container">
+      {/* <div className="main-container"> */}
+      <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
         <div className="user-container">
           <div className="chat">
             <h2>Chat</h2>
@@ -454,245 +588,269 @@ const Chat = () => {
               className="search-input-friend"
             />
           </div>
-          <div className="favorite-container">
-            <div
-              className="favorite-toggle"
-              onClick={() => setIsOpen((prev) => !prev)}
-            >
-              {isOpen ? <FaChevronDown /> : <FaChevronRight />}
-              <span>Favorite</span>
-            </div>
-            {isOpen && (
-              <div className={
-                !isOpencom && isOpen
-                  ? "favorite-container-special"
-                  : isOpen
-                    ? "favorite-container-open"
-                    : "favorite-container"
-              }>
-                <ul className="friend-list-chat">
-                  {filteredFriends.length > 0 ? (
-                    filteredFriends.map((friend, index) => (
-                      <li
-                        key={index}
-                        className="chat-friend-item"
-                        onClick={() => {
-                          setProfilebar({
-                            photoURL: friend.photoURL,
-                            displayName: friend.displayName,
-                          });
-                          setActiveUser(friend.email);
-                          setIsGroupChat(false);
-                        }}
-                      >
-                        <img
-                          src={friend.photoURL}
-                          alt={
-                            getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
-                          }
-                          className="friend-photo"
-                        />
-                        <div className="friend-detailss">
-                          <span className="friend-name">
-                            {
-                              getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
+          <div className="slide-chat">
+            <div className="favorite-container">
+              <div
+                className="favorite-toggle"
+                onClick={() => setIsOpen((prev) => !prev)}
+              >
+                {isOpen ? <FaChevronDown /> : <FaChevronRight />}
+                <span>Favorite</span>
+              </div>
+              {isOpen && (
+                <div
+                  className={
+                    !isOpencom && isOpen
+                      ? "favorite-container-special"
+                      : isOpen
+                      ? "favorite-container-open"
+                      : "favorite-container"
+                  }
+                >
+                  <ul className="friend-list-chat">
+                    {sortedFriends.length > 0 ? (
+                      sortedFriends.map((friend, index) => (
+                        <li
+                          key={index}
+                          className="chat-friend-item"
+                          onClick={() => {
+                            setProfilebar({
+                              photoURL: friend.photoURL,
+                              displayName: friend.displayName,
+                            });
+                            setActiveUser(friend.email);
+                            setIsGroupChat(false);
+                          }}
+                        >
+                          <img
+                            src={friend.photoURL}
+                            alt={
+                              getnickName.find((n) => n.email === friend.email)
+                                ?.nickname || friend.displayName
                             }
-                          </span>
-                          {/* <span className="friend-email">{friend.email}</span> */}
-                        </div>
-                        <div className="con-right">
-                          <span
-                            className={`status ${friend.isOnline ? "online" : "offline"
+                            className="friend-photo"
+                          />
+                          <div className="friend-details">
+                            <span className="friend-name">
+                              {getnickName.find((n) => n.email === friend.email)
+                                ?.nickname || friend.displayName}
+                            </span>
+                            <div className="row-last-time">
+                              <span className="last-message">
+                                {lastMessages[friend.email]?.content ||
+                                  "ยังไม่มีข้อความ"}
+                              </span>
+
+                              <span className="message-time">
+                                {lastMessages[friend.email]?.timestamp &&
+                                  formatRelativeTime(
+                                    lastMessages[
+                                      friend.email
+                                    ].timestamp.toDate()
+                                  )}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="con-right">
+                            <span
+                              className={`status ${
+                                friend.isOnline ? "online" : "offline"
                               }`}
-                          >
-                            {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
-                          </span>
-
-                          <div
-                            className="dropdown-wrapper"
-                            ref={(el) =>
-                              (dropdownRefs.current[friend.email] = el)
-                            }
-                            onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
-                          >
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenMenuFor((prev) =>
-                                  prev === friend.email ? null : friend.email
-                                );
-                              }}
-                              className="dropdown-toggle"
                             >
-                              <BsThreeDots size={20} />
-                            </button>
+                              {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
+                            </span>
 
-                            {openMenuFor === friend.email && (
-                              <div className="dropdown-menu">
-                                <button
-                                  className="dropdown-item"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleProfileClick(friend);
-                                    fetchFollowInfo(friend.email);
-                                    setOpenMenuFor(null);
-                                  }}
-                                >
-                                  👤 ดูโปรไฟล์
-                                </button>
+                            <div
+                              className="dropdown-wrapper"
+                              ref={(el) =>
+                                (dropdownRefs.current[friend.email] = el)
+                              }
+                              onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
+                            >
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setOpenMenuFor((prev) =>
+                                    prev === friend.email ? null : friend.email
+                                  );
+                                }}
+                                className="dropdown-toggle"
+                              >
+                                <BsThreeDots size={20} />
+                              </button>
 
-                                <button
-                                  className="dropdown-item"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (
-                                      !currentUserfollow ||
-                                      !Array.isArray(
-                                        currentUserfollow.following
+                              {openMenuFor === friend.email && (
+                                <div className="dropdown-menu">
+                                  <button
+                                    className="dropdown-item"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleProfileClick(friend);
+                                      fetchFollowInfo(friend.email);
+                                      setOpenMenuFor(null);
+                                    }}
+                                  >
+                                    👤 ดูโปรไฟล์
+                                  </button>
+
+                                  <button
+                                    className="dropdown-item"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (
+                                        !currentUserfollow ||
+                                        !Array.isArray(
+                                          currentUserfollow.following
+                                        )
                                       )
-                                    )
-                                      return;
-                                    handleFollow(friend.email);
-                                  }}
-                                >
-                                  {Array.isArray(
-                                    currentUserfollow?.following
-                                  ) &&
+                                        return;
+                                      handleFollow(friend.email);
+                                    }}
+                                  >
+                                    {Array.isArray(
+                                      currentUserfollow?.following
+                                    ) &&
                                     currentUserfollow.following.includes(
                                       friend.email
                                     )
-                                    ? "🔔 กำลังติดตาม"
-                                    : "➕ ติดตาม"}
-                                </button>
-
-                                <button
-                                  className="dropdown-item danger"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemoveFriend(friend.email);
-                                    setOpenMenuFor(null);
-                                  }}
-                                  disabled={loadingFriendEmail === friend.email}
-                                >
-                                  {loadingFriendEmail === friend.email
-                                    ? "กำลังลบ..."
-                                    : "🗑️ ลบเพื่อน"}
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </li>
-                    ))
-                  ) : (
-                    <p>ไม่พบเพื่อนที่ตรงกับคำค้นหา</p>
-                  )}
-                </ul>
-              </div>
-            )}
-          </div>
-          <div className="favorite-container">
-            <div
-              className="favorite-toggle"
-              onClick={() => setIsOpencom((prev) => !prev)}
-            >
-              {isOpencom ? <FaChevronDown /> : <FaChevronRight />}
-              <span>Community</span>
-            </div>
-            {isOpencom && (
-              <div
-                className={
-                  !isOpen && isOpencom
-                    ? "group-container-special"
-                    : isOpencom
-                      ? "group-container-open"
-                      : "group-container"
-                }
-              >              <ul className="friend-list-chat">
-                  {joinedRooms.roomNames?.map((name, index) => {
-                    const roomId = joinedRooms.roomNames?.[index];
-
-                    // ข้ามถ้า name หรือ id เป็น null
-                    if (!name || !roomId) return null;
-
-                    return (
-                      <div key={roomId}>
-                        {/* <h1>{name}</h1> */}
-                        <ul>
-                          {allRooms.map((room) =>
-                            room.name === name ? (
-                              <li
-                                // key={room.roomId}
-                                className="chat-friend-item"
-                                onClick={() => {
-                                  setActiveUser(room.name),
-                                    setRoombar(room.image, room.name);
-                                  setIsGroupChat(true);
-                                }}
-                              >
-                                <img
-                                  src={room.image}
-                                  alt={room.name}
-                                  className="friend-photo"
-                                />
-                                <div className="friend-detailss">
-                                  <span className="friend-name">
-                                    {room.name}
-                                  </span>
-                                  <span className="friend-email">
-                                    Host:
-                                    {room.createdBy}
-                                  </span>
-                                </div>
-                                <div
-                                  className="dropdown-wrapper"
-                                  ref={(el) =>
-                                    (dropdownRefs.current[room.name] = el)
-                                  }
-                                  onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
-                                >
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setOpenMenuFor((prev) =>
-                                        prev === room.name ? null : room.name
-                                      );
-                                    }}
-                                    className="dropdown-toggle"
-                                  >
-                                    <BsThreeDots size={20} />
+                                      ? "🔔 กำลังติดตาม"
+                                      : "➕ ติดตาม"}
                                   </button>
 
-                                  {openMenuFor === room.name && (
-                                    <div className="dropdown-menu">
-                                      <button
-                                        className="dropdown-item"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleDeleteRoom(room.name);
-                                          setOpenMenuFor(null);
-                                        }}
-                                        disabled={
-                                          loadingFriendRooms === room.name
-                                        }
-                                      >
-                                        {loadingFriendRooms === room.name
-                                          ? "กำลังลบ..."
-                                          : "🗑️ ลบห้อง"}
-                                      </button>
-                                    </div>
-                                  )}
+                                  <button
+                                    className="dropdown-item danger"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleRemoveFriend(friend.email);
+                                      setOpenMenuFor(null);
+                                    }}
+                                    disabled={
+                                      loadingFriendEmail === friend.email
+                                    }
+                                  >
+                                    {loadingFriendEmail === friend.email
+                                      ? "กำลังลบ..."
+                                      : "🗑️ ลบเพื่อน"}
+                                  </button>
                                 </div>
-                              </li>
-                            ) : null
-                          )}
-                        </ul>
-                      </div>
-                    );
-                  })}
-                </ul>
+                              )}
+                            </div>
+                          </div>
+                        </li>
+                      ))
+                    ) : (
+                      <p>ไม่พบเพื่อนที่ตรงกับคำค้นหา</p>
+                    )}
+                  </ul>
+                </div>
+              )}
+            </div>
+            <div className="favorite-container">
+              <div
+                className="favorite-toggle"
+                onClick={() => setIsOpencom((prev) => !prev)}
+              >
+                {isOpencom ? <FaChevronDown /> : <FaChevronRight />}
+                <span>Community</span>
               </div>
-            )}
+              {isOpencom && (
+                <div
+                  className={
+                    !isOpen && isOpencom
+                      ? "group-container-special"
+                      : isOpencom
+                      ? "group-container-open"
+                      : "group-container"
+                  }
+                >
+                  {" "}
+                  <ul className="friend-list-chat">
+                    {joinedRooms.roomNames?.map((name, index) => {
+                      const roomId = joinedRooms.roomNames?.[index];
+
+                      // ข้ามถ้า name หรือ id เป็น null
+                      if (!name || !roomId) return null;
+
+                      return (
+                        <div key={roomId}>
+                          {/* <h1>{name}</h1> */}
+                          <ul>
+                            {allRooms.map((room) =>
+                              room.name === name ? (
+                                <li
+                                  // key={room.roomId}
+                                  className="chat-friend-item"
+                                  onClick={() => {
+                                    setActiveUser(room.name),
+                                      setRoombar(room.image, room.name);
+                                    setIsGroupChat(true);
+                                  }}
+                                >
+                                  <img
+                                    src={room.image}
+                                    alt={room.name}
+                                    className="friend-photo"
+                                  />
+                                  <div className="friend-detailss">
+                                    <span className="friend-name">
+                                      {room.name}
+                                    </span>
+                                    <span className="friend-email">
+                                      Host:
+                                      {room.createdBy}
+                                    </span>
+                                  </div>
+                                  <div
+                                    className="dropdown-wrapper"
+                                    ref={(el) =>
+                                      (dropdownRefs.current[room.name] = el)
+                                    }
+                                    onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
+                                  >
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenMenuFor((prev) =>
+                                          prev === room.name ? null : room.name
+                                        );
+                                      }}
+                                      className="dropdown-toggle"
+                                    >
+                                      <BsThreeDots size={20} />
+                                    </button>
+
+                                    {openMenuFor === room.name && (
+                                      <div className="dropdown-menu">
+                                        <button
+                                          className="dropdown-item"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteRoom(room.name);
+                                            setOpenMenuFor(null);
+                                          }}
+                                          disabled={
+                                            loadingFriendRooms === room.name
+                                          }
+                                        >
+                                          {loadingFriendRooms === room.name
+                                            ? "กำลังลบ..."
+                                            : "🗑️ ลบห้อง"}
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </li>
+                              ) : null
+                            )}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         <div className="chat-container">
@@ -709,85 +867,97 @@ const Chat = () => {
 
             <h2>
               {Array.isArray(getnickName) &&
-                (getnickName.find(u => u.email === activeUser)?.nickname ||
-                  users.find(u => u.email === activeUser)?.displayName ||
+                (getnickName.find((u) => u.email === activeUser)?.nickname ||
+                  users.find((u) => u.email === activeUser)?.displayName ||
                   RoomsBar.roomName ||
                   userName)}
-
-
             </h2>
-
           </div>
           <div className="chat-box">
-            {messages.map((msg) => {
+            {messages.map((msg, index) => {
               const isCurrentUser = msg.sender === userEmail;
               const senderInfo = users.find(
                 (user) =>
                   user.email?.toLowerCase() === msg.sender?.toLowerCase()
               );
               const messageDate = msg.timestamp?.toDate();
+              const previousMessageDate =
+                index > 0 ? messages[index - 1].timestamp?.toDate() : null;
+              const isNewDay =
+                !previousMessageDate ||
+                messageDate?.toDateString() !==
+                  previousMessageDate?.toDateString();
 
               return (
-                <div
-                  key={msg.id}
-                  className={`chat-message ${isCurrentUser ? "my-message" : "other-message"
-                    }`}
-                >
-                  {!isCurrentUser && (
-                    <img
-                      src={senderInfo?.photoURL || defaultProfileImage}
-                      alt="Sender"
-                      className="message-avatar"
-                    />
+                <React.Fragment key={msg.id}>
+                  {isNewDay && (
+                    <div className="chat-date-divider">
+                      {messageDate && formatChatDate(messageDate)}
+                    </div>
                   )}
 
                   <div
-                    className={`message-content ${isCurrentUser ? "current" : "other"
-                      }`}
+                    className={`chat-message ${
+                      isCurrentUser ? "my-message" : "other-message"
+                    }`}
                   >
+                    {!isCurrentUser && (
+                      <img
+                        src={senderInfo?.photoURL || defaultProfileImage}
+                        alt="Sender"
+                        className="message-avatar"
+                      />
+                    )}
+
                     <div
-                      className={`message-time ${isCurrentUser ? "current" : "other"
-                        }`}
+                      className={`message-content ${
+                        isCurrentUser ? "current" : "other"
+                      }`}
                     >
-                      {messageDate &&
-                        messageDate.toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                    </div>
-                    <div
-                      className={`message-bubble ${isCurrentUser ? "current" : "other"
-                        }`}
-                    >
-                      {msg.content || msg.text}
+                      <div className="colum-message">
+                        <div
+                          className={`message-bubble ${
+                            isCurrentUser ? "current" : "other"
+                          }`}
+                        >
+                          {msg.content || msg.text}
+                        </div>
+                        {isCurrentUser && index === messages.length - 1 && (
+                          <div className="seen-status">
+                            {msg.isSeen ? "Seen" : ""}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  {isCurrentUser && (
-                    <img
-                      src={userPhoto || defaultProfileImage}
-                      alt="You"
-                      className="message-avatar"
-                    />
-                  )}
-                </div>
+                </React.Fragment>
               );
             })}
 
             <div ref={endOfMessagesRef} />
           </div>
           <div className="chat-input-container">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSend()}
-              placeholder={isGroupChat ? "พิมพ์ถึงกลุ่ม..." : "พิมพ์ข้อความ..."}
-              className="chat-input"
-            />
-            <button onClick={handleSend} className="chat-send-button">
+            <div className="chat-border">
+              <div className="emoji-right">
+                <TiMicrophoneOutline />
+              </div>
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                placeholder={"Writing something..."}
+                className="chat-input"
+              />
+              <div className="emoji">
+                <MdAttachFile />
+                <IoCameraOutline />
+                <BsEmojiSmile />
+              </div>
+              {/* <button onClick={handleSend} className="chat-send-button">
               Send
-            </button>
+            </button> */}
+            </div>
           </div>
         </div>
 
@@ -800,13 +970,15 @@ const Chat = () => {
                 <img
                   src={selectedUser.photoURL}
                   alt={
-                    getnickName.find(n => n.email === selectedUser.email)?.nickname || selectedUser.displayName
+                    getnickName.find((n) => n.email === selectedUser.email)
+                      ?.nickname || selectedUser.displayName
                   }
                   className="profile-photo"
                 />
-                <h2>{
-                  getnickName.find(n => n.email === selectedUser.email)?.nickname || selectedUser.displayName
-                }</h2>
+                <h2>
+                  {getnickName.find((n) => n.email === selectedUser.email)
+                    ?.nickname || selectedUser.displayName}
+                </h2>
                 <div className="tabs">
                   <ul className="followers">
                     <li>{followers.length} followers</li>

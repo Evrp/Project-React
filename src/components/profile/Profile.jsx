@@ -3,6 +3,7 @@ import "./Profile.css";
 import { Button } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
+import { useTheme } from "../../context/themecontext";
 import axios from "axios";
 
 const genreOptions = [
@@ -50,7 +51,7 @@ const Profile = () => {
     }
   );
   const [nickName, setNickName] = useState("");
-
+  const { isDarkMode, setIsDarkMode } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [editingGenres, setEditingGenres] = useState(false);
   const [editingField, setEditingField] = useState(null); // ช่องที่กำลังแก้ไข
@@ -278,7 +279,7 @@ const Profile = () => {
     fetchNickname();
   }, [userEmail]);
   useEffect(() => {
-    try{ 
+    try {
       const getGenres = async () => {
         try {
           const res = await axios.get(
@@ -297,7 +298,7 @@ const Profile = () => {
 
 
   return (
-    <div className="container-profile">
+    <div className={`container-profile ${isDarkMode ? "dark-mode" : ""}`}>
       <div className="text-xl-font-semibold">
         <h1>Profile</h1>
       </div>
@@ -422,7 +423,7 @@ const Profile = () => {
               {editingGenres ? (
                 <>
                   <Button onClick={handleEditGenres} className="edit-button">
-                    บันทึก
+                    Save
                   </Button>
                   {JSON.stringify(originalGenres) !==
                     JSON.stringify(selectedGenres) && (
@@ -433,7 +434,7 @@ const Profile = () => {
                         }}
                         className="edit-button-cancel-button"
                       >
-                        ย้อนกลับ
+                        Back
                       </Button>
                     )}
                 </>
@@ -445,7 +446,7 @@ const Profile = () => {
                   }}
                   className="edit-button"
                 >
-                  ✏️ แก้ไข
+                  Edit
                 </Button>
               )}
               {editingGenres && (
@@ -453,7 +454,7 @@ const Profile = () => {
                   onClick={handleClearGenres}
                   className="edit-button-cancel-button"
                 >
-                  ล้างแนวเพลงทั้งหมด
+                  Clear All
                 </Button>
               )}
             </div>
