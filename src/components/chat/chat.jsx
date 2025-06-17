@@ -28,7 +28,7 @@ import "../chat/Chat.css";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
-const socket = io("http://localhost:8080");
+const socket = io(import.meta.env.VITE_APP_API_BASE_URL);
 import { useTheme } from "../../context/themecontext";
 
 const Chat = () => {
@@ -73,7 +73,7 @@ const Chat = () => {
 
   const fetchUsersAndFriends = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/users");
+      const response = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users`);
       const allUsers = response.data;
       setUsers(allUsers);
 
@@ -105,7 +105,7 @@ const Chat = () => {
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const userRes = await axios.get(
-        `http://localhost:8080/api/users/${encodedEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${encodedEmail}`
       );
       const currentUser = userRes.data;
 
@@ -113,7 +113,7 @@ const Chat = () => {
         const friendEmails = currentUser.friends;
 
         // ดึง users ทั้งหมดมาเพื่อจับคู่กับ friend emails
-        const allUsersRes = await axios.get("http://localhost:8080/api/users");
+        const allUsersRes = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users`);
         const allUsers = allUsersRes.data;
 
         const filteredFriends = allUsers
@@ -139,7 +139,7 @@ const Chat = () => {
       setLoadingFriendEmail(friendEmail);
 
       await axios.delete(
-        `http://localhost:8080/api/users/${userEmail}/friends/${friendEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}/friends/${friendEmail}`
       );
 
       // อัปเดตรายชื่อเพื่อนหลังจากลบ
@@ -157,7 +157,7 @@ const Chat = () => {
   const fetchGmailUser = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/users/${userEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}`
       );
       setCurrentUserfollow(res.data);
     } catch (err) {
@@ -176,7 +176,7 @@ const Chat = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `http://localhost:8080/api/users/${userEmail}/${
+    const url = `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}/${
       isFollowing ? "unfollow" : "follow"
     }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
@@ -200,7 +200,7 @@ const Chat = () => {
   const fetchFollowInfo = async (targetEmail) => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/user/${targetEmail}/follow-info`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user/${targetEmail}/follow-info`
       );
 
       setFollowers(res.data.followers);
@@ -216,7 +216,7 @@ const Chat = () => {
   const handleDeleteRoom = async (roomName) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8080/api/delete-joined-rooms/${roomName}/${userEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-joined-rooms/${roomName}/${userEmail}`
       );
 
       // อัปเดต state ทันที
@@ -237,7 +237,7 @@ const Chat = () => {
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const res = await axios.get(
-        `http://localhost:8080/api/user-rooms/${encodedEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user-rooms/${encodedEmail}`
       );
       setJoinedRooms(res.data);
     } catch (err) {
@@ -246,7 +246,7 @@ const Chat = () => {
   };
   const getallRooms = async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/allrooms`);
+      const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/allrooms`);
       setRooms(res.data);
     } catch (err) {
       console.error("Error joining room:", err);
@@ -444,7 +444,7 @@ const Chat = () => {
     const getNickNameF = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8080/api/get-all-nicknames"
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/get-all-nicknames`
         );
         getNickName(res.data);
       } catch (err) {

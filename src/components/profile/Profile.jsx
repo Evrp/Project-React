@@ -95,7 +95,7 @@ const Profile = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/api/save-user-info", {
+      const response = await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/save-user-info`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, userInfo: tempInfo }),
@@ -128,7 +128,7 @@ const Profile = () => {
       const email = encodeURIComponent(userEmail);
 
       const res = await axios.get(
-        `http://localhost:8080/api/user-info/${email}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user-info/${email}`
       );
 
       const data = res.data;
@@ -150,7 +150,7 @@ const Profile = () => {
 
     try {
       console.log(selectedSubGenres);
-      const response = await fetch("http://localhost:8080/api/update-genres", {
+      const response = await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -183,7 +183,7 @@ const Profile = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/api/update-genres", {
+      const response = await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -211,7 +211,7 @@ const Profile = () => {
   const handleBlur = async () => {
 
     try {
-      await axios.post("http://localhost:8080/api/save-user-name", {
+      await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/save-user-name`, {
         userEmail,
         nickName,
       });
@@ -245,7 +245,7 @@ const Profile = () => {
       try {
         const encodedEmail = encodeURIComponent(userEmail);
         const res = await axios.get(
-          `http://localhost:8080/api/user/${encodedEmail}/follow-info`
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/user/${encodedEmail}/follow-info`
         );
 
         setFollowers(res.data.followers);
@@ -268,7 +268,7 @@ const Profile = () => {
     const fetchNickname = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/api/get-user?email=${userEmail}`
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/get-user?email=${userEmail}`
         );
         setNickName(res.data.nickname || ""); // กำหนดชื่อที่ได้มาจาก backend
       } catch (err) {
@@ -283,7 +283,7 @@ const Profile = () => {
       const getGenres = async () => {
         try {
           const res = await axios.get(
-            `http://localhost:8080/api/filters/${userEmail}`
+            `${import.meta.env.VITE_APP_API_BASE_URL}/api/filters/${userEmail}`
           );
           setGenres(res.data);
         } catch (err) {

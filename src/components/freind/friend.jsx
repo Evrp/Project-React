@@ -9,7 +9,7 @@ import RequireLogin from "../ui/RequireLogin";
 import { BsThreeDots } from "react-icons/bs";
 import { useTheme } from "../../context/themecontext";
 
-const socket = io("https://project-react-2.onrender.com");
+const socket = io(import.meta.env.VITE_APP_API_BASE_URL);
 
 const Friend = () => {
   const [users, setUsers] = useState([]);
@@ -41,10 +41,12 @@ const Friend = () => {
       const encodedEmail = encodeURIComponent(userEmail);
       console.log("encodedEmail", encodedEmail);
       const userRes = await axios.get(
-        `http://localhost:8080/api/users/${encodedEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${encodedEmail}`
       );
       const currentUser = userRes.data;
-      const allUsersRes = await axios.get("http://localhost:8080/api/users");
+      const allUsersRes = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users`
+      );
       const allUsers = allUsersRes.data;
       console.log("allUsers", allUsers);
       console.log("currentUser", currentUser);
@@ -112,7 +114,7 @@ const Friend = () => {
     console.log("User email:", userEmail);
     try {
       setLoadingFriendEmail(friendEmail);
-      await axios.post("http://localhost:8080/api/add-friend", {
+      await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/add-friend`, {
         userEmail,
         friendEmail,
       });
@@ -145,7 +147,7 @@ const Friend = () => {
       setLoadingFriendEmail(friendEmail);
 
       await axios.delete(
-        `http://localhost:8080/api/users/${userEmail}/friends/${friendEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}/friends/${friendEmail}`
       );
 
       // อัปเดตรายชื่อเพื่อนหลังจากลบ
@@ -196,7 +198,7 @@ const Friend = () => {
   const fetchCurrentUser = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/users/${userEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}`
       );
       const userData = {
         ...res.data,
@@ -213,7 +215,7 @@ const Friend = () => {
   const fetchGmailUser = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/users/${userEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}`
       );
       setCurrentUserfollow(res.data);
     } catch (err) {
@@ -229,7 +231,7 @@ const Friend = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `http://localhost:8080/api/users/${userEmail}/${
+    const url = `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}/${
       isFollowing ? "unfollow" : "follow"
     }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
@@ -273,7 +275,7 @@ const Friend = () => {
   const fetchFollowInfo = async (targetEmail) => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/user/${targetEmail}/follow-info`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user/${targetEmail}/follow-info`
       );
 
       setFollowers(res.data.followers);
@@ -286,7 +288,7 @@ const Friend = () => {
     const getNickNameF = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8080/api/get-all-nicknames"
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/get-all-nicknames`
         );
         console.log("NickName:", res.data);
         getNickName(res.data);

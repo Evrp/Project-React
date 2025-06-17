@@ -9,9 +9,10 @@ import axios from "axios";
 import io from "socket.io-client";
 import { useTheme } from "../../context/themecontext";
 
-const socket = io("http://localhost:8080");
+const socket = io(import.meta.env.VITE_APP_API_BASE_URL);
 
 const Newcommu = () => {
+
   const userPhoto = localStorage.getItem("userPhoto");
   const loggedInEmail = localStorage.getItem("userEmail");
 
@@ -52,7 +53,7 @@ const Newcommu = () => {
 
   const fetchUsersAndFriends = async () => {
     try {
-      const response = await axios.get("http://localhost:8080/api/users");
+      const response = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users`);
       const allUsers = response.data;
       setUsers(allUsers);
 
@@ -78,12 +79,12 @@ const Newcommu = () => {
     } catch (error) {
       console.error("Error fetching users and friends:", error);
     }
-    
+
   };
 
   const fetchMatches = async () => {
     try {
-      const res = await fetch(`http://localhost:8080/matches/${loggedInEmail}`);
+      const res = await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/matches/${loggedInEmail}`);
       const data = await res.json();
       setMatches(data);
     } catch (error) {
@@ -104,7 +105,7 @@ const Newcommu = () => {
   const fetchCurrentUserFollow = async () => {
     try {
       const res = await fetch(
-        `http://localhost:8080/api/users/${loggedInEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${loggedInEmail}`
       );
       const data = await res.json();
       setCurrentUserfollow(data);
@@ -117,7 +118,7 @@ const Newcommu = () => {
     const getGenres = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/api/filters/${loggedInEmail}`
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/filters/${loggedInEmail}`
         );
         setGenres(res.data);
       } catch (err) {
@@ -140,7 +141,7 @@ const Newcommu = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(friendEmail);
-    const url = `http://localhost:8080/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
+    const url = `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
       }/${friendEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
@@ -159,7 +160,7 @@ const Newcommu = () => {
   const fetchGmailUser = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/users/${userEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}`
       );
       setCurrentUserfollow(res.data);
     } catch (err) {
@@ -170,7 +171,7 @@ const Newcommu = () => {
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const userRes = await axios.get(
-        `http://localhost:8080/api/users/${encodedEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${encodedEmail}`
       );
       const currentUser = userRes.data;
 
@@ -178,7 +179,7 @@ const Newcommu = () => {
         const friendEmails = currentUser.friends;
 
         // ดึง users ทั้งหมดมาเพื่อจับคู่กับ friend emails
-        const allUsersRes = await axios.get("http://localhost:8080/api/users");
+        const allUsersRes = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users`);
         const allUsers = allUsersRes.data;
 
         const filteredFriends = allUsers
@@ -247,7 +248,7 @@ const Newcommu = () => {
   const fetchFollowInfo = async (targetEmail) => {
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/user/${targetEmail}/follow-info`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user/${targetEmail}/follow-info`
       );
 
       setFollowers(res.data.followers);
@@ -260,7 +261,7 @@ const Newcommu = () => {
     const getNickNameF = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8080/api/get-all-nicknames"
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/get-all-nicknames`
         );
         console.log("NickName:", res.data);
         getNickName(res.data);

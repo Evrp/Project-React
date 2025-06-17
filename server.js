@@ -16,22 +16,31 @@ import { ImageGenre } from "./src/model/image.js"; // import Room from "./src/mo
 import Friend from "./src/model/Friend.js";
 
 dotenv.config();
+const allowedOrigins = [
+  "https://project-react-mocha-eta.vercel.app", // production frontend
+  "http://localhost:5173", // local dev frontend
+];
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://project-react-mocha-eta.vercel.app"],
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
+    credentials: true
   },
 });
 
-const port = process.env.PORT || 8080 ;
+const port = process.env.PORT || 8080;
 const MONGO_URI = process.env.MONGO_URI;
 const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL;
 
 // ✅ Middleware
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+
 app.use(bodyParser.json());
 
 // ✅ Connect MongoDB
@@ -67,7 +76,7 @@ io.on("connection", (socket) => {
       onlineUsers.get(email).delete(socket.id);
       if (onlineUsers.get(email).size === 0) {
         onlineUsers.delete(email); // ไม่มี socket เหลือแล้ว
-      }  
+      }
     }
 
     // ส่ง user list ไปให้ทุก client
