@@ -27,7 +27,6 @@ const RoomList = ({ showOnlyMyRooms }) => {
 
 
   }, []);
-  console.log("showOnlyMyRooms", showOnlyMyRooms);
   const filteredRooms = showOnlyMyRooms
     ? rooms.filter((room) => room.createdBy === displayName)
     : rooms;
