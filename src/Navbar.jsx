@@ -5,6 +5,8 @@ import "./Navbar.css";
 import { useAuth } from "./firebase/Authcontext";
 import { FaUsers, FaUser, FaUserFriends, FaCog } from "react-icons/fa";
 import { BsFillChatLeftDotsFill } from "react-icons/bs";
+import { useTheme } from "./context/themecontext";
+
 
 const Navbar = () => {
   const [click, setClick] = useState(false);
@@ -13,6 +15,7 @@ const Navbar = () => {
   const { roomId } = useParams();
   const handleClick = () => setClick(!click);
   const closeMobileMenu = () => setClick(false);
+  const { isDarkMode, setIsDarkMode } = useTheme();
 
   const handleLogout = async () => {
     if (user && user.email) {
@@ -36,7 +39,8 @@ const Navbar = () => {
   const isActive = (path) => (location.pathname === path ? "active" : "");
 
   return (
-    <div className="navbar-con">
+    <div className={`navbar-container ${isDarkMode ? "dark-mode" : ""}`}>
+    {/* // <div className="navbar-con"> */}
       <div className="logo-con">
         <Link to="/home">
           <h3>Find</h3>
@@ -51,8 +55,8 @@ const Navbar = () => {
           className={`menu-link ${isActive("/community")}`}
         >
           <li>
-            <FaUsers className="icon" />
-            <span>Community</span>
+            <FaUsers className="icon-nav" />
+            <span className="text-nav">Community</span>
           </li>
         </Link>
 
@@ -62,8 +66,8 @@ const Navbar = () => {
           className={`menu-link ${isActive("/friend")}`}
         >
           <li>
-            <FaUserFriends className="icon" />
-            <span>Friend</span>
+            <FaUserFriends className="icon-nav" />
+            <span className="text-nav">Friend</span>
           </li>
         </Link>
         <Link
@@ -72,8 +76,8 @@ const Navbar = () => {
           className={`menu-link ${isActive("/profile")}`}
         >
           <li>
-            <FaUser className="icon" />
-            <span>Profile</span>
+            <FaUser className="icon-nav" />
+            <span className="text-nav">Profile</span>
           </li>
         </Link>
 
@@ -83,8 +87,8 @@ const Navbar = () => {
           className={`menu-link ${isActive("/chat")}`}
         >
           <li>
-            <BsFillChatLeftDotsFill className="icon" />
-            <span>Chat</span>
+            <BsFillChatLeftDotsFill className="icon-nav" />
+            <span className="text-nav">Chat</span>
           </li>
         </Link>
         <Link
@@ -93,16 +97,16 @@ const Navbar = () => {
           className={`menu-link ${isActive("/setup")}`}
         >
           <li>
-            <FaCog className="icon" />
-            <span>Setup</span>
+            <FaCog className="icon-nav" />
+            <span className="text-nav">Setup</span>
           </li>
         </Link>
 
         {user ? (
-          <li className="logout-link" 
-          onClick={handleLogout}
+          <li className="logout-link"
+            onClick={handleLogout}
           >
-            <span>LOGOUT</span>
+            <span className="text-nav">LOGOUT</span>
           </li>
         ) : (
           <Link
@@ -111,7 +115,7 @@ const Navbar = () => {
             className={`menu-link ${isActive("/login")}`}
           >
             <li>
-              <span>LOGIN</span>
+              <span className="text-nav">LOGIN</span>
             </li>
           </Link>
         )}

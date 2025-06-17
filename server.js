@@ -14,9 +14,6 @@ import { Info } from "./src/model/info.js";
 import { Room } from "./src/model/room.js";
 import { ImageGenre } from "./src/model/image.js"; // import Room from "./src/model/room.js";
 import Friend from "./src/model/Friend.js";
-import { error } from "console";
-
-// import Friend from "./src/model/Friend.js";
 
 dotenv.config();
 
@@ -24,12 +21,12 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:5173"],
+    origin: ["http://project-react-mocha-eta.vercel.app"],
     methods: ["GET", "POST"],
   },
 });
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8080 ;
 const MONGO_URI = process.env.MONGO_URI;
 const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL;
 
@@ -43,22 +40,39 @@ const db = mongoose.connection;
 db.once("open", () => console.log("🔥 MongoDB Connected"));
 db.on("error", (err) => console.error("❌ MongoDB Error:", err));
 
-let onlineUsers = new Map(); // เก็บสถานะออนไลน์ของผู้ใช้ตามอีเมล
+const onlineUsers = new Map(); // email => Set of socket IDs
 
-// เมื่อผู้ใช้เชื่อมต่อ
 io.on("connection", (socket) => {
   console.log("🟢 New client connected", socket.id);
 
   socket.on("user-online", (user) => {
-    socket.email = user.email; // <<< เก็บ email ลง socket
-    onlineUsers.set(user.email, true); // เก็บสถานะออนไลน์
-    io.emit("update-users", Array.from(onlineUsers.keys())); // แจ้งให้ทุกคนรู้ว่ามีผู้ใช้ใหม่ออนไลน์
+    console.log("🧑‍💻 Online user", user); // <<< เพิ่ม log นี้
+    const { email } = user;
+    socket.email = email;
+
+    // เพิ่ม socket.id เข้าไปใน Set
+    if (!onlineUsers.has(email)) {
+      onlineUsers.set(email, new Set());
+    }
+    onlineUsers.get(email).add(socket.id);
+
+    // อัปเดตให้ทุก client
+    io.emit("update-users", Array.from(onlineUsers.keys()));
   });
 
   socket.on("disconnect", () => {
     console.log("🔴 Client disconnected", socket.id);
-    onlineUsers.delete(socket.email);
-    io.emit("update-users", Array.from(onlineUsers.keys())); // แจ้งให้ทุกคนรู้ว่าผู้ใช้ได้ออกจากระบบ
+    const email = socket.email;
+    if (email && onlineUsers.has(email)) {
+      onlineUsers.get(email).delete(socket.id);
+      if (onlineUsers.get(email).size === 0) {
+        onlineUsers.delete(email); // ไม่มี socket เหลือแล้ว
+      }  
+    }
+
+    // ส่ง user list ไปให้ทุก client
+    io.emit("update-users", Array.from(onlineUsers.keys()));
+    console.log("🔴 Client disconnected", socket.id);
   });
 });
 
@@ -498,21 +512,20 @@ app.post("/api/save-user-name", async (req, res) => {
     );
 
     if (!infoUpdate) {
-      return res.status(404).json({ message: "ไม่พบผู้ใช้นี้ในทั้งสอง collection" });
+      return res
+        .status(404)
+        .json({ message: "ไม่พบผู้ใช้นี้ในทั้งสอง collection" });
     }
 
     res.json({
       message: "อัปเดต nickname และ displayName เรียบร้อย",
       info: infoUpdate,
-
     });
-
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ message: "เกิดข้อผิดพลาดจากเซิร์ฟเวอร์" });
   }
 });
-
 
 app.get("/api/get-user", async (req, res) => {
   const { email } = req.query;
