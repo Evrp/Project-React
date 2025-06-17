@@ -126,8 +126,7 @@ const Newcommu = () => {
       }
     }
     getGenres();
-    console.log("genres:", genres);
-    if (!genres) {
+    if (genres) {
       fetchMatches();
       fetchCurrentUserFollow();
     }
@@ -263,7 +262,6 @@ const Newcommu = () => {
         const res = await axios.get(
           `${import.meta.env.VITE_APP_API_BASE_URL}/api/get-all-nicknames`
         );
-        console.log("NickName:", res.data);
         getNickName(res.data);
       } catch (err) {
         console.error("โหลด nickname ล้มเหลว:", err);
