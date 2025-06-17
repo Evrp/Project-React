@@ -56,6 +56,7 @@ io.on("connection", (socket) => {
 
   socket.on("user-online", (user) => {
     console.log("🧑‍💻 Online user", user); // <<< เพิ่ม log นี้
+    console.log("🟢 User online", user.email);
     const { email } = user;
     socket.email = email;
 
@@ -71,6 +72,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
+    console.log("🔴 Client disconnected", socket.id);
     console.log("🔴 Client disconnected", socket.id);
     const email = socket.email;
     if (email && onlineUsers.has(email)) {
