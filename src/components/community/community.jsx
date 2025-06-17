@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import RequireLogin from "../ui/RequireLogin";
 import DropdownMenu from "../../context/dropdownuser";
 import "react-toastify/dist/ReactToastify.css";
+import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import io from "socket.io-client";
 import { useTheme } from "../../context/themecontext";
@@ -35,7 +36,7 @@ const Newcommu = () => {
   const [following, setFollowing] = useState([]);
   const [genres, setGenres] = useState([]);
   const { isDarkMode, setIsDarkMode } = useTheme();
-  const [selectedRooms, setSelectedRooms] = useState([]); 
+  const [selectedRooms, setSelectedRooms] = useState([]);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [getnickName, getNickName] = useState("");
 
@@ -316,19 +317,25 @@ const Newcommu = () => {
           >
             {showOnlyMyRooms ? "All rooms" : "My rooms"}
           </button>
-          <button
-            className={`delete-button-all-room ${isDeleteMode ? 'active' : ''}`}
-            onClick={() => {
-              if (showOnlyMyRooms) {
-                setIsDeleteMode(!isDeleteMode);
-                if (isDeleteMode) setSelectedRooms([]);
-              } else {
-                toast.warning("สามารถลบห้องได้เฉพาะในโหมด 'My rooms' เท่านั้น");
-              }
-            }}
-          >
-            {isDeleteMode ? "ยกเลิก" : "ลบห้อง"}
-          </button>
+          {(showOnlyMyRooms || selectedRooms.length > 0) && (
+            <button
+              className={`delete-button-all-room ${isDeleteMode ? 'active' : ''}`}
+              onClick={() => {
+                if (showOnlyMyRooms) {
+                  setIsDeleteMode(!isDeleteMode);
+                  if (isDeleteMode) setSelectedRooms([]);
+                } else {
+                  toast.warning("สามารถลบห้องได้เฉพาะในโหมด 'My rooms' เท่านั้น");
+                }
+              }}
+            >
+              {isDeleteMode
+                ? `ยกเลิก (${selectedRooms.length})`
+                : selectedRooms.length > 0
+                  ? `ลบห้อง (${selectedRooms.length})`
+                  : "ลบห้อง"}
+            </button>
+            )}
           {isDeleteMode && selectedRooms.length > 0 && (
             <button
               className="confirm-delete-button"
