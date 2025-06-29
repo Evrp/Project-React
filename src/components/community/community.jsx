@@ -13,7 +13,6 @@ import { useTheme } from "../../context/themecontext";
 const socket = io(import.meta.env.VITE_APP_API_BASE_URL);
 
 const Newcommu = () => {
-
   const userPhoto = localStorage.getItem("userPhoto");
   const loggedInEmail = localStorage.getItem("userEmail");
 
@@ -58,18 +57,25 @@ const Newcommu = () => {
       toast.warning("กรุณาเลือกห้องที่ต้องการลบ");
       return;
     }
+    console.log("selectedRooms", selectedRooms);
 
-    const confirm = window.confirm(`คุณแน่ใจว่าต้องการลบ ${selectedRooms.length} ห้องหรือไม่?`);
+    const confirm = window.confirm(
+      `คุณแน่ใจว่าต้องการลบ ${selectedRooms.length} ห้องหรือไม่?`
+    );
     if (!confirm) return;
 
     try {
-      await axios.post("http://localhost:8080/api/delete-rooms", {
-        roomIds: selectedRooms,
-        userEmail: userEmail // ตรวจสอบสิทธิ์
-      });
+      await axios.post(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-rooms`,
+        {
+          selectedRooms: selectedRooms,
+        }
+      );
 
       // อัปเดตรายการห้องหลังลบ
-      const res = await axios.get("http://localhost:8080/api/allrooms");
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/allrooms`
+      );
       setRooms(res.data);
 
       toast.success(`ลบห้องสำเร็จ ${selectedRooms.length} ห้อง`);
@@ -83,7 +89,9 @@ const Newcommu = () => {
 
   const fetchUsersAndFriends = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users`);
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users`
+      );
       const allUsers = response.data;
       setUsers(allUsers);
 
@@ -109,12 +117,13 @@ const Newcommu = () => {
     } catch (error) {
       console.error("Error fetching users and friends:", error);
     }
-
   };
 
   const fetchMatches = async () => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/matches/${loggedInEmail}`);
+      const res = await fetch(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/matches/${loggedInEmail}`
+      );
       const data = await res.json();
       setMatches(data);
     } catch (error) {
@@ -148,13 +157,15 @@ const Newcommu = () => {
     const getGenres = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/filters/${loggedInEmail}`
+          `${
+            import.meta.env.VITE_APP_API_BASE_URL
+          }/api/filters/${loggedInEmail}`
         );
         setGenres(res.data);
       } catch (err) {
         console.error("โหลด Gmail currentUser ไม่ได้:", err);
       }
-    }
+    };
     getGenres();
     if (genres) {
       fetchMatches();
@@ -170,8 +181,11 @@ const Newcommu = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(friendEmail);
-    const url = `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
-      }/${friendEmail}`;
+    const url = `${
+      import.meta.env.VITE_APP_API_BASE_URL
+    }/api/users/${userEmail}/${
+      isFollowing ? "unfollow" : "follow"
+    }/${friendEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -208,7 +222,9 @@ const Newcommu = () => {
         const friendEmails = currentUser.friends;
 
         // ดึง users ทั้งหมดมาเพื่อจับคู่กับ friend emails
-        const allUsersRes = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users`);
+        const allUsersRes = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/users`
+        );
         const allUsers = allUsersRes.data;
 
         const filteredFriends = allUsers
@@ -277,7 +293,9 @@ const Newcommu = () => {
   const fetchFollowInfo = async (targetEmail) => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user/${targetEmail}/follow-info`
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/api/user/${targetEmail}/follow-info`
       );
 
       setFollowers(res.data.followers);
@@ -296,10 +314,9 @@ const Newcommu = () => {
       } catch (err) {
         console.error("โหลด nickname ล้มเหลว:", err);
       }
-    }
+    };
     getNickNameF();
   }, []);
-
 
   return (
     <RequireLogin>
@@ -319,23 +336,27 @@ const Newcommu = () => {
           </button>
           {(showOnlyMyRooms || selectedRooms.length > 0) && (
             <button
-              className={`delete-button-all-room ${isDeleteMode ? 'active' : ''}`}
+              className={`delete-button-all-room ${
+                isDeleteMode ? "active" : ""
+              }`}
               onClick={() => {
                 if (showOnlyMyRooms) {
                   setIsDeleteMode(!isDeleteMode);
                   if (isDeleteMode) setSelectedRooms([]);
                 } else {
-                  toast.warning("สามารถลบห้องได้เฉพาะในโหมด 'My rooms' เท่านั้น");
+                  toast.warning(
+                    "สามารถลบห้องได้เฉพาะในโหมด 'My rooms' เท่านั้น"
+                  );
                 }
               }}
             >
               {isDeleteMode
                 ? `ยกเลิก (${selectedRooms.length})`
                 : selectedRooms.length > 0
-                  ? `ลบห้อง (${selectedRooms.length})`
-                  : "ลบห้อง"}
+                ? `ลบห้อง (${selectedRooms.length})`
+                : "ลบห้อง"}
             </button>
-            )}
+          )}
           {isDeleteMode && selectedRooms.length > 0 && (
             <button
               className="confirm-delete-button"
@@ -383,10 +404,10 @@ const Newcommu = () => {
                       </div>
                     </div>
 
-
-                    <h3>{
-                      getnickName.find(n => n.email === friend.email)?.nickname || friend.displayName
-                    }</h3>
+                    <h3>
+                      {getnickName.find((n) => n.email === friend.email)
+                        ?.nickname || friend.displayName}
+                    </h3>
                     <p>{friend.email}</p>
                     <p>หมวดหมู่: {friend.genres.join(", ")}</p>
 
@@ -414,13 +435,15 @@ const Newcommu = () => {
                     <img
                       src={selectedUser.photoURL}
                       alt={
-                        getnickName.find(n => n.email === selectedUser.email)?.nickname || selectedUser.displayName
+                        getnickName.find((n) => n.email === selectedUser.email)
+                          ?.nickname || selectedUser.displayName
                       }
                       className="profile-photo"
                     />
-                    <h2>{
-                      getnickName.find(n => n.email === selectedUser.email)?.nickname || selectedUser.displayName
-                    }</h2>
+                    <h2>
+                      {getnickName.find((n) => n.email === selectedUser.email)
+                        ?.nickname || selectedUser.displayName}
+                    </h2>
                     <div className="tabs">
                       <ul className="followers">
                         <li>{followers.length} followers</li>

@@ -3,19 +3,15 @@
   background-color: #f3f4f6;
   padding: 60px 24px;
   overflow-y: auto;
-  scroll-behavior: smooth
+  scroll-behavior: smooth;
 }
 .dark-mode .event-container {
   height: calc(100vh - 147px);
   background-color: #1e1e1e;
   padding: 60px 24px;
   overflow-y: auto;
-  scroll-behavior: smooth
+  scroll-behavior: smooth;
 }
-.event-container::-webkit-scrollbar {
-  display: none;
-}
-
 .loading-text,
 .empty-text {
   text-align: center;

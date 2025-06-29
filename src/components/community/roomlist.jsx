@@ -61,18 +61,6 @@ const RoomList = ({ showOnlyMyRooms, isDeleteMode, selectedRooms, setSelectedRoo
     handleAddCommunity(roomId, roomName);
   };
 
-  const handleDeleteRoom = async (id) => {
-    const confirm = window.confirm("คุณแน่ใจว่าต้องการลบกิจกรรมนี้หรือไม่?");
-    if (!confirm) return;
-
-    try {
-      await axios.delete(`${import.meta.env.VITE_APP_API_BASE_URL}/api/detele-events/${id}`);
-      setEvents((prevEvents) => prevEvents.filter((event) => event._id !== id));
-    } catch (error) {
-      console.error("❌ Error deleting event:", error);
-    }
-  };
-
 
   return (
     <div className={`room-list ${isDarkMode ? "dark-mode" : ""}`}>
