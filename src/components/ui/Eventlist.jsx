@@ -49,10 +49,12 @@ const EventList = () => {
   };
   const handleDeleteAll = async () => {
     const confirm = window.confirm("คุณแน่ใจว่าต้องการลบกิจกรรมทั้งหมดหรือไม่?");
+    const userEmail = localStorage.getItem("userEmail");
     if (!confirm) return;
 
     try {
-      await axios.delete(`${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-all-events`);
+      await axios.delete(`${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-all-events/${userEmail}`);
+
       setEvents([]); // ล้าง state
     } catch (error) {
       console.error("❌ Error deleting all events:", error);

@@ -381,6 +381,16 @@ app.get("/api/events", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+//////////get all events//////////////
+app.get("/api/all-events", async (req, res) => {
+  try {
+    const events = await Event.find({})
+    res.json(events);
+  } catch (error) {
+    console.error("❌ Error fetching events:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 // 📌 API ลบ Event
 app.delete("/api/detele-events/:id", async (req, res) => {
   const { id } = req.params;
@@ -712,9 +722,10 @@ app.get("/api/user/:email/follow-info", async (req, res) => {
   }
 });
 ///////////delete event////////
-app.delete("/api/delete-all-events", async (req, res) => {
+app.delete("/api/delete-all-events/:email", async (req, res) => {
+  const userEmail = req.params.email;
   try {
-    await Event.deleteMany({}); // ลบทุกเอกสารใน collection
+    await Event.deleteMany({ email: userEmail }); // ลบทุกเอกสารใน collection
     res.status(200).json({ message: "ลบกิจกรรมทั้งหมดเรียบร้อยแล้ว" });
   } catch (error) {
     console.error("❌ Error deleting all events:", error);
