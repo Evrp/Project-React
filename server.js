@@ -27,7 +27,7 @@ const io = new Server(server, {
   cors: {
     origin: allowedOrigins,
     methods: ["GET", "POST"],
-    credentials: true
+    credentials: true,
   },
 });
 
@@ -36,10 +36,12 @@ const MONGO_URI = process.env.MONGO_URI;
 const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL;
 
 // ✅ Middleware
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 app.use(bodyParser.json());
 
@@ -394,34 +396,32 @@ app.delete("/api/detele-events/:id", async (req, res) => {
   }
 });
 /////////////Delete Room///////////////
-app.delete("/api/delete-rooms/:name", async (req, res) => {
-  const { name } = req.params;
-  console.log(name);
+app.post("/api/delete-rooms", async (req, res) => {
+  const { selectedRooms } = req.body;
+
+  if (!Array.isArray(selectedRooms) || selectedRooms.length === 0) {
+    return res.status(400).json({ message: "No room IDs provided" });
+  }
+
   try {
-    // 1. ลบ room document
-    const deletedRoom = await Room.findOneAndDelete({ name });
+    // 1. ลบหลายห้องพร้อมกัน
+    const deletedRooms = await Room.deleteMany({ _id: { $in: selectedRooms } });
 
-    if (!deletedRoom) {
-      return res.status(404).json({ message: "Room not found" });
-    }
-
-    const roomIdToDelete = deletedRoom._id.toString();
-
-    // 2. ลบ room ออกจาก joinedRooms ของทุก user
+    // 2. ลบจาก joinedRooms ของทุก user
     const result = await Info.updateMany(
       {},
       {
         $pull: {
           joinedRooms: {
-            roomId: roomIdToDelete,
+            roomId: { $in: selectedRooms },
           },
         },
       }
     );
 
     res.json({
-      message: "Room deleted and removed from user joinedRooms",
-      deletedRoom,
+      message: "Rooms deleted and removed from user joinedRooms",
+      deletedCount: deletedRooms.deletedCount,
       updatedUsers: result.modifiedCount,
     });
   } catch (err) {
@@ -429,6 +429,8 @@ app.delete("/api/delete-rooms/:name", async (req, res) => {
     res.status(500).json({ message: "Delete failed" });
   }
 });
+
+
 ////////////Delete Joined Room///////////////
 app.delete(
   "/api/delete-joined-rooms/:roomName/:userEmail",
@@ -752,4 +754,6 @@ app.get("/api/get-image-genres", async (req, res) => {
 });
 
 // เริ่มต้นเซิร์ฟเวอร์
-server.listen(port, () => console.log(`🚀 Server is running on port ${8080, "0.0.0.0"}`));
+server.listen(port, () =>
+  console.log(`🚀 Server is running on port ${(8080, "0.0.0.0")}`)
+);

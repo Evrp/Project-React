@@ -95,11 +95,14 @@ const Profile = () => {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/save-user-info`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, userInfo: tempInfo }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/save-user-info`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, userInfo: tempInfo }),
+        }
+      );
 
       if (response.ok) {
         console.log("tempInfo", tempInfo);
@@ -117,6 +120,7 @@ const Profile = () => {
     const savedNickName = localStorage.getItem("nickName");
     if (savedNickName) {
       setNickName(savedNickName);
+      console.log(selectedSubGenres);
     }
   }, []);
 
@@ -150,16 +154,19 @@ const Profile = () => {
 
     try {
       console.log(selectedSubGenres);
-      const response = await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          genres: selectedGenres,
-          subGenres: selectedSubGenres,
-          updatedAt: new Date().toISOString(),
-        }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            genres: selectedGenres,
+            subGenres: selectedSubGenres,
+            updatedAt: new Date().toISOString(),
+          }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -183,20 +190,28 @@ const Profile = () => {
     }
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          genres: [], // ล้าง genres
-          subGenres: {}, // ล้าง subGenres ด้วย
-        }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            genres: [], // ล้าง genres
+            subGenres: {}, // ล้าง subGenres
+          }),
+        }
+      );
 
       if (response.ok) {
         console.log("🧹 ล้างแนวเพลงทั้งหมดเรียบร้อย");
-        setSelectedSubGenres({});
+
+        // เคลียร์ local state
         setSelectedGenres([]);
+        setSelectedSubGenres({});
+        setOriginalGenres([]);
+
+        // บันทึกลง localStorage โดยไม่รอ state
         localStorage.setItem("selectedGenres", JSON.stringify([]));
       } else {
         console.error("❌ ล้างแนวเพลงไม่สำเร็จ");
@@ -205,18 +220,19 @@ const Profile = () => {
       console.error("🚨 เกิดข้อผิดพลาด:", error);
     }
   };
+
   const handleChange = (e) => {
     setNickName(e.target.value);
   };
   const handleBlur = async () => {
-
     try {
-      await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/save-user-name`, {
-        userEmail,
-        nickName,
-      });
-
-
+      await axios.post(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/save-user-name`,
+        {
+          userEmail,
+          nickName,
+        }
+      );
     } catch (err) {
       console.error("บันทึก nickname ล้มเหลว:", err);
     }
@@ -245,7 +261,9 @@ const Profile = () => {
       try {
         const encodedEmail = encodeURIComponent(userEmail);
         const res = await axios.get(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/user/${encodedEmail}/follow-info`
+          `${
+            import.meta.env.VITE_APP_API_BASE_URL
+          }/api/user/${encodedEmail}/follow-info`
         );
 
         setFollowers(res.data.followers);
@@ -268,7 +286,9 @@ const Profile = () => {
     const fetchNickname = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/get-user?email=${userEmail}`
+          `${
+            import.meta.env.VITE_APP_API_BASE_URL
+          }/api/get-user?email=${userEmail}`
         );
         setNickName(res.data.nickname || ""); // กำหนดชื่อที่ได้มาจาก backend
       } catch (err) {
@@ -289,13 +309,12 @@ const Profile = () => {
         } catch (err) {
           console.error("โหลด Gmail currentUser ไม่ได้:", err);
         }
-      }
+      };
       getGenres();
     } catch (err) {
       console.error("โหลด Gmail currentUser ไม่ได้:", err);
     }
-  }, [userEmail])
-
+  }, [userEmail]);
 
   return (
     <div className={`container-profile ${isDarkMode ? "dark-mode" : ""}`}>
@@ -397,8 +416,9 @@ const Profile = () => {
                     <button
                       key={genre}
                       onClick={() => toggleGenre(genre)}
-                      className={`genre-button ${selectedGenres.includes(genre) ? "selected" : ""
-                        }`}
+                      className={`genre-button ${
+                        selectedGenres.includes(genre) ? "selected" : ""
+                      }`}
                     >
                       {genre}
                     </button>
@@ -422,21 +442,31 @@ const Profile = () => {
             <div className="center-wrapper">
               {editingGenres ? (
                 <>
-                  <Button onClick={handleEditGenres} className="edit-button">
-                    Save
-                  </Button>
-                  {JSON.stringify(originalGenres) !==
-                    JSON.stringify(selectedGenres) && (
+                  {/* แสดงปุ่ม Save เมื่อมีการเปลี่ยนแปลงและ selectedGenres ไม่ว่าง */}
+                  {selectedGenres.length > 0 &&
+                    JSON.stringify(originalGenres) !==
+                      JSON.stringify(selectedGenres) && (
                       <Button
-                        onClick={() => {
-                          setSelectedGenres(originalGenres);
-                          setEditingGenres(false);
-                        }}
-                        className="edit-button-cancel-button"
+                        onClick={handleEditGenres}
+                        className="edit-button"
                       >
-                        Back
+                        Save
                       </Button>
                     )}
+
+                  {/* แสดงปุ่ม Back เมื่อมีการเปลี่ยนแปลง ไม่ว่ามี selectedGenres หรือไม่ */}
+                  {/* {JSON.stringify(originalGenres) !==
+                    JSON.stringify(selectedGenres) && (
+                    <Button
+                      onClick={() => {
+                        setSelectedGenres(originalGenres);
+                        setEditingGenres(false);
+                      }}
+                      className="edit-button-cancel-button"
+                    >
+                      Back
+                    </Button>
+                  )} */}
                 </>
               ) : (
                 <Button
@@ -449,13 +479,28 @@ const Profile = () => {
                   Edit
                 </Button>
               )}
+
+              {/* ปุ่ม Clear All จะล้าง genre และทำให้ Back แสดงทันที */}
               {editingGenres && (
-                <Button
-                  onClick={handleClearGenres}
-                  className="edit-button-cancel-button"
-                >
-                  Clear All
-                </Button>
+                <>
+                  <Button
+                    onClick={() => {
+                      handleClearGenres();
+                    }}
+                    className="edit-button-cancel-button"
+                  >
+                    Clear All
+                  </Button>{" "}
+                  <Button
+                    onClick={() => {
+                      setSelectedGenres(originalGenres);
+                      setEditingGenres(false);
+                    }}
+                    className="edit-button-cancel-button"
+                  >
+                    Back
+                  </Button>
+                </>
               )}
             </div>
           </div>
@@ -474,10 +519,11 @@ const Profile = () => {
                           <button
                             key={sub}
                             onClick={() => toggleSubGenre(genre, sub)}
-                            className={`subgenre-button ${selectedSubGenres[genre]?.includes(sub)
-                              ? "selected"
-                              : ""
-                              }`}
+                            className={`subgenre-button ${
+                              selectedSubGenres[genre]?.includes(sub)
+                                ? "selected"
+                                : ""
+                            }`}
                           >
                             {sub}
                           </button>
