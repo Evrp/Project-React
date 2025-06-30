@@ -9,6 +9,7 @@ import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import io from "socket.io-client";
 import { useTheme } from "../../context/themecontext";
+import RoomMatch from "./roommatch";
 
 const socket = io(import.meta.env.VITE_APP_API_BASE_URL);
 
@@ -37,6 +38,7 @@ const Newcommu = () => {
   const { isDarkMode, setIsDarkMode } = useTheme();
   const [selectedRooms, setSelectedRooms] = useState([]);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
+  const [handlematchfriend, handleMatchFriend] = useState(false);
   const [getnickName, getNickName] = useState("");
 
   useEffect(() => {
@@ -316,6 +318,7 @@ const Newcommu = () => {
       }
     };
     getNickNameF();
+    console.log("handlematchfriends", handlematchfriend);
   }, []);
 
   return (
@@ -329,7 +332,7 @@ const Newcommu = () => {
         <div className="filter-container">
           <CreateRoom onRoomCreated={handleNewRoom} />
           <button
-            className={"filter-button " + (showOnlyMyRooms ? "active" : "")}
+            className={"filter-button" + (showOnlyMyRooms ? "active" : "")}
             onClick={() => setShowOnlyMyRooms(!showOnlyMyRooms)}
           >
             {showOnlyMyRooms ? "All rooms" : "My rooms"}
@@ -365,16 +368,25 @@ const Newcommu = () => {
               ยืนยันการลบ ({selectedRooms.length})
             </button>
           )}
+          <button className="filter-button" onClick={handleMatchFriend}>Match Friend</button>
         </div>
         <div className="container-content">
-          <RoomList
+          {handlematchfriend === false ? (
+            <RoomMatch
+              isDeleteMode={isDeleteMode}
+              selectedRooms={selectedRooms}
+              setSelectedRooms={setSelectedRooms}
+            />
+          ):(
+             <RoomList
             showOnlyMyRooms={showOnlyMyRooms}
             rooms={rooms}
             isDeleteMode={isDeleteMode}
             selectedRooms={selectedRooms}
             setSelectedRooms={setSelectedRooms}
           />
-
+          )}
+        
           <div className="recommentfreind">
             <h2 className="grd">FREIND MATCH</h2>
             <div className="con-card">

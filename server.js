@@ -14,6 +14,7 @@ import { Info } from "./src/model/info.js";
 import { Room } from "./src/model/room.js";
 import { ImageGenre } from "./src/model/image.js"; // import Room from "./src/model/room.js";
 import Friend from "./src/model/Friend.js";
+import { EventMatch } from "./src/model/eventmatch.js";
 
 dotenv.config();
 const allowedOrigins = [
@@ -358,6 +359,39 @@ app.post("/api/save-event", async (req, res) => {
     res.status(500).json({ message: "Failed to save event" });
   }
 });
+////////////📌 API บันทึก Event Matc ////////////
+app.post("/api/save-event-match", async (req, res) => {
+  const { title, isFirst, email } =
+    req.body;
+
+  try {
+    if (isFirst) {
+      const deleted = await EventMatch.deleteMany({});
+      console.log("🧹 Deleted all events:", deleted.deletedCount);
+    }
+
+    const newEvent = new EventMatch({
+      title,
+      email,
+    });
+
+    await newEvent.save();
+    res.status(201).json({ message: "Event saved", event: newEvent });
+  } catch (error) {
+    console.error("❌ Error saving event:", error);
+    res.status(500).json({ message: "Failed to save event" });
+  }
+});
+//////////////📌 API ดึง Event Match
+app.get("/api/events-match", async (req, res) => {
+  try {
+    const events = await EventMatch.find({}); // เรียงตามวันที่
+    res.json(events);
+  } catch (error) {
+    console.error("❌ Error fetching events:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+})
 ///📌 API ดึง filter ตาม email
 app.get("/api/filters/:email", async (req, res) => {
   try {
@@ -384,7 +418,7 @@ app.get("/api/events", async (req, res) => {
 //////////get all events//////////////
 app.get("/api/all-events", async (req, res) => {
   try {
-    const events = await Event.find({})
+    const events = await Event.find({}).select("email title");
     res.json(events);
   } catch (error) {
     console.error("❌ Error fetching events:", error);
@@ -439,7 +473,6 @@ app.post("/api/delete-rooms", async (req, res) => {
     res.status(500).json({ message: "Delete failed" });
   }
 });
-
 
 ////////////Delete Joined Room///////////////
 app.delete(
