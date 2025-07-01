@@ -39,7 +39,7 @@ const Newcommu = () => {
   const [selectedRooms, setSelectedRooms] = useState([]);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [handlematchfriend, setHandleMatchFriend] = useState(false);
-  const [getnickName, getNickName] = useState("");
+  const [getnickName, getNickName] = useState([]);
 
   useEffect(() => {
     fetchGmailUser(); // ดึงข้อมูล Gmail user จาก backend
@@ -422,8 +422,10 @@ const Newcommu = () => {
                     </div>
 
                     <h3>
-                      {getnickName.find((n) => n.email === friend.email)
-                        ?.nickname || friend.displayName}
+                      {(getnickName &&
+                        getnickName.find((n) => n.email === friend.email)
+                          ?.nickname) ||
+                        friend.displayName}
                     </h3>
                     <p>{friend.email}</p>
                     <p>หมวดหมู่: {friend.genres.join(", ")}</p>
