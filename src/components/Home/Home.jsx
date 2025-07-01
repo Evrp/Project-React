@@ -2,11 +2,14 @@ import "./Home.css";
 import EventList from "../ui/Eventlist";
 import RequireLogin from "../ui/RequireLogin";
 import { useTheme } from "../../context/themecontext";
+import RoomMatch from "../community/roommatch";
+import { useState } from "react"; 
+
 
 const Newcommu = () => {
   const userPhoto = localStorage.getItem("userPhoto");
   const { isDarkMode, setIsDarkMode } = useTheme();
-
+  const [selectedRooms, setSelectedRooms] = useState([]);
 
   return (
     <RequireLogin>
@@ -20,7 +23,14 @@ const Newcommu = () => {
         </div>
         <div className="event-list-co">
           <h2 className="event-title">Community Recommand</h2>
-          <EventList />
+          <div className="bg-event-con">
+            <EventList />
+            <RoomMatch
+              isDeleteMode={isDarkMode}
+              selectedRooms={selectedRooms}
+              setSelectedRooms={setSelectedRooms}
+            />
+          </div>
         </div>
       </div>
     </RequireLogin>

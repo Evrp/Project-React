@@ -38,7 +38,7 @@ const Newcommu = () => {
   const { isDarkMode, setIsDarkMode } = useTheme();
   const [selectedRooms, setSelectedRooms] = useState([]);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
-  const [handlematchfriend, handleMatchFriend] = useState(false);
+  const [handlematchfriend, setHandleMatchFriend] = useState(false);
   const [getnickName, getNickName] = useState("");
 
   useEffect(() => {
@@ -48,6 +48,9 @@ const Newcommu = () => {
 
   const handleNewRoom = (room) => {
     setRooms((prev) => [...prev, room]);
+  };
+  const handleMatchFriend = () => {
+    setHandleMatchFriend((prev) => !prev);
   };
   const handleClickOutside = (e) => {
     if (modalRef.current && !modalRef.current.contains(e.target)) {
@@ -332,7 +335,7 @@ const Newcommu = () => {
         <div className="filter-container">
           <CreateRoom onRoomCreated={handleNewRoom} />
           <button
-            className={"filter-button" + (showOnlyMyRooms ? "active" : "")}
+            className={"filter-button" + (showOnlyMyRooms ? " active" : "")}
             onClick={() => setShowOnlyMyRooms(!showOnlyMyRooms)}
           >
             {showOnlyMyRooms ? "All rooms" : "My rooms"}
@@ -368,25 +371,27 @@ const Newcommu = () => {
               ยืนยันการลบ ({selectedRooms.length})
             </button>
           )}
-          <button className="filter-button" onClick={handleMatchFriend}>Match Friend</button>
+          <button className="filter-button" onClick={handleMatchFriend}>
+            Match Friend
+          </button>
         </div>
         <div className="container-content">
-          {handlematchfriend === false ? (
+          {handlematchfriend === true ? (
             <RoomMatch
               isDeleteMode={isDeleteMode}
               selectedRooms={selectedRooms}
               setSelectedRooms={setSelectedRooms}
             />
-          ):(
-             <RoomList
-            showOnlyMyRooms={showOnlyMyRooms}
-            rooms={rooms}
-            isDeleteMode={isDeleteMode}
-            selectedRooms={selectedRooms}
-            setSelectedRooms={setSelectedRooms}
-          />
+          ) : (
+            <RoomList
+              showOnlyMyRooms={showOnlyMyRooms}
+              rooms={rooms}
+              isDeleteMode={isDeleteMode}
+              selectedRooms={selectedRooms}
+              setSelectedRooms={setSelectedRooms}
+            />
           )}
-        
+
           <div className="recommentfreind">
             <h2 className="grd">FREIND MATCH</h2>
             <div className="con-card">

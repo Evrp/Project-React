@@ -12,6 +12,8 @@ npm create vite@latest Project --template react
 npm install socket.io-client
 npm install -g localtunnel
 npm install react-toastify
+npm install react-tinder-card
+
 
 Run Web and Server
 npm run dev ( Frontend )

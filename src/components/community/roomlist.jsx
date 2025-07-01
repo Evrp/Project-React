@@ -23,6 +23,7 @@ const RoomList = ({ showOnlyMyRooms, isDeleteMode, selectedRooms, setSelectedRoo
 
   useEffect(() => {
     const fetchRooms = async () => {
+    
       try {
         const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/allrooms`);
         setRooms(res.data);
@@ -60,6 +61,7 @@ const RoomList = ({ showOnlyMyRooms, isDeleteMode, selectedRooms, setSelectedRoo
     navigate(`/chat/${roomId}`);
     handleAddCommunity(roomId, roomName);
   };
+  
 
 
   return (
@@ -81,6 +83,7 @@ const RoomList = ({ showOnlyMyRooms, isDeleteMode, selectedRooms, setSelectedRoo
                 onClick={(e) => e.stopPropagation()}
               />
             </div>
+            
           )}
           <div className="room-info">
             <h4>{room.name}</h4>

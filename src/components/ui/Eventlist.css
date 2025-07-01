@@ -4,6 +4,7 @@
   padding: 60px 24px;
   overflow-y: auto;
   scroll-behavior: smooth;
+  width: 70%;
 }
 .dark-mode .event-container {
   height: calc(100vh - 147px);

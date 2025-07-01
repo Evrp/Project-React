@@ -29,7 +29,7 @@
   background-color: white;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  height: 300px;
+  height: 350px;
 }
 .selected.room-container {
   width: 300px;

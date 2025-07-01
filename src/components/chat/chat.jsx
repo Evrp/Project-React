@@ -73,7 +73,9 @@ const Chat = () => {
 
   const fetchUsersAndFriends = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users`);
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users`
+      );
       const allUsers = response.data;
       setUsers(allUsers);
 
@@ -113,7 +115,9 @@ const Chat = () => {
         const friendEmails = currentUser.friends;
 
         // ดึง users ทั้งหมดมาเพื่อจับคู่กับ friend emails
-        const allUsersRes = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/users`);
+        const allUsersRes = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/users`
+        );
         const allUsers = allUsersRes.data;
 
         const filteredFriends = allUsers
@@ -139,7 +143,9 @@ const Chat = () => {
       setLoadingFriendEmail(friendEmail);
 
       await axios.delete(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}/friends/${friendEmail}`
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/api/users/${userEmail}/friends/${friendEmail}`
       );
 
       // อัปเดตรายชื่อเพื่อนหลังจากลบ
@@ -176,7 +182,9 @@ const Chat = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}/${
+    const url = `${
+      import.meta.env.VITE_APP_API_BASE_URL
+    }/api/users/${userEmail}/${
       isFollowing ? "unfollow" : "follow"
     }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
@@ -200,7 +208,9 @@ const Chat = () => {
   const fetchFollowInfo = async (targetEmail) => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user/${targetEmail}/follow-info`
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/api/user/${targetEmail}/follow-info`
       );
 
       setFollowers(res.data.followers);
@@ -216,7 +226,9 @@ const Chat = () => {
   const handleDeleteRoom = async (roomName) => {
     try {
       const response = await axios.delete(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-joined-rooms/${roomName}/${userEmail}`
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/api/delete-joined-rooms/${roomName}/${userEmail}`
       );
 
       // อัปเดต state ทันที
@@ -237,7 +249,9 @@ const Chat = () => {
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user-rooms/${encodedEmail}`
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/api/user-rooms/${encodedEmail}`
       );
       setJoinedRooms(res.data);
     } catch (err) {
@@ -246,7 +260,9 @@ const Chat = () => {
   };
   const getallRooms = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/allrooms`);
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/allrooms`
+      );
       setRooms(res.data);
     } catch (err) {
       console.error("Error joining room:", err);
@@ -853,114 +869,206 @@ const Chat = () => {
             </div>
           </div>
         </div>
-        <div className="chat-container">
-          <div className="show-info">
-            <img
-              src={
-                users.find((u) => u.email === activeUser)?.photoURL ||
-                RoomsBar.roomImage ||
-                userPhoto
-              }
-              alt="Profile"
-              className="chat-profile"
-            />
+        <div className="bg-chat-con">
+          <div className="chat-container">
+            <div className="show-info">
+              <img
+                src={
+                  users.find((u) => u.email === activeUser)?.photoURL ||
+                  RoomsBar.roomImage ||
+                  userPhoto
+                }
+                alt="Profile"
+                className="chat-profile"
+              />
 
-            <h2>
-              {Array.isArray(getnickName) &&
-                (getnickName.find((u) => u.email === activeUser)?.nickname ||
-                  users.find((u) => u.email === activeUser)?.displayName ||
-                  RoomsBar.roomName ||
-                  userName)}
-            </h2>
-          </div>
-          <div className="chat-box">
-            {messages.map((msg, index) => {
-              const isCurrentUser = msg.sender === userEmail;
-              const senderInfo = users.find(
-                (user) =>
-                  user.email?.toLowerCase() === msg.sender?.toLowerCase()
-              );
-              const messageDate = msg.timestamp?.toDate();
-              const previousMessageDate =
-                index > 0 ? messages[index - 1].timestamp?.toDate() : null;
-              const isNewDay =
-                !previousMessageDate ||
-                messageDate?.toDateString() !==
-                  previousMessageDate?.toDateString();
+              <h2>
+                {Array.isArray(getnickName) &&
+                  (getnickName.find((u) => u.email === activeUser)?.nickname ||
+                    users.find((u) => u.email === activeUser)?.displayName ||
+                    RoomsBar.roomName ||
+                    userName)}
+              </h2>
+            </div>
+            <div className="chat-box">
+              {messages.map((msg, index) => {
+                const isCurrentUser = msg.sender === userEmail;
+                const senderInfo = users.find(
+                  (user) =>
+                    user.email?.toLowerCase() === msg.sender?.toLowerCase()
+                );
+                const messageDate = msg.timestamp?.toDate();
+                const previousMessageDate =
+                  index > 0 ? messages[index - 1].timestamp?.toDate() : null;
+                const isNewDay =
+                  !previousMessageDate ||
+                  messageDate?.toDateString() !==
+                    previousMessageDate?.toDateString();
 
-              return (
-                <React.Fragment key={msg.id}>
-                  {isNewDay && (
-                    <div className="chat-date-divider">
-                      {messageDate && formatChatDate(messageDate)}
-                    </div>
-                  )}
-
-                  <div
-                    className={`chat-message ${
-                      isCurrentUser ? "my-message" : "other-message"
-                    }`}
-                  >
-                    {!isCurrentUser && (
-                      <img
-                        src={senderInfo?.photoURL || defaultProfileImage}
-                        alt="Sender"
-                        className="message-avatar"
-                      />
+                return (
+                  <React.Fragment key={msg.id}>
+                    {isNewDay && (
+                      <div className="chat-date-divider">
+                        {messageDate && formatChatDate(messageDate)}
+                      </div>
                     )}
 
                     <div
-                      className={`message-content ${
-                        isCurrentUser ? "current" : "other"
+                      className={`chat-message ${
+                        isCurrentUser ? "my-message" : "other-message"
                       }`}
                     >
-                      <div className="colum-message">
+                      {!isCurrentUser && (
+                        <img
+                          src={senderInfo?.photoURL || defaultProfileImage}
+                          alt="Sender"
+                          className="message-avatar"
+                        />
+                      )}
+
+                      <div
+                        className={`message-content ${
+                          isCurrentUser ? "current" : "other"
+                        }`}
+                      >
+                        <div className="colum-message">
+                          <div
+                            className={`message-bubble ${
+                              isCurrentUser ? "current" : "other"
+                            }`}
+                          >
+                            {msg.content || msg.text}
+                          </div>
+                          {isCurrentUser && index === messages.length - 1 && (
+                            <div className="seen-status">
+                              {msg.isSeen ? "Seen" : ""}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </React.Fragment>
+                );
+              })}
+
+              <div ref={endOfMessagesRef} />
+            </div>
+            <div className="chat-input-container">
+              <div className="chat-border">
+                <div className="emoji-right">
+                  <TiMicrophoneOutline />
+                </div>
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                  placeholder={"Writing something..."}
+                  className="chat-input"
+                />
+                <div className="emoji">
+                  <MdAttachFile />
+                  <IoCameraOutline />
+                  <BsEmojiSmile />
+                </div>
+                {/* <button onClick={handleSend} className="chat-send-button">
+              Send
+            </button> */}
+              </div>
+            </div>
+          </div>
+          <div className="chat-container-ai">
+            <div className="header-chat-ai">
+              <h1>Ai Chat</h1>
+              <div className="chat-box">
+                {messages.map((msg, index) => {
+                  const isCurrentUser = msg.sender === userEmail;
+                  const senderInfo = users.find(
+                    (user) =>
+                      user.email?.toLowerCase() === msg.sender?.toLowerCase()
+                  );
+                  const messageDate = msg.timestamp?.toDate();
+                  const previousMessageDate =
+                    index > 0 ? messages[index - 1].timestamp?.toDate() : null;
+                  const isNewDay =
+                    !previousMessageDate ||
+                    messageDate?.toDateString() !==
+                      previousMessageDate?.toDateString();
+
+                  return (
+                    <React.Fragment key={msg.id}>
+                      {isNewDay && (
+                        <div className="chat-date-divider">
+                          {messageDate && formatChatDate(messageDate)}
+                        </div>
+                      )}
+
+                      <div
+                        className={`chat-message ${
+                          isCurrentUser ? "my-message" : "other-message"
+                        }`}
+                      >
+                        {!isCurrentUser && (
+                          <img
+                            src={senderInfo?.photoURL || defaultProfileImage}
+                            alt="Sender"
+                            className="message-avatar"
+                          />
+                        )}
+
                         <div
-                          className={`message-bubble ${
+                          className={`message-content ${
                             isCurrentUser ? "current" : "other"
                           }`}
                         >
-                          {msg.content || msg.text}
-                        </div>
-                        {isCurrentUser && index === messages.length - 1 && (
-                          <div className="seen-status">
-                            {msg.isSeen ? "Seen" : ""}
+                          <div className="colum-message">
+                            <div
+                              className={`message-bubble ${
+                                isCurrentUser ? "current" : "other"
+                              }`}
+                            >
+                              {msg.content || msg.text}
+                            </div>
+                            {isCurrentUser && index === messages.length - 1 && (
+                              <div className="seen-status">
+                                {msg.isSeen ? "Seen" : ""}
+                              </div>
+                            )}
                           </div>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </React.Fragment>
-              );
-            })}
+                    </React.Fragment>
+                  );
+                })}
 
-            <div ref={endOfMessagesRef} />
-          </div>
-          <div className="chat-input-container">
-            <div className="chat-border">
-              <div className="emoji-right">
-                <TiMicrophoneOutline />
+                <div ref={endOfMessagesRef} />
               </div>
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                placeholder={"Writing something..."}
-                className="chat-input"
-              />
-              <div className="emoji">
-                <MdAttachFile />
-                <IoCameraOutline />
-                <BsEmojiSmile />
-              </div>
-              {/* <button onClick={handleSend} className="chat-send-button">
+              <div className="chat-input-container">
+                <div className="chat-border">
+                  <div className="emoji-right">
+                    <TiMicrophoneOutline />
+                  </div>
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                    placeholder={"Writing something..."}
+                    className="chat-input"
+                  />
+                  <div className="emoji">
+                    <MdAttachFile />
+                    <IoCameraOutline />
+                    <BsEmojiSmile />
+                  </div>
+                  {/* <button onClick={handleSend} className="chat-send-button">
               Send
             </button> */}
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
         {/* 🔊 เสียงแจ้งเตือน */}
         <audio ref={audioRef} src="/notification.mp3" preload="auto" />
         {isModalOpen && selectedUser && (
