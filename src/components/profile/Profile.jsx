@@ -129,10 +129,10 @@ const Profile = () => {
     if (!email) return;
 
     try {
-      const email = encodeURIComponent(userEmail);
+      // const email = encodeURIComponent(userEmail);
 
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user-info/${email}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user-info/${userEmail}`
       );
 
       const data = res.data;

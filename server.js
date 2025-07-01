@@ -361,7 +361,7 @@ app.post("/api/save-event", async (req, res) => {
 });
 ////////////📌 API บันทึก Event Matc ////////////
 app.post("/api/save-event-match", async (req, res) => {
-  const { title, isFirst, email } =
+  const { title, isFirst, email, image } =
     req.body;
 
   try {
@@ -373,6 +373,7 @@ app.post("/api/save-event-match", async (req, res) => {
     const newEvent = new EventMatch({
       title,
       email,
+      image,
     });
 
     await newEvent.save();
@@ -389,6 +390,15 @@ app.get("/api/events-match", async (req, res) => {
     res.json(events);
   } catch (error) {
     console.error("❌ Error fetching events:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+})
+app.delete("/api/delete-all-events-match", async (req, res) => {
+  try{
+    await EventMatch.deleteMany({}); // ลบทุกเอกสารใน collection
+    res.status(200).json({ message: "ลบกิจกรรมทั้งหมดเรียบร้อยแล้ว" });
+  } catch (error) {
+    console.error("❌ Error deleting events:", error);
     res.status(500).json({ message: "Server error" });
   }
 })
