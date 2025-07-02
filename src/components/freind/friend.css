@@ -297,6 +297,7 @@
 .dropdown-wrapper {
   position: relative;
   display: inline-block;
+  z-index: 100;
 }
 
 .dropdown-item {
@@ -316,119 +317,112 @@
   background: transparent;
   border-radius: 50%;
   cursor: pointer;
-  transition: background 0.2s ease-in-out;
+  transition: background 0.18s;
+  outline: none;
+  box-shadow: none;
 }
 
-.dropdown-toggle svg {
-  width: 20px;
-  height: 20px;
+.dropdown-toggle:focus, .dropdown-toggle:hover {
+  background: #f0f0f0;
 }
 
-.darkmode .dropdown-toggle svg {
-  width: 20px;
-  height: 20px;
-  color: #f5f5f5;
-}
-
-.dropdown-toggle:hover {
-  background-color: #f0f0f0;
-}
-
-.dark-mode .dropdown-toggle:hover {
-  background-color: #444;
+.dark-mode .dropdown-toggle:focus, .dark-mode .dropdown-toggle:hover {
+  background: #353a45;
 }
 
 .dropdown-menu {
-  position: absolute;
-  margin-top: 1rem;
-  top: 36px;
-  right: 0;
-  width: 180px;
-  background-color: white;
-  border: 1px solid #ddd;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  z-index: 999;
+  position: fixed;
+  min-width: 180px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.13), 0 1.5px 4px rgba(0,0,0,0.07);
+  border-radius: 14px;
+  z-index: 99999; /* เพิ่ม z-index ให้สูงมาก ๆ */
   padding: 8px 0;
-  animation: fadeIn 0.2s ease-in-out;
+  animation: fadeIn 0.18s cubic-bezier(.4,0,.2,1);
+  transition: box-shadow 0.2s, border 0.2s;
+  right: 0;
+  top: auto;
+  margin-top: 8px;
 }
 
 .dark-mode .dropdown-menu {
-  position: absolute;
-  margin-top: 1rem;
-  top: 36px;
-  right: 0;
-  width: 180px;
-  background-color: #4d4d4d;
+  background: #23272f;
   border: 1px solid #444;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 10px;
-  z-index: 999;
-  padding: 8px 0;
-  animation: fadeIn 0.2s ease-in-out;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25), 0 1.5px 4px rgba(0,0,0,0.13);
+  z-index: 99999;
 }
-
-.dropdown-menu::after {
-  content: "";
-  position: absolute;
-  top: -8px;
-  right: 12px;
-  /* หรือปรับค่าตามตำแหน่งปุ่ม */
-  width: 14px;
-  height: 14px;
-  background-color: white;
-  transform: rotate(45deg);
-  box-shadow: -1px -1px 1px rgba(0, 0, 0, 0.05);
-  /* เบาลง */
-  border-left: 1px solid #ddd;
-  border-top: 1px solid #ddd;
-  z-index: -1;
-}
-
-.dark-mode .dropdown-menu::after {
-  content: "";
-  position: absolute;
-  top: -8px;
-  right: 12px;
-  /* หรือปรับค่าตามตำแหน่งปุ่ม */
-  width: 14px;
-  height: 14px;
-  background-color: #4d4d4d;
-  transform: rotate(45deg);
-  box-shadow: -1px -1px 1px rgba(0, 0, 0, 0.05);
-  /* เบาลง */
-  border-left: 1px solid #444;
-  border-top: 1px solid #444;
-  z-index: -1;
-}
-
 
 .dropdown-menu button {
   width: 100%;
   text-align: left;
   background: none;
   border: none;
-  padding: 10px 16px;
-  font-size: 14px;
+  padding: 12px 22px;
+  font-size: 15px;
+  color: #333;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.1s ease-in-out;
+  transition: background 0.13s, color 0.13s;
+  border-radius: 0;
+  outline: none;
 }
 
-.dropdown-menu button:hover {
-  background-color: #f5f5f5;
+.dark-mode .dropdown-menu button {
+  color: #f5f5f5;
 }
 
-.dark-mode .dropdown-menu button:hover {
-  background-color: #666;
+.dropdown-menu button:hover, .dropdown-menu button:focus {
+  background: #f5f7fa;
+  color: #1a73e8;
+}
+
+.dark-mode .dropdown-menu button:hover, .dark-mode .dropdown-menu button:focus {
+  background: #353a45;
+  color: #90caf9;
 }
 
 .dropdown-menu button.danger {
   color: #e53935;
 }
 
-.dropdown-menu button:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+.dropdown-menu button.danger:hover, .dropdown-menu button.danger:focus {
+  background: #ffeaea;
+  color: #b71c1c;
+}
+
+.dark-mode .dropdown-menu button.danger:hover, .dark-mode .dropdown-menu button.danger:focus {
+  background: #4d2323;
+  color: #ff8a80;
+}
+
+.dropdown-menu::after {
+  display: none; /* ซ่อนลูกศร */
+}
+
+/* ป้องกัน dropdown ทับ container อื่น */
+.dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+  z-index: 100;
+}
+
+/* เพิ่มคลาสสำหรับ error/loading message ให้เด่นขึ้น */
+.error-message {
+  color: #f44336;
+  background: #ffeaea;
+  padding: 8px 16px;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-weight: bold;
+}
+.loading-message {
+  color: #333;
+  background: #f5f5f5;
+  padding: 8px 16px;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-weight: bold;
 }
 
 /* Optional: Fade in animation */
@@ -538,3 +532,9 @@
   height: calc(100vh - 200px);
   /* height: fit-content; */
 }
+
+/* เพิ่ม mouseleave ให้ dropdown-menu ปิดทันทีเมื่อเมาส์ออก
+(JSX ต้องเพิ่ม onMouseLeave ให้ <div className="dropdown-menu" ... )
+ตัวอย่างใน friend.jsx:
+<div className="dropdown-menu" onMouseLeave={() => setOpenMenuFor(null)}>
+*/
