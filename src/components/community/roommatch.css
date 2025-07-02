@@ -80,7 +80,7 @@
 .skip-button,
 .join-button {
   padding: 10px 20px;
-  margin-top: 2rem;
+  margin-block-start: 2rem;
   border: none;
   border-radius: 8px;
   cursor: pointer;

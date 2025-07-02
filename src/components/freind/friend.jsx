@@ -88,13 +88,13 @@ const Friend = () => {
       setUsers((prevUsers) =>
         prevUsers.map((user) => ({
           ...user,
-          isOnline: onlineUserEmails.includes(user.email),
+          isOnline: onlineEmails.includes(user.email),
         }))
       );
       setFriends((prevFriends) =>
         prevFriends.map((friend) => ({
           ...friend,
-          isOnline: onlineUserEmails.includes(friend.email),
+          isOnline: onlineEmails.includes(friend.email),
         }))
       );
     });

@@ -3,13 +3,32 @@ import EventList from "../ui/Eventlist";
 import RequireLogin from "../ui/RequireLogin";
 import { useTheme } from "../../context/themecontext";
 import RoomMatch from "../community/roommatch";
-import { useState } from "react"; 
+import { useState, useEffect } from "react"; 
+import axios from "axios";
 
 
 const Newcommu = () => {
   const userPhoto = localStorage.getItem("userPhoto");
   const { isDarkMode, setIsDarkMode } = useTheme();
   const [selectedRooms, setSelectedRooms] = useState([]);
+
+  useEffect(() => {
+    const startwebhook = async () => {
+      const userEmail = localStorage.getItem("userEmail");
+      try {
+        if (userEmail) {
+          const response = await axios.post(
+            `${import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_URL}`,
+            { email: userEmail }
+          );
+          console.log("Webhook started successfully:", response.data);
+        }
+      } catch (error) {
+        console.error("Error starting webhook:", error);
+      }
+    };
+    startwebhook();
+  }, []);
 
   return (
     <RequireLogin>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, React } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import TinderCard from "react-tinder-card";
