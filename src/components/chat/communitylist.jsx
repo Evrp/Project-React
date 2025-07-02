@@ -1,0 +1,141 @@
+import { useEffect, useState } from "react";
+import { FaChevronDown, FaChevronRight } from "react-icons/fa";
+import { BsThreeDots } from "react-icons/bs";
+import axios from "axios";
+import { toast } from "react-toastify";
+
+const CommunityList = ({
+  joinedRooms,
+  allRooms,
+  setActiveUser,
+  setRoombar,
+  setIsGroupChat,
+  loadingFriendRooms,
+  openMenuFor,
+  setOpenMenuFor,
+  dropdownRefs,
+  setJoinedRooms
+}) => {
+  const [isOpencom, setIsOpencom] = useState(true);
+  const userEmail = localStorage.getItem("userEmail");
+
+  const handleDeleteRoom = async (roomName) => {
+    try {
+      await axios.delete(
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/api/delete-joined-rooms/${roomName}/${userEmail}`
+      );
+
+      // อัปเดต state ทันที
+      setJoinedRooms((prev) => ({
+        ...prev,
+        roomNames: prev.roomNames.filter((name) => name !== roomName),
+        roomIds: prev.roomIds.filter((id) => id !== roomName), // ใช้ roomName ถ้าเก็บเป็นชื่อ
+      }));
+
+      toast.success("ลบห้องสําเร็จ!");
+    } catch (error) {
+      console.error("ลบห้องล้มเหลว:", error);
+      toast.error("ลบห้องล้มเหลว!");
+    }
+  };
+
+  return (
+    <div className="favorite-container">
+      <div
+        className="favorite-toggle"
+        onClick={() => setIsOpencom((prev) => !prev)}
+      >
+        {isOpencom ? <FaChevronDown /> : <FaChevronRight />}
+        <span>Community</span>
+      </div>
+      {isOpencom && (
+        <div
+          className={!isOpencom ? "group-container-open" : "group-container"}
+        >
+          {" "}
+          <ul className="friend-list-chat">
+            {joinedRooms.roomNames?.map((name, index) => {
+              const roomId = joinedRooms.roomNames?.[index];
+
+              // ข้ามถ้า name หรือ id เป็น null
+              if (!name || !roomId) return null;
+
+              return (
+                <div key={roomId}>
+                  {/* <h1>{name}</h1> */}
+                  <ul>
+                    {allRooms.map((room) =>
+                      room.name === name ? (
+                        <li
+                          // key={room.roomId}
+                          className="chat-friend-item"
+                          onClick={() => {
+                            setActiveUser(room.name),
+                              setRoombar(room.image, room.name);
+                            setIsGroupChat(true);
+                          }}
+                        >
+                          <img
+                            src={room.image}
+                            alt={room.name}
+                            className="friend-photo"
+                          />
+                          <div className="friend-detailss">
+                            <span className="friend-name">{room.name}</span>
+                            <span className="friend-email">
+                              Host:
+                              {room.createdBy}
+                            </span>
+                          </div>
+                          <div
+                            className="dropdown-wrapper"
+                            ref={(el) => (dropdownRefs.current[room.name] = el)}
+                            onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
+                          >
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenMenuFor((prev) =>
+                                  prev === room.name ? null : room.name
+                                );
+                              }}
+                              className="dropdown-toggle"
+                            >
+                              <BsThreeDots size={20} />
+                            </button>
+
+                            {openMenuFor === room.name && (
+                              <div className="dropdown-menu">
+                                <button
+                                  className="dropdown-item"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteRoom(room.name);
+                                    setOpenMenuFor(null);
+                                  }}
+                                  disabled={loadingFriendRooms === room.name}
+                                >
+                                  {loadingFriendRooms === room.name
+                                    ? "กำลังลบ..."
+                                    : "🗑️ ลบห้อง"}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </li>
+                      ) : null
+                    )}
+                  </ul>
+                </div>
+              );
+            })}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default CommunityList;
