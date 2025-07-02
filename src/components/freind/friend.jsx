@@ -21,25 +21,29 @@ const Friend = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadingFriendEmail, setLoadingFriendEmail] = useState(null);
   const [loadingCurrentUser, setLoadingCurrentUser] = useState(true);
+  const [loading, setLoading] = useState(false); // loading รวม
   const modalRef = useRef(null);
   const [openMenuFor, setOpenMenuFor] = useState(null);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [getnickName, getNickName] = useState("");
   const dropdownRefs = useRef({});
-  const { isDarkMode, setIsDarkMode } = useTheme();
+  const { isDarkMode } = useTheme();
+  const [error, setError] = useState("");
 
   const userEmail = localStorage.getItem("userEmail");
   const displayName = localStorage.getItem("userName");
   const photoURL = localStorage.getItem("userPhoto");
+
   useEffect(() => {
-    fetchGmailUser(); // ดึงข้อมูล Gmail user จาก backend
+    fetchGmailUser();
   }, []);
 
   const fetchCurrentUserAndFriends = async () => {
+    setLoading(true);
+    setError("");
     try {
       const encodedEmail = encodeURIComponent(userEmail);
-      console.log("encodedEmail", encodedEmail);
       const userRes = await axios.get(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${encodedEmail}`
       );
@@ -48,8 +52,6 @@ const Friend = () => {
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/users`
       );
       const allUsers = allUsersRes.data;
-      console.log("allUsers", allUsers);
-      console.log("currentUser", currentUser);
       setUsers(allUsers);
       if (Array.isArray(currentUser.friends)) {
         const friendEmails = currentUser.friends;
@@ -67,58 +69,51 @@ const Friend = () => {
         setFriends([]);
       }
     } catch (error) {
-      console.error("Error fetching current user or friends:", error);
+      setError("เกิดข้อผิดพลาดในการโหลดข้อมูลเพื่อน");
+      toast.error("เกิดข้อผิดพลาดในการโหลดข้อมูลเพื่อน");
     }
+    setLoading(false);
   };
 
   useEffect(() => {
     if (!userEmail) return;
-
     fetchCurrentUserAndFriends();
-
     socket.emit("user-online", {
       displayName,
       photoURL,
       email: userEmail,
     });
-
     // ฟังสถานะอัปเดต
     socket.on("update-users", (onlineEmails) => {
-      console.log("Online emails:", onlineEmails);
       setUsers((prevUsers) =>
         prevUsers.map((user) => ({
           ...user,
-          isOnline: onlineUserEmails.includes(user.email),
+          isOnline: onlineEmails.includes(user.email),
         }))
       );
       setFriends((prevFriends) =>
         prevFriends.map((friend) => ({
           ...friend,
-          isOnline: onlineUserEmails.includes(friend.email),
+          isOnline: onlineEmails.includes(friend.email),
         }))
       );
     });
-
     return () => {
       socket.off("update-users");
     };
   }, [userEmail]);
-
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value.toLowerCase());
   };
 
   const handleAddFriend = async (friendEmail) => {
-    console.log("Adding friend:", friendEmail);
-    console.log("User email:", userEmail);
     try {
       setLoadingFriendEmail(friendEmail);
       await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/add-friend`, {
         userEmail,
         friendEmail,
       });
-
       const addedUser = users.find((user) => user.email === friendEmail);
       if (addedUser) {
         setFriends((prev) =>
@@ -135,7 +130,7 @@ const Friend = () => {
       }
       toast.success("เพิ่มเพื่อนสำเร็จ!");
     } catch (error) {
-      console.error("Error adding friend:", error);
+      setError("ไม่สามารถเพิ่มเพื่อนได้");
       toast.error("ไม่สามารถเพิ่มเพื่อนได้");
     } finally {
       setLoadingFriendEmail(null);
@@ -143,21 +138,19 @@ const Friend = () => {
   };
 
   const handleRemoveFriend = async (friendEmail) => {
+    if (!window.confirm("คุณต้องการลบเพื่อนคนนี้หรือไม่?")) return;
     try {
       setLoadingFriendEmail(friendEmail);
-
       await axios.delete(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}/friends/${friendEmail}`
       );
-
-      // อัปเดตรายชื่อเพื่อนหลังจากลบ
       setFriends((prevFriends) =>
         prevFriends.filter((friend) => friend.email !== friendEmail)
       );
       toast.success("ลบเพื่อนสําเร็จ!");
     } catch (err) {
-      console.error("Failed to remove friend:", err);
-      alert("เกิดข้อผิดพลาดในการลบเพื่อน");
+      setError("เกิดข้อผิดพลาดในการลบเพื่อน");
+      toast.error("เกิดข้อผิดพลาดในการลบเพื่อน");
     } finally {
       setLoadingFriendEmail(null);
     }
@@ -194,7 +187,7 @@ const Friend = () => {
       user.displayName.toLowerCase().includes(searchTerm) &&
       user.email !== userEmail
   );
-  // console.log("filteredUsers", filteredUsers);
+
   const fetchCurrentUser = async () => {
     try {
       const res = await axios.get(
@@ -207,7 +200,7 @@ const Friend = () => {
       setCurrentUser(userData);
       setLoadingCurrentUser(false);
     } catch (err) {
-      console.error("Error fetching currentUser:", err);
+      setError("เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ใช้");
       setCurrentUser(null);
       setLoadingCurrentUser(false);
     }
@@ -219,28 +212,28 @@ const Friend = () => {
       );
       setCurrentUserfollow(res.data);
     } catch (err) {
-      console.error("โหลด Gmail currentUser ไม่ได้:", err);
+      setError("โหลด Gmail currentUser ไม่ได้");
     }
   };
 
   const handleFollow = async (targetEmail) => {
     await fetchGmailUser();
     if (!currentUserfollow || !Array.isArray(currentUserfollow.following)) {
-      console.warn("currentUser ยังไม่พร้อม หรือ following ไม่มี");
+      toast.error("ข้อมูลผู้ใช้ยังไม่พร้อม");
       return;
     }
-
     const isFollowing = currentUserfollow.following.includes(targetEmail);
     const url = `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}/${
       isFollowing ? "unfollow" : "follow"
     }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
-
     try {
       await axios({ method, url });
       await fetchGmailUser();
+      toast.success(isFollowing ? "Unfollowed" : "Followed");
     } catch (err) {
-      console.error("Follow/unfollow error:", err);
+      setError("Follow/unfollow error");
+      toast.error("Follow/unfollow error");
     }
   };
 
@@ -262,10 +255,15 @@ const Friend = () => {
         setOpenMenuFor(null);
       }
     };
-
+    // เพิ่ม event scroll เพื่อปิด dropdown
+    const handleScroll = () => {
+      setOpenMenuFor(null);
+    };
     document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScroll, true); // true เพื่อจับทุก scroll
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScroll, true);
     };
   }, []);
 
@@ -277,11 +275,10 @@ const Friend = () => {
       const res = await axios.get(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/user/${targetEmail}/follow-info`
       );
-
       setFollowers(res.data.followers);
       setFollowing(res.data.following);
     } catch (error) {
-      console.error("Error fetching follow info:", error);
+      setError("Error fetching follow info");
     }
   };
   useEffect(() => {
@@ -290,22 +287,23 @@ const Friend = () => {
         const res = await axios.get(
           `${import.meta.env.VITE_APP_API_BASE_URL}/api/get-all-nicknames`
         );
-        console.log("NickName:", res.data);
         getNickName(res.data);
       } catch (err) {
-        console.error("โหลด nickname ล้มเหลว:", err);
+        setError("โหลด nickname ล้มเหลว");
       }
     };
     getNickNameF();
   }, []);
 
-
   return (
     <RequireLogin>
       <div className={`fr-container ${isDarkMode ? "dark-mode" : ""}`}>
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         <div className="text-xl-font-semibold">
           <h1>Friend</h1>
         </div>
+        {error && <div className="error-message">{error}</div>}
+        {loading && <div className="loading-message">Loading...</div>}
         <div className="search-friend-con">
           <input
             type="text"
@@ -313,6 +311,7 @@ const Friend = () => {
             value={searchTerm}
             onChange={handleSearch}
             className="search-input-friend"
+            aria-label="ค้นหาเพื่อน"
           />
         </div>
         <div className="slide-con">
@@ -332,8 +331,8 @@ const Friend = () => {
                   <li key={index} className="button-friend-item">
                     <img
                       src={friend.photoURL}
-                      // alt={friend.displayName}
                       className="friend-photo"
+                      alt={friend.displayName}
                     />
                     <div className="friend-detailss">
                       <span className="friend-name">
@@ -344,12 +343,11 @@ const Friend = () => {
                     </div>
                     <div className="con-right">
                       <span
-                        className={`status ${friend.isOnline ? "online" : "offline"
-                          }`}
+                        className={`status ${friend.isOnline ? "online" : "offline"}`}
+                        aria-label={friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                       >
                         {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                       </span>
-
                       <div
                         className="dropdown-wrapper"
                         ref={(el) => (dropdownRefs.current[friend.email] = el)}
@@ -361,12 +359,12 @@ const Friend = () => {
                             )
                           }
                           className="dropdown-toggle"
+                          aria-label="เมนูเพื่อน"
                         >
                           <BsThreeDots size={20} />
                         </button>
-
                         {openMenuFor === friend.email && (
-                          <div className="dropdown-menu">
+                          <div className="dropdown-menu" onMouseLeave={() => setOpenMenuFor(null)}>
                             <button
                               className="dropdown-item"
                               onClick={() => {
@@ -374,10 +372,10 @@ const Friend = () => {
                                 fetchFollowInfo(friend.email);
                                 setOpenMenuFor(null);
                               }}
+                              aria-label="ดูโปรไฟล์"
                             >
                               Profile
                             </button>
-
                             <button
                               className="dropdown-item"
                               onClick={() => {
@@ -388,13 +386,15 @@ const Friend = () => {
                                   return;
                                 handleFollow(friend.email);
                               }}
+                              aria-label={Array.isArray(currentUserfollow?.following) &&
+                                currentUserfollow.following.includes(friend.email)
+                                ? "Following" : "Follow"}
                             >
                               {Array.isArray(currentUserfollow?.following) &&
                                 currentUserfollow.following.includes(friend.email)
                                 ? "Following"
                                 : "Follow"}
                             </button>
-
                             <button
                               className="dropdown-item danger"
                               onClick={() => {
@@ -402,6 +402,7 @@ const Friend = () => {
                                 setOpenMenuFor(null);
                               }}
                               disabled={loadingFriendEmail === friend.email}
+                              aria-label="ลบเพื่อน"
                             >
                               {loadingFriendEmail === friend.email
                                 ? "Deleting..."
@@ -450,8 +451,8 @@ const Friend = () => {
                       </div>
                       <div className="con-right">
                         <span
-                          className={`status ${user.isOnline ? "online" : "offline"
-                            }`}
+                          className={`status ${user.isOnline ? "online" : "offline"}`}
+                          aria-label={user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                         >
                           {user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                         </span>
@@ -459,6 +460,7 @@ const Friend = () => {
                           className="add-friend-btn"
                           onClick={() => handleAddFriend(user.email)}
                           disabled={loadingFriendEmail === user.email}
+                          aria-label="เพิ่มเพื่อน"
                         >
                           {loadingFriendEmail === user.email ? (
                             "กำลังเพิ่ม..."
@@ -477,18 +479,19 @@ const Friend = () => {
                               )
                             }
                             className="dropdown-toggle"
+                            aria-label="เมนูผู้ใช้"
                           >
                             <BsThreeDots size={20} />
                           </button>
-
                           {openMenuFor === user.email && (
-                            <div className="dropdown-menu">
+                            <div className="dropdown-menu" onMouseLeave={() => setOpenMenuFor(null)}>
                               <button
                                 className="dropdown-item"
                                 onClick={() => {
                                   handleProfileClick(user);
                                   setOpenMenuFor(null);
                                 }}
+                                aria-label="ดูโปรไฟล์"
                               >
                                 Profile
                               </button>
@@ -502,10 +505,13 @@ const Friend = () => {
                                     return;
                                   handleFollow(user.email);
                                 }}
+                                aria-label={Array.isArray(currentUserfollow?.following) &&
+                                  currentUserfollow.following.includes(user.email)
+                                  ? "Following" : "Follow"}
                               >
                                 {Array.isArray(currentUserfollow?.following) &&
                                   currentUserfollow.following.includes(user.email)
-                                  ? "Follwing"
+                                  ? "Following"
                                   : "Follow"}
                               </button>
                             </div>
@@ -517,7 +523,6 @@ const Friend = () => {
             </ul>
           </div>
         </div>
-
         {isModalOpen && selectedUser && (
           <div className="profile-modal">
             <div className="modal-content" ref={modalRef}>
@@ -541,15 +546,13 @@ const Friend = () => {
                 </div>
                 <p>Email: {selectedUser.email}</p>
                 <p>สถานะ: {selectedUser.isOnline ? "ออนไลน์" : "ออฟไลน์"}</p>
-                <button className="close-btn" onClick={handleCloseModal}>
+                <button className="close-btn" onClick={handleCloseModal} aria-label="ปิดโปรไฟล์">
                   ปิด
                 </button>
               </div>
             </div>
           </div>
         )}
-
-        <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       </div>
     </RequireLogin>
   );

@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { FaEdit } from "react-icons/fa";
 import { useTheme } from "../../context/themecontext";
 import axios from "axios";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const genreOptions = [
   "Music",
@@ -31,18 +33,22 @@ const genreSubOptions = {
   Travel: ["Adventure", "Beach", "Mountain", "City"],
 };
 
+const MAX_CHARS = 400;
+const MAX_NICKNAME = 30;
+
 const Profile = () => {
-  // const userName = localStorage.getItem("userName");
   const userPhoto = localStorage.getItem("userPhoto");
   const userEmail = localStorage.getItem("userEmail");
   const displayName = localStorage.getItem("userName");
   const navigate = useNavigate();
-  const [originalGenres, setOriginalGenres] = useState([]);
+   const { isDarkMode, setIsDarkMode } = useTheme();
 
+  // State
+  const [originalGenres, setOriginalGenres] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState(
     JSON.parse(localStorage.getItem("selectedGenres")) || []
   );
-
+  const [selectedSubGenres, setSelectedSubGenres] = useState({});
   const [userInfo, setUserInfo] = useState(
     JSON.parse(localStorage.getItem("userInfo")) || {
       detail: "รายละเอียดข้อมูลของผู้ใช้ที่น่าสนใจ...",
@@ -50,23 +56,33 @@ const Profile = () => {
       extra: "รายละเอียดอื่น ๆ ที่น่าสนใจเพิ่มเติม...",
     }
   );
+  const [tempInfo, setTempInfo] = useState({ ...userInfo });
   const [nickName, setNickName] = useState("");
-  const { isDarkMode, setIsDarkMode } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [editingGenres, setEditingGenres] = useState(false);
-  const [editingField, setEditingField] = useState(null); // ช่องที่กำลังแก้ไข
-  const [selectedSubGenres, setSelectedSubGenres] = useState({});
-  const [tempInfo, setTempInfo] = useState({ ...userInfo }); // เก็บค่าที่แก้ไว้ชั่วคราว
-
+  const [editingField, setEditingField] = useState(null);
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
+  // Validation
+  const validateNickname = (name) => {
+    if (!name.trim()) return "กรุณากรอกชื่อ";
+    if (name.length > MAX_NICKNAME) return `ชื่อยาวเกิน ${MAX_NICKNAME} ตัวอักษร`;
+    return "";
+  };
+  const validateDetail = (text) => {
+    if (text.length > MAX_CHARS) return `รายละเอียดเกิน ${MAX_CHARS} ตัวอักษร`;
+    return "";
+  };
+
+  // Handlers
   const toggleGenre = (genre) => {
     setSelectedGenres((prev) =>
       prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre]
     );
   };
-
   const toggleSubGenre = (genre, subGenre) => {
     setSelectedSubGenres((prev) => {
       const current = prev[genre] || [];
@@ -76,24 +92,25 @@ const Profile = () => {
       return { ...prev, [genre]: updated };
     });
   };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    const wordCount = value.trim().split(/\s+/).length;
-    if (wordCount > 400) return; // ถ้ามากกว่า 400 คำ จะไม่อัปเดตค่า
-
+    if (name === "detail" && validateDetail(value)) return;
     setTempInfo((prev) => ({ ...prev, [name]: value }));
   };
-
   const handleSaveInfo = async () => {
+    setLoading(true);
+    setError("");
     const email = localStorage.getItem("userEmail");
-
     if (!email) {
-      console.error("❌ ไม่พบอีเมลผู้ใช้");
+      setError("ไม่พบอีเมลผู้ใช้");
+      setLoading(false);
       return;
     }
-
+    if (validateDetail(tempInfo.detail)) {
+      setError(validateDetail(tempInfo.detail));
+      setLoading(false);
+      return;
+    }
     try {
       const response = await fetch(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/save-user-info`,
@@ -103,57 +120,30 @@ const Profile = () => {
           body: JSON.stringify({ email, userInfo: tempInfo }),
         }
       );
-
       if (response.ok) {
-        console.log("tempInfo", tempInfo);
         setUserInfo(tempInfo);
         setEditingField(null);
-        console.log("✅ บันทึกข้อมูลสำเร็จ");
+        toast.success("บันทึกข้อมูลสำเร็จ");
       } else {
-        console.error("❌ เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+        setError("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+        toast.error("บันทึกข้อมูลล้มเหลว");
       }
     } catch (error) {
-      console.error("🚨 Error:", error);
+      setError("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
+      toast.error("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
     }
+    setLoading(false);
   };
-  useEffect(() => {
-    const savedNickName = localStorage.getItem("nickName");
-    if (savedNickName) {
-      setNickName(savedNickName);
-      console.log(selectedSubGenres);
-    }
-  }, []);
-
-  const fetchUserInfo = async () => {
-    const email = localStorage.getItem("userEmail");
-    if (!email) return;
-
-    try {
-      // const email = encodeURIComponent(userEmail);
-
-      const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user-info/${userEmail}`
-      );
-
-      const data = res.data;
-      console.log("data", data);
-      setUserInfo(data);
-      setTempInfo(data); // ตั้งค่าช่วงแก้ไขให้เหมือนกัน
-    } catch (err) {
-      console.error("❌ ดึงข้อมูล userInfo ไม่สำเร็จ:", err);
-    }
-  };
-
   const handleEditGenres = async () => {
+    setLoading(true);
+    setError("");
     const email = localStorage.getItem("userEmail");
-
     if (!email) {
-      console.error("ไม่พบอีเมลผู้ใช้");
+      setError("ไม่พบอีเมลผู้ใช้");
+      setLoading(false);
       return;
     }
-
     try {
-      console.log(selectedSubGenres);
       const response = await fetch(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`,
         {
@@ -167,157 +157,124 @@ const Profile = () => {
           }),
         }
       );
-
       if (response.ok) {
-        const data = await response.json();
-        console.log("🎶 อัปเดตแนวเพลงสำเร็จ:", data);
         localStorage.setItem("selectedGenres", JSON.stringify(selectedGenres));
+        toast.success("อัปเดตแนวเพลงสำเร็จ");
       } else {
-        console.error("❌ เกิดข้อผิดพลาดในการบันทึกแนวเพลง");
+        setError("เกิดข้อผิดพลาดในการบันทึกแนวเพลง");
+        toast.error("บันทึกแนวเพลงล้มเหลว");
       }
     } catch (error) {
-      console.error("🚨 เกิดข้อผิดพลาด:", error);
+      setError("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
+      toast.error("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
     }
-
     setEditingGenres(false);
+    setLoading(false);
   };
-
   const handleClearGenres = async () => {
+    if (!window.confirm("คุณต้องการล้างแนวเพลงทั้งหมดหรือไม่?")) return;
+    setLoading(true);
+    setError("");
     const email = localStorage.getItem("userEmail");
     if (!email) {
-      console.error("ไม่พบอีเมลผู้ใช้");
+      setError("ไม่พบอีเมลผู้ใช้");
+      setLoading(false);
       return;
     }
-
     try {
       const response = await fetch(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email,
-            genres: [], // ล้าง genres
-            subGenres: {}, // ล้าง subGenres
-          }),
+          body: JSON.stringify({ email, genres: [], subGenres: {} }),
         }
       );
-
       if (response.ok) {
-        console.log("🧹 ล้างแนวเพลงทั้งหมดเรียบร้อย");
-
-        // เคลียร์ local state
         setSelectedGenres([]);
         setSelectedSubGenres({});
         setOriginalGenres([]);
-
-        // บันทึกลง localStorage โดยไม่รอ state
         localStorage.setItem("selectedGenres", JSON.stringify([]));
+        toast.success("ล้างแนวเพลงเรียบร้อย");
       } else {
-        console.error("❌ ล้างแนวเพลงไม่สำเร็จ");
+        setError("ล้างแนวเพลงไม่สำเร็จ");
+        toast.error("ล้างแนวเพลงไม่สำเร็จ");
       }
     } catch (error) {
-      console.error("🚨 เกิดข้อผิดพลาด:", error);
+      setError("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
+      toast.error("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
     }
+    setLoading(false);
   };
-
   const handleChange = (e) => {
     setNickName(e.target.value);
   };
   const handleBlur = async () => {
+    const err = validateNickname(nickName);
+    if (err) {
+      setError(err);
+      toast.error(err);
+      setIsEditing(false);
+      return;
+    }
+    setLoading(true);
+    setError("");
     try {
       await axios.post(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/save-user-name`,
-        {
-          userEmail,
-          nickName,
-        }
+        { userEmail, nickName }
       );
+      toast.success("บันทึกชื่อสำเร็จ");
     } catch (err) {
-      console.error("บันทึก nickname ล้มเหลว:", err);
+      setError("บันทึก nickname ล้มเหลว");
+      toast.error("บันทึก nickname ล้มเหลว");
     }
     setIsEditing(false);
+    setLoading(false);
   };
   const handleClick = () => {
     setIsEditing(true);
   };
 
+  // Fetchers
+  useEffect(() => {
+    setLoading(true);
+    setError("");
+    const fetchAll = async () => {
+      try {
+        const [userRes, followRes, nickRes] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/user-info/${encodeURIComponent(userEmail)}`),
+          axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/user/${encodeURIComponent(userEmail)}/follow-info`),
+          axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/get-user?email=${userEmail}`),
+        ]);
+        setUserInfo(userRes.data);
+        setTempInfo(userRes.data);
+        setFollowers(followRes.data.followers);
+        setFollowing(followRes.data.following);
+        setNickName(nickRes.data.nickname || "");
+      } catch (err) {
+        setError("โหลดข้อมูลผู้ใช้ล้มเหลว");
+      }
+      setLoading(false);
+    };
+    if (userEmail) fetchAll();
+  }, [userEmail]);
+
+  // UI
   if (!userEmail || !userPhoto) {
     return (
       <div className="container-profile">
         <div className="text-center mt-8">
-          <h2 className="text-xl font-semibold">
-            กรุณาเข้าสู่ระบบก่อนดูโปรไฟล์
-          </h2>
-          <Button className="mt-4" onClick={() => navigate("/login")}>
-            ไปหน้าเข้าสู่ระบบ
-          </Button>
+          <h2 className="text-xl font-semibold">กรุณาเข้าสู่ระบบก่อนดูโปรไฟล์</h2>
+          <Button className="mt-4" onClick={() => navigate("/login")}>ไปหน้าเข้าสู่ระบบ</Button>
         </div>
       </div>
     );
   }
-  useEffect(() => {
-    const fetchFollowInfo = async () => {
-      try {
-        const encodedEmail = encodeURIComponent(userEmail);
-        const res = await axios.get(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
-          }/api/user/${encodedEmail}/follow-info`
-        );
-
-        setFollowers(res.data.followers);
-        setFollowing(res.data.following);
-      } catch (error) {
-        console.error("Error fetching follow info:", error);
-      }
-    };
-
-    if (userEmail) {
-      fetchFollowInfo();
-    }
-  }, [userEmail]);
-  ///////////show user info//////////
-  useEffect(() => {
-    fetchUserInfo();
-    console.log("userInfo", userInfo);
-  }, []);
-  useEffect(() => {
-    const fetchNickname = async () => {
-      try {
-        const res = await axios.get(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
-          }/api/get-user?email=${userEmail}`
-        );
-        setNickName(res.data.nickname || ""); // กำหนดชื่อที่ได้มาจาก backend
-      } catch (err) {
-        console.error("โหลด nickname ล้มเหลว:", err);
-      }
-    };
-
-    fetchNickname();
-  }, [userEmail]);
-  useEffect(() => {
-    try {
-      const getGenres = async () => {
-        try {
-          const res = await axios.get(
-            `${import.meta.env.VITE_APP_API_BASE_URL}/api/filters/${userEmail}`
-          );
-          setGenres(res.data);
-        } catch (err) {
-          console.error("โหลด Gmail currentUser ไม่ได้:", err);
-        }
-      };
-      getGenres();
-    } catch (err) {
-      console.error("โหลด Gmail currentUser ไม่ได้:", err);
-    }
-  }, [userEmail]);
 
   return (
     <div className={`container-profile ${isDarkMode ? "dark-mode" : ""}`}>
+      <ToastContainer />
       <div className="text-xl-font-semibold">
         <h1>Profile</h1>
       </div>
@@ -330,8 +287,10 @@ const Profile = () => {
               type="text"
               value={nickName}
               onChange={handleChange}
-              onBlur={handleBlur} // เมื่อผู้ใช้หยุดพิมพ์และคลิกออก จะบันทึก
+              onBlur={handleBlur}
               autoFocus
+              maxLength={MAX_NICKNAME}
+              aria-label="ชื่อเล่น"
               placeholder="ใส่ชื่อของคุณ"
               style={{
                 fontSize: "30px",
@@ -343,31 +302,26 @@ const Profile = () => {
               }}
             />
           ) : (
-            <span style={{ fontSize: "30px", fontWeight: "600" }}>
-              {nickName || displayName}
-            </span>
+            <span style={{ fontSize: "30px", fontWeight: "600" }}>{nickName || displayName}</span>
           )}
-
           <FaEdit
             onClick={handleClick}
             className="edit-icon"
             style={{ cursor: "pointer", fontSize: "24px" }}
             title="แก้ไขชื่อ"
+            aria-label="แก้ไขชื่อ"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === "Enter") handleClick(); }}
           />
         </h2>
-        <div>
-          <div className="tabs">
-            <ul className="followers">
-              <li>{followers.length} followers</li>
-            </ul>
-            <ul className="following">
-              <li>{following.length} following</li>
-            </ul>
-          </div>
+        <div className="tabs">
+          <ul className="followers"><li>{followers.length} followers</li></ul>
+          <ul className="following"><li>{following.length} following</li></ul>
         </div>
-
+        {error && <div className="error-message">{error}</div>}
+        {loading && <div className="loading-message">Loading...</div>}
         <div className="info-wrapper">
-          {/* 📝 ช่องข้อมูล */}
+          {/* About Me */}
           <div className="info-box">
             <h3>About Me</h3>
             {editingField === "detail" ? (
@@ -378,10 +332,11 @@ const Profile = () => {
                   onChange={handleInputChange}
                   rows={3}
                   placeholder="รายละเอียดข้อมูลของผู้ใช้ที่น่าสนใจ...."
-                  maxLength={400}
+                  maxLength={MAX_CHARS}
+                  aria-label="รายละเอียด"
                 />
                 <p className="word-limit-info">
-                  {tempInfo.detail.trim().length} / 400
+                  {tempInfo.detail.length} / {MAX_CHARS} ตัวอักษร
                 </p>
               </div>
             ) : (
@@ -390,23 +345,26 @@ const Profile = () => {
                   setEditingField("detail");
                   setTempInfo({ ...userInfo });
                 }}
-                style={{ color: !userInfo.detail ? "#999" : "inherit" }} // สีเทาถ้าไม่มีข้อความ
+                style={{ color: !userInfo.detail ? "#999" : "inherit" }}
+                tabIndex={0}
+                aria-label="แก้ไขรายละเอียด"
+                onKeyDown={(e) => { if (e.key === "Enter") { setEditingField("detail"); setTempInfo({ ...userInfo }); } }}
               >
                 {userInfo.detail || "รายละเอียดข้อมูลของผู้ใช้ที่น่าสนใจ...."}
               </p>
             )}
-
-            {/* ✅ ปุ่มบันทึก */}
             {editingField && (
               <div className="save-button-container">
-                <Button onClick={handleSaveInfo} className="save-button">
-                  แก้ไขรายละเอียด
+                <Button onClick={handleSaveInfo} className="save-button" disabled={loading}>
+                  บันทึก
+                </Button>
+                <Button onClick={() => setEditingField(null)} className="edit-button-cancel-button" disabled={loading}>
+                  ยกเลิก
                 </Button>
               </div>
             )}
           </div>
-
-          {/* 🎵 แนวเพลง */}
+          {/* Activities */}
           <div className="info-box">
             <h3>Activities</h3>
             {editingGenres ? (
@@ -416,9 +374,8 @@ const Profile = () => {
                     <button
                       key={genre}
                       onClick={() => toggleGenre(genre)}
-                      className={`genre-button ${
-                        selectedGenres.includes(genre) ? "selected" : ""
-                      }`}
+                      className={`genre-button ${selectedGenres.includes(genre) ? "selected" : ""}`}
+                      aria-pressed={selectedGenres.includes(genre)}
                     >
                       {genre}
                     </button>
@@ -429,44 +386,35 @@ const Profile = () => {
               <div className="filter-genres">
                 {selectedGenres.length > 0 ? (
                   selectedGenres.map((genre) => (
-                    <span key={genre} className="genre-button selected">
-                      {genre}
-                    </span>
+                    <span key={genre} className="genre-button selected">{genre}</span>
                   ))
                 ) : (
                   <p>ยังไม่ได้เลือกแนวเพลง</p>
                 )}
               </div>
             )}
-
             <div className="center-wrapper">
               {editingGenres ? (
                 <>
-                  {/* แสดงปุ่ม Save เมื่อมีการเปลี่ยนแปลงและ selectedGenres ไม่ว่าง */}
                   {selectedGenres.length > 0 &&
-                    JSON.stringify(originalGenres) !==
-                      JSON.stringify(selectedGenres) && (
-                      <Button
-                        onClick={handleEditGenres}
-                        className="edit-button"
-                      >
+                    JSON.stringify(originalGenres) !== JSON.stringify(selectedGenres) && (
+                      <Button onClick={handleEditGenres} className="edit-button" disabled={loading}>
                         Save
                       </Button>
                     )}
-
-                  {/* แสดงปุ่ม Back เมื่อมีการเปลี่ยนแปลง ไม่ว่ามี selectedGenres หรือไม่ */}
-                  {/* {JSON.stringify(originalGenres) !==
-                    JSON.stringify(selectedGenres) && (
-                    <Button
-                      onClick={() => {
-                        setSelectedGenres(originalGenres);
-                        setEditingGenres(false);
-                      }}
-                      className="edit-button-cancel-button"
-                    >
-                      Back
-                    </Button>
-                  )} */}
+                  <Button onClick={handleClearGenres} className="edit-button-cancel-button" disabled={loading}>
+                    Clear All
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setSelectedGenres(originalGenres);
+                      setEditingGenres(false);
+                    }}
+                    className="edit-button-cancel-button"
+                    disabled={loading}
+                  >
+                    Back
+                  </Button>
                 </>
               ) : (
                 <Button
@@ -475,43 +423,21 @@ const Profile = () => {
                     setEditingGenres(true);
                   }}
                   className="edit-button"
+                  disabled={loading}
                 >
                   Edit
                 </Button>
-              )}
-
-              {/* ปุ่ม Clear All จะล้าง genre และทำให้ Back แสดงทันที */}
-              {editingGenres && (
-                <>
-                  <Button
-                    onClick={() => {
-                      handleClearGenres();
-                    }}
-                    className="edit-button-cancel-button"
-                  >
-                    Clear All
-                  </Button>{" "}
-                  <Button
-                    onClick={() => {
-                      setSelectedGenres(originalGenres);
-                      setEditingGenres(false);
-                    }}
-                    className="edit-button-cancel-button"
-                  >
-                    Back
-                  </Button>
-                </>
               )}
             </div>
           </div>
           {editingGenres && (
             <div className="info-box">
-              {/* 🔽 Subgenre Filters */}
+              {/* Subgenre Filters */}
               {selectedGenres.map(
                 (genre) =>
                   genreSubOptions[genre] && (
                     <div key={`sub-${genre}`} className="subgenre-container">
-                      <button className="genreshow-button">
+                      <button className="genreshow-button" tabIndex={-1}>
                         <h4>{genre} :</h4>
                       </button>
                       <div className="filter-subgenres">
@@ -519,11 +445,8 @@ const Profile = () => {
                           <button
                             key={sub}
                             onClick={() => toggleSubGenre(genre, sub)}
-                            className={`subgenre-button ${
-                              selectedSubGenres[genre]?.includes(sub)
-                                ? "selected"
-                                : ""
-                            }`}
+                            className={`subgenre-button ${selectedSubGenres[genre]?.includes(sub) ? "selected" : ""}`}
+                            aria-pressed={selectedSubGenres[genre]?.includes(sub)}
                           >
                             {sub}
                           </button>
