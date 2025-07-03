@@ -3,9 +3,9 @@ import EventList from "../ui/Eventlist";
 import RequireLogin from "../ui/RequireLogin";
 import { useTheme } from "../../context/themecontext";
 import RoomMatch from "../community/roommatch";
-import { useState, useEffect } from "react"; 
+import { useState, useEffect } from "react";
 import axios from "axios";
-
+import AccordionList from "../ui/AccordionList";
 
 const Newcommu = () => {
   const userPhoto = localStorage.getItem("userPhoto");
@@ -41,9 +41,23 @@ const Newcommu = () => {
           </div>
         </div>
         <div className="event-list-co">
-          <h2 className="event-title">Community Recommand</h2>
+          {/* <h2 className="event-title">Community Recommand</h2> */}
           <div className="bg-event-con">
-            <EventList />
+            <div className="show-commu">
+              {/* ตัวอย่างข้อมูล สามารถดึงจาก API หรือ state ได้ */}
+              <AccordionList
+                items={[
+                  {
+                    title: "กีฬา",
+                    genres: [
+                      { title: "ฟุตบอล", tabs: ["พรีเมียร์ลีก", "ลาลีกา"] },
+                      { title: "บาสเกตบอล", tabs: ["NBA", "EuroLeague"] }
+                    ]
+                  }
+                ]}
+              />
+              <EventList />
+            </div>
             <RoomMatch
               isDeleteMode={isDarkMode}
               selectedRooms={selectedRooms}
