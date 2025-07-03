@@ -1,10 +1,10 @@
 .event-container {
-  height: calc(100vh - 147px);
+  height: calc(100vh - 138px);
   background-color: #f3f4f6;
   padding: 60px 24px;
   overflow-y: auto;
   scroll-behavior: smooth;
-  width: 70%;
+  width: 100%;
 }
 .dark-mode .event-container {
   height: calc(100vh - 147px);
