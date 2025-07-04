@@ -1,65 +1,65 @@
 /* Chat.css */
 
 .chat-container {
-  width: 60%;
+  inline-size: 60%;
   background-color: white;
-  height: 100%;
+  block-size: 100%;
 }
 .dark-mode .chat-container {
   background-color: #1e1e1e;
 }
 .chat-container-ai {
-  width: 40%;
+  inline-size: 40%;
   background-color: #ada9a9;
-  height: 100%;
+  block-size: 100%;
 }
 .header-chat-ai {
-  height: 127px;
-  width: 100%;
-  border-bottom: 1px solid #444;
+  block-size: 127px;
+  inline-size: 100%;
+  border-block-end: 1px solid #444;
 }
 .header-chat-ai h1 {
-  padding-top: 50px;
+  padding-block-start: 50px;
   text-align: center;
-  height: 100%;
+  block-size: 100%;
 }
 .bg-chat-con {
-  width: 100%;
-  height: 100%;
+  inline-size: 100%;
+  block-size: 100%;
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
 }
 .show-info {
-  width: 100%;
+  inline-size: 100%;
   display: flex;
   flex-direction: row;
-  padding-left: 2rem;
+  padding-inline-start: 2rem;
   justify-content: start;
-  height: 127px;
+  block-size: 127px;
   align-items: center;
-  border-bottom: 1px solid #9d9d9d;
+  border-block-end: 1px solid #9d9d9d;
 }
 .dark-mode .show-info {
-  width: 100%;
+  inline-size: 100%;
   display: flex;
   flex-direction: row;
-  padding-left: 2rem;
+  padding-inline-start: 2rem;
   justify-content: start;
-  height: 127px;
+  block-size: 127px;
   align-items: center;
-  border-bottom: 1px solid #444;
-  border-left: 1px solid #444;
+  border-block-end: 1px solid #444;
+  border-inline-start: 1px solid #444;
 }
 
 .show-info h2 {
-  margin-left: 1rem;
+  margin-inline-start: 1rem;
 }
 
 .chat-profile {
-  width: 61px;
-  height: 61px;
+  inline-size: 61px;
+  block-size: 61px;
   border-radius: 50%;
   object-fit: cover;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
@@ -69,12 +69,12 @@
 .chat-title {
   font-size: 24px;
   font-weight: bold;
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 .chat-box {
   /* border: 1px solid gray; */
-  height: calc(100vh - 227px);
+  block-size: calc(100vh - 227px);
   overflow-y: scroll;
   margin: 0 1rem 0 1rem;
   scrollbar-width: none;
@@ -108,8 +108,8 @@
   justify-content: center;
   align-items: center;
   padding: 1rem 0 1rem 0;
-  height: 100px;
-  border-top: 1px solid #9d9d9d;
+  block-size: 100px;
+  border-block-start: 1px solid #9d9d9d;
 }
 .dark-mode .chat-input-container {
   display: flex;
@@ -117,8 +117,8 @@
   justify-content: center;
   align-items: center;
   padding: 1rem 0 1rem 0;
-  height: 100px;
-  border-top: 1px solid #444;
+  block-size: 100px;
+  border-block-start: 1px solid #444;
 }
 
 .my-message {
@@ -127,7 +127,7 @@
 }
 
 .chat-input {
-  width: 100%;
+  inline-size: 100%;
   border-radius: 5px;
   padding: 8px;
   border: none; /* ลบขอบ */
@@ -138,36 +138,36 @@
 .chat-border {
   border: 1px solid #ccc;
   border-radius: 30px;
-  width: 95%;
-  height: 45px;
+  inline-size: 95%;
+  block-size: 45px;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  /* height: fit-content; */
+  /* block-size: fit-content; */
 }
 .emoji svg {
-  width: 40px;
-  height: 40px;
+  inline-size: 40px;
+  block-size: 40px;
   padding: 8px;
 }
 .emoji {
-  width: fit-content;
+  inline-size: fit-content;
   margin: 2px 15px 2px 0;
   display: flex;
   flex-direction: row;
 }
 .emoji-right svg {
-  width: 40px;
-  height: 40px;
+  inline-size: 40px;
+  block-size: 40px;
   padding: 8px;
 }
 .emoji-right {
-  width: fit-content;
+  inline-size: fit-content;
   margin: 2px 0 2px 10px;
 }
 .chat-send-button {
   padding: 8px 16px;
-  margin-right: 2rem;
+  margin-inline-end: 2rem;
   background-color: #0078d4;
   color: white;
   border: none;
@@ -183,43 +183,43 @@
   display: flex;
   align-items: start;
   /* จัดให้อยู่ตรงกลางแนวตั้ง */
-  width: 100%;
+  inline-size: 100%;
 }
 
 .user-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 25%;
-  height: 100%;
+  inline-size: 25%;
+  block-size: 100%;
   background-color: #ededed;
 }
 .dark-mode .user-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 45%;
-  height: 100%;
+  inline-size: 45%;
+  block-size: 100%;
   background-color: #1e1e1e;
 }
 
 .chat {
-  width: 100%;
+  inline-size: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 127px;
+  block-size: 127px;
   align-items: center;
-  border-bottom: 1px solid #9d9d9d;
+  border-block-end: 1px solid #9d9d9d;
 }
 .dark-mode .chat {
-  width: 100%;
+  inline-size: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 127px;
+  block-size: 127px;
   align-items: center;
-  border-bottom: 1px solid #444;
+  border-block-end: 1px solid #444;
 }
 
 .chat h2 {
@@ -238,19 +238,19 @@
 }
 
 .list-user {
-  width: 100%;
-  height: 10vh;
+  inline-size: 100%;
+  block-size: 10vh;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-direction: column;
-  margin-top: 1rem;
+  margin-block-start: 1rem;
 }
 
 .user-photo {
   margin: 10px 20px 10px 20px;
-  width: 80px;
-  height: 80px;
+  inline-size: 80px;
+  block-size: 80px;
   border-radius: 50%;
 }
 
@@ -265,8 +265,8 @@
 .user-item {
   display: flex;
   align-items: center;
-  height: 100%;
-  width: 100%;
+  block-size: 100%;
+  inline-size: 100%;
   background-color: #ada9a9;
   border: 1px solid #b9b6b6;
 }
@@ -285,7 +285,7 @@
 .bg {
   display: flex;
   justify-content: space-between;
-  width: 100%;
+  inline-size: 100%;
 }
 
 .other-message {
@@ -293,8 +293,8 @@
 }
 
 .message-photo {
-  width: 30px;
-  height: 30px;
+  inline-size: 30px;
+  block-size: 30px;
   border-radius: 50%;
   margin: 0 10px;
 }
@@ -320,11 +320,11 @@
 
 .user-item.active {
   background-color: #e0f7fa;
-  border-left: 4px solid #007bff;
+  border-inline-start: 4px solid #007bff;
 }
 
 .friend-search {
-  margin-top: 20px;
+  margin-block-start: 20px;
 }
 
 .friend-item {
@@ -334,15 +334,15 @@
 }
 
 .friend-photo {
-  width: 40px;
-  height: 40px;
+  inline-size: 40px;
+  block-size: 40px;
   border-radius: 50%;
-  margin-right: 10px;
+  margin-inline-end: 10px;
 }
 
 .friend-details {
   flex-grow: 1;
-  /* width: fit-content; */
+  /* inline-size: fit-content; */
   display: flex;
   flex-direction: column;
 }
@@ -352,7 +352,7 @@
 .friend-name {
   font-size: 12px;
   font-weight: bold;
-  max-width: 100%;
+  max-inline-size: 100%;
   word-wrap: break-word;
   word-break: break-word;
   white-space: normal;
@@ -362,7 +362,7 @@
   color: #f5f5f5;
   font-size: 12px;
   font-weight: bold;
-  max-width: 100%;
+  max-inline-size: 100%;
   word-wrap: break-word;
   word-break: break-word;
   white-space: normal;
@@ -380,27 +380,27 @@
 
 .search-con {
   position: relative;
-  width: 100%;
-  max-width: 300px;
+  inline-size: 100%;
+  max-inline-size: 300px;
 }
 
 .search-icon {
   position: absolute;
-  top: 60%;
-  left: 12px;
+  inset-block-start: 60%;
+  inset-inline-start: 12px;
   transform: translateY(-50%);
   color: #888;
   pointer-events: none;
 }
 
 .search-input-friend {
-  width: 100%;
+  inline-size: 100%;
   padding: 10px 35px 10px 35px;
   border-radius: 2rem;
   font-size: 16px;
   margin: 30px 0 10px 0;
   /* padding: 10px; */
-  max-width: 100%;
+  max-inline-size: 100%;
   background-color: #f5f5f5;
   border-radius: 25px;
   border: 1px solid #ddd;
@@ -410,13 +410,13 @@
   transition: border-color 0.3s ease;
 }
 .dark-mode .search-input-friend {
-  width: 100%;
+  inline-size: 100%;
   padding: 10px 35px 10px 35px;
   border-radius: 2rem;
   font-size: 16px;
   margin: 30px 0 10px 0;
   /* padding: 10px; */
-  max-width: 100%;
+  max-inline-size: 100%;
   background-color: #2a2a2a;
   border-radius: 25px;
   border: 1px solid #444;
@@ -435,8 +435,8 @@
 }
 
 .chat-friend-item {
-  width: 100%;
-  height: fit-content;
+  inline-size: 100%;
+  block-size: fit-content;
   padding: 20px;
   display: flex;
   justify-content: space-between;
@@ -449,13 +449,13 @@
 
 .chat-friend-item:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  border-left: 4px solid #a5a1a5;
+  border-inline-start: 4px solid #a5a1a5;
 }
 
 .favorite-container-open {
-  width: 100%;
-  /* height: calc(100vh - 450px); */
-  height: fit-content;
+  inline-size: 100%;
+  /* block-size: calc(100vh - 450px); */
+  block-size: fit-content;
   overflow-y: auto;
   scroll-behavior: smooth;
 }
@@ -463,12 +463,12 @@
   display: none;
 }
 .favorite-container {
-  width: 100%;
+  inline-size: 100%;
 }
 .group-container-open {
-  width: 100%;
-  /* height: calc(100vh - 535px); */
-  height: fit-content;
+  inline-size: 100%;
+  /* block-size: calc(100vh - 535px); */
+  block-size: fit-content;
   overflow-y: auto;
   scroll-behavior: smooth;
 }
@@ -476,12 +476,12 @@
   display: none;
 }
 .group-container {
-  width: 100%;
+  inline-size: 100%;
 }
 .group-container-special {
-  width: 100%;
-  /* height: calc(100vh - 280px); */
-  height: fit-content;
+  inline-size: 100%;
+  /* block-size: calc(100vh - 280px); */
+  block-size: fit-content;
   overflow-y: auto;
   scroll-behavior: smooth;
 }
@@ -489,9 +489,9 @@
   display: none;
 }
 .favorite-container-special {
-  width: 100%;
-  /* height: calc(100vh - 300px); */
-  height: fit-content;
+  inline-size: 100%;
+  /* block-size: calc(100vh - 300px); */
+  block-size: fit-content;
   overflow-y: auto;
   scroll-behavior: smooth;
 }
@@ -499,7 +499,7 @@
   display: none;
 }
 .favorite-toggle {
-  margin-left: 1rem;
+  margin-inline-start: 1rem;
 }
 
 /* โครงสร้างหลัก */
@@ -509,8 +509,8 @@
   padding: 0 12px;
 }
 .message-avatar {
-  width: 36px;
-  height: 36px;
+  inline-size: 36px;
+  block-size: 36px;
   border-radius: 50%;
   object-fit: cover;
   margin: 0 8px;
@@ -519,14 +519,14 @@
 
 /* เนื้อหาข้อความ */
 .message-content.current {
-  max-width: 70%;
+  max-inline-size: 70%;
   display: flex;
   /* justify-content: flex-end; */
   flex-direction: row;
 }
 
 .message-content.other {
-  max-width: 70%;
+  max-inline-size: 70%;
   display: flex;
 
   /* justify-content: flex-end; */
@@ -536,8 +536,8 @@
 .sender-name {
   font-size: 0.8rem;
   color: #666;
-  margin-bottom: 4px;
-  padding-left: 8px;
+  margin-block-end: 4px;
+  padding-inline-start: 8px;
 }
 
 /* ฟองข้อความ */
@@ -551,29 +551,29 @@
 .message-bubble.current {
   background-color: #007bff;
   color: white;
-  border-bottom-right-radius: 4px;
+  border-end-end-radius: 4px;
 }
 
 .message-bubble.other {
   background-color: #f1f1f1;
   color: #333;
-  border-bottom-left-radius: 4px;
+  border-end-start-radius: 4px;
 }
 
 /* เวลา */
 .message-time.current {
   font-size: 0.7rem;
   align-content: end;
-  text-align: right;
-  margin-right: 8px;
+  text-align: end;
+  margin-inline-end: 8px;
   opacity: 0.8;
 }
 
 .message-time.other {
   font-size: 0.7rem;
   align-content: end;
-  text-align: left;
-  margin-left: 8px;
+  text-align: start;
+  margin-inline-start: 8px;
   opacity: 0.8;
 }
 
@@ -585,13 +585,13 @@
   color: rgba(0, 0, 0, 0.6);
 }
 .slide-chat {
-  width: 100%;
-  height: calc(100vh - 210px);
+  inline-size: 100%;
+  block-size: calc(100vh - 210px);
   overflow-y: auto;
   scroll-behavior: smooth;
 }
 .slide-chat::-webkit-scrollbar {
-  width: 8px;
+  inline-size: 8px;
 }
 
 .slide-chat::-webkit-scrollbar-track {
@@ -648,22 +648,22 @@
 .last-message {
   font-size: 12px;
   color: #555;
-  margin-top: 4px;
-  max-width: 200px;
+  margin-block-start: 4px;
+  max-inline-size: 200px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  margin-left: 12px;
+  margin-inline-start: 12px;
 }
 .dark-mode .last-message {
   font-size: 12px;
   color: #f5f5f5;
-  margin-top: 4px;
-  max-width: 200px;
+  margin-block-start: 4px;
+  max-inline-size: 200px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  margin-left: 12px;
+  margin-inline-start: 12px;
 }
 
 .message-time {

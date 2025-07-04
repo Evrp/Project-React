@@ -1,32 +1,38 @@
 .accordion-list {
-    width: 100%;
-    max-width: 600px;
+    inline-size: 100%;
+    max-inline-size: 600px;
     margin: 0 auto;
 }
 
 .accordion-item {
-    border-bottom: 1px solid #e0e0e0;
+    border-block-end: 1px solid #e0e0e0;
     background: #fff;
     border-radius: 15px;
 }
 
 .accordion-header {
-    width: 100%;
+    inline-size: 100%;
     background: none;
     border: none;
     border-radius: 20px;
-    margin-top: 1rem;
+    margin-block-start: 1rem;
     outline: none;
-    text-align: left;
+    text-align: start;
     padding: 16px 20px;
     font-size: 1.1rem;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: flex-start;
-    height: fit-content;
+    min-height: 68px;
+    max-height: 100px;
     box-sizing: border-box;
     transition: background 0.15s;
+    overflow-y: scroll;
+}
+.accordion-header::-webkit-scrollbar {
+  display: none;
+  /* สำหรับ Chrome, Safari และ Opera */
 }
 
 .accordion-title {
@@ -40,7 +46,7 @@
 }
 
 .arrow {
-    margin-left: auto;
+    margin-inline-start: auto;
     font-size: 1.2em;
     transition: transform 0.2s;
     flex-shrink: 0;
@@ -52,8 +58,8 @@
     color: #333;
     box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.15);
     font-size: 1rem;
-    width: 600px;
-    margin-top: 5px;
+    inline-size: 600px;
+    margin-block-start: 5px;
     border-radius: 10px;
     animation: fadeIn 0.2s;
     position: absolute;
@@ -62,10 +68,10 @@
 
 .accordion-content-title {
     font-weight: bold;
-    width: 100%;
+    inline-size: 100%;
     font-size: 25px;
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-block-end: 8px;
     color: white;
     display: flex;
     justify-content: center;
@@ -73,7 +79,7 @@
 
 .accordion-bg {
     background-color: #d4d4d4;
-    width: 600px;
+    inline-size: 600px;
     display: flex;
     justify-content: space-between;
 }
@@ -81,8 +87,8 @@
 .accordion-bd .accordion-content-title {
     display: flex;
     justify-content: center;
-    width: 100%;
-    height: 100%;
+    inline-size: 100%;
+    block-size: 100%;
     position: relative;
     align-content: center;
 }
@@ -96,15 +102,15 @@
 .accordion-tabs-wrapper {
     display: flex;
     align-items: center;
-    margin-left: auto;
+    margin-inline-start: auto;
     position: absolute;
-    width: max-content;
-    height: min-content;
-    left: 600px;
+    inline-size: max-content;
+    block-size: min-content;
+    inset-inline-start: 600px;
 }
 
 .accordion-tab-toggle {
-    /* margin-left: 8px; */
+    /* margin-inline-start: 8px; */
     background: none;
     border: none;
     cursor: pointer;
@@ -112,7 +118,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    width: 100%;
+    inline-size: 100%;
     color: inherit;
     padding: 4px 8px;
     background-color: #d4d4d4;
@@ -130,7 +136,7 @@
 }
 
 .accordion-tabs {
-    margin-left: 8px;
+    margin-inline-start: 8px;
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -146,11 +152,11 @@
     border: none;
     font-weight: 700;
     font-size: 30px;
-    height: 40px;
+    block-size: 40px;
     border-radius: 4px;
     padding: 4px 12px;
     cursor: pointer;
-    width: 200px;
+    inline-size: 200px;
     font-size: 0.95em;
 }
 
@@ -171,9 +177,9 @@
     flex-wrap: wrap;
     gap: 8px;
     align-items: flex-start;
-    margin-left: 12px;
-    width: 100%;
-    min-height: 32px;
+    margin-inline-start: 12px;
+    inline-size: 100%;
+    min-block-size: 32px;
 }
 
 
@@ -211,7 +217,7 @@
 
 .dark-mode .accordion-item {
     background: #23272f;
-    border-bottom: 1px solid #444;
+    border-block-end: 1px solid #444;
 }
 
 .dark-mode .accordion-header {
@@ -232,7 +238,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 16px;
+    margin-block-end: 16px;
     padding: 8px 0 0 0;
 }
 
@@ -260,11 +266,11 @@
     border: none;
     color: inherit;
     font-size: 1.1em;
-    margin-left: 6px;
+    margin-inline-start: 6px;
     cursor: pointer;
     border-radius: 50%;
-    width: 22px;
-    height: 22px;
+    inline-size: 22px;
+    block-size: 22px;
     display: flex;
     align-items: center;
     justify-content: center;

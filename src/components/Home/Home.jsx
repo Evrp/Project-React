@@ -50,8 +50,13 @@ const Newcommu = () => {
                   {
                     title: "กีฬา",
                     genres: [
-                      { title: "ฟุตบอล", tabs: ["พรีเมียร์ลีก", "ลาลีกา"] },
-                      { title: "บาสเกตบอล", tabs: ["NBA", "EuroLeague"] }
+                      { title: "Educational and self-development", tabs: ["Art/Craft Workshops", "Seminars / Short Courses","Talk show/Lecture"] },
+                      { title: "Entertainment and cultural", tabs: ["Art exhibition/Gallery", "Art/Craft Workshops","Film festival/Musical","Talk show/Lecture"] },
+                      { title: "Families and children", tabs: ["Camp", "Kids Fair","Theme park"] },
+                      { title: "Group/Specialized", tabs: ["Carnival/Event", "Volunteer"] },
+                      { title: "Sports and health", tabs: ["Marathon", "Audox Tour","Yoga","Swimming","Cycling","Walking","Running","Fitness","Gym"] },
+                      { title: "Social and community", tabs: ["Annual festival", "Temple fair","Red Cross fair"] },
+                      { title: "Travel and adventure", tabs: ["Camping", "Trip", "School trip", "Scuba diving","Photo trip","Trekking","Adventure","Cafe","Tour"] },
                     ]
                   }
                 ]}
