@@ -14,6 +14,7 @@ const ListUser = ({
   dropdownRefs,
   getnickName,
   setFriends,
+  setActiveRoomId, // เพิ่ม prop
 }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [openMenuFor, setOpenMenuFor] = useState(null);
@@ -172,6 +173,12 @@ const ListUser = ({
     setSelectedUser(null);
   };
 
+  // ฟังก์ชันสร้าง roomId สำหรับ one-to-one chat (เรียง email เพื่อ unique)
+  const getRoomIdForFriend = (friendEmail) => {
+    const emails = [userEmail, friendEmail].sort();
+    return `room__${emails[0]}__${emails[1]}`;
+  };
+
   return (
     <div className="favorite-container">
       <div className="favorite-toggle" onClick={handleToggle}>
@@ -189,6 +196,8 @@ const ListUser = ({
                   onClick={() => {
                     setActiveUser(friend.email);
                     setIsGroupChat(false);
+                    if (setActiveRoomId)
+                      setActiveRoomId(getRoomIdForFriend(friend.email));
                   }}
                 >
                   <img
@@ -220,20 +229,20 @@ const ListUser = ({
                       {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                     </span>
                     <div
-                      className="dropdown-wrapper"
+                      className="chat-dropdown-wrapper"
                       ref={(el) => (dropdownRefs.current[friend.email] = el)}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <button
                         onClick={(e) => handleMenuClick(friend)}
-                        className="dropdown-toggle"
+                        className="chat-dropdown-toggle"
                       >
                         <BsThreeDots size={20} />
                       </button>
                       {openMenuFor === friend.email && (
-                        <div className="dropdown-menu">
+                        <div className="chat-dropdown-menu">
                           <button
-                            className="dropdown-item"
+                            className="chat-dropdown-item"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleProfileClick(friend);
@@ -244,7 +253,7 @@ const ListUser = ({
                             👤 ดูโปรไฟล์
                           </button>
                           <button
-                            className="dropdown-item"
+                            className="chat-dropdown-item"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleFollow(friend.email);
@@ -256,7 +265,7 @@ const ListUser = ({
                               : "➕ ติดตาม"}
                           </button>
                           <button
-                            className="dropdown-item danger"
+                            className="chat-dropdown-item chat-danger"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleRemoveFriend(friend.email);

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, React } from "react";
+import React, { useEffect, useState, useRef, createRef } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import TinderCard from "react-tinder-card";
@@ -24,7 +24,7 @@ const RoomMatch = () => {
         setCurrentIndex(res.data.length - 1);
         childRefs.current = Array(res.data.length)
           .fill(0)
-          .map((_, i) => childRefs.current[i] || React.createRef());
+          .map((_, i) => childRefs.current[i] || createRef());
       } catch (error) {
         console.error("โหลดห้องไม่สำเร็จ:", error);
       }
