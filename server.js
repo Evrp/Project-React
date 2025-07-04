@@ -311,16 +311,20 @@ app.post("/api/update-genres", async (req, res) => {
       { new: true, upsert: true } // เพิ่ม upsert เผื่อ user ยังไม่มีใน Filter
     );
 
-    // ✅ ส่งข้อมูลไปยัง Make.com
-    await axios.post(MAKE_WEBHOOK_URL, {
-      type: "update-genres",
-      filter_info: {
-        email: user.email,
-        genres: user.genres,
-        subGenres: user.subGenres,
-        updatedAt: updatedAt || new Date().toISOString(),
-      },
-    });
+    // ✅ ส่งข้อมูลไปยัง Make.com เฉพาะกรณีที่ genres/subGenres มีข้อมูล
+    const hasGenres = Array.isArray(genres) ? genres.length > 0 : false;
+    const hasSubGenres = subGenres && typeof subGenres === "object" && Object.values(subGenres).some(arr => Array.isArray(arr) ? arr.length > 0 : false);
+    if (hasGenres && hasSubGenres) {
+      await axios.post(MAKE_WEBHOOK_URL, {
+        type: "update-genres",
+        filter_info: {
+          email: user.email,
+          genres: user.genres,
+          subGenres: user.subGenres,
+          updatedAt: updatedAt || new Date().toISOString(),
+        },
+      });
+    }
 
     res
       .status(200)

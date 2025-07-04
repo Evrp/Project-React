@@ -7,32 +7,36 @@
 .accordion-item {
     border-block-end: 1px solid #e0e0e0;
     background: #fff;
-    border-radius: 15px;
+    border-radius: 35px;
 }
 
 .accordion-header {
     inline-size: 100%;
     background: none;
     border: none;
-    border-radius: 20px;
+    width: 100%;
+    border-radius: 40px;
     margin-block-start: 1rem;
+    box-shadow: 1px rgba(0, 0, 0, 0.9);
     outline: none;
     text-align: start;
-    padding: 16px 20px;
+    padding: 8px 20px 16px 20px;
     font-size: 1.1rem;
     font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: flex-start;
-    min-height: 68px;
-    max-height: 100px;
+    max-height: 68px;
+    max-width: 600px;
     box-sizing: border-box;
     transition: background 0.15s;
-    overflow-y: scroll;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
+
 .accordion-header::-webkit-scrollbar {
-  display: none;
-  /* สำหรับ Chrome, Safari และ Opera */
+    display: none;
+    /* สำหรับ Chrome, Safari และ Opera */
 }
 
 .accordion-title {
@@ -76,7 +80,55 @@
     display: flex;
     justify-content: center;
 }
-
+.submit-genres{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px 0;
+    padding: 8px 0;
+}
+.submit-genres-button{
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+.submit-genres-button:hover {
+    background-color: #1565c0;
+    color: #fff;
+}
+.submit-genres-button:active {
+    background-color: #0d47a1;
+    color: #fff;
+}
+.clear-genres-button{
+    background-color: #ff4800;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    padding: 8px 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+.clear-genres-button:hover {
+    background-color: #cf5922;
+    color: #fff;
+}
+.clear-genres-button:active {
+    background-color: #0d47a1;
+    color: #fff;
+}
 .accordion-bg {
     background-color: #d4d4d4;
     inline-size: 600px;
@@ -174,34 +226,122 @@
 
 .accordion-header-chips {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
-    align-items: flex-start;
+    align-items: center;
     margin-inline-start: 12px;
-    inline-size: 100%;
     min-block-size: 32px;
+    width: max-content;
+    max-width: 60vw;
+    overflow-x: auto;
+    overflow-y: hidden;
+    background: #f7fbff;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+    padding: 6px 18px 6px 12px;
+    position: relative;
+    border-radius: 18px;
+    transition: box-shadow 0.2s;
+    scrollbar-width: thin;
+    scrollbar-color: #90caf9 #e3f2fd;
 }
 
+.accordion-header-chips::-webkit-scrollbar {
+  height: 8px;
+}
 
-/* Dark mode support */
-/* @media (prefers-color-scheme: dark) {
-    .accordion-tab {
-        background: #222;
-        border-color: #444;
-        color: #eee;
-    }
+.accordion-header-chips::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
 
-    .accordion-tab.selected,
-    .accordion-tab:focus {
-        background: #90caf9;
-        color: #222;
-        border-color: #90caf9;
-    }
+.accordion-header-chips::-webkit-scrollbar-thumb {
+  background: rgb(98, 96, 96);
+  border-radius: 8px;
+}
 
-    .accordion-tab-toggle {
-        color: #eee;
-    }
-} */
+.accordion-header-chips::-webkit-scrollbar-thumb:hover {
+  background: rgb(148, 144, 144);
+}
+.accordion-header-chips::-webkit-scrollbar-thumb {
+  background: #cad2c4;
+  border-radius: 8px;
+}
+
+.accordion-header-chips::-webkit-scrollbar-thumb:hover {
+  background: rgb(148, 144, 144);
+}
+
+.dark-mode .accordion-header-chips {
+    background: #23272f;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.12);
+}
+.dark-mode .accordion-header-chips::-webkit-scrollbar-track {
+  background: #4d4d4d;
+  border-radius: 8px;
+}
+
+.dark-mode .accordion-header-chips::-webkit-scrollbar-thumb {
+  background: #cad2c4;
+  border-radius: 8px;
+}
+
+.dark-mode .accordion-header-chips::-webkit-scrollbar-thumb:hover {
+  background: rgb(148, 144, 144);
+}
+
+.accordion-selected-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-block-end: 16px;
+    padding: 8px 0 0 0;
+}
+
+.accordion-filter-chip {
+    display: inline-flex;
+    align-items: center;
+    background: #e3f2fd;
+    color: #1976d2;
+    border-radius: 16px;
+    height: 37px;
+    padding: 6px 14px 6px 12px;
+    font-size: 1em;
+    font-weight: 500;
+    box-shadow: 0 1px 4px rgba(25, 118, 210, 0.08);
+    border: 1px solid #90caf9;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    flex: 0 0 auto;
+}
+
+.accordion-filter-chip:hover {
+    background: #1976d2;
+    color: #fff;
+}
+
+.accordion-filter-remove {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.1em;
+    margin-inline-start: 6px;
+    cursor: pointer;
+    border-radius: 50%;
+    inline-size: 22px;
+    block-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.accordion-filter-remove:hover {
+    background: #90caf9;
+    color: #1976d2;
+}
 
 @keyframes fadeIn {
     from {
@@ -232,52 +372,4 @@
 .dark-mode .accordion-content {
     background: #2c313a;
     color: #e0e0e0;
-}
-
-.accordion-selected-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-block-end: 16px;
-    padding: 8px 0 0 0;
-}
-
-.accordion-filter-chip {
-    display: inline-flex;
-    align-items: center;
-    background: #e3f2fd;
-    color: #1976d2;
-    border-radius: 16px;
-    padding: 6px 14px 6px 12px;
-    font-size: 1em;
-    font-weight: 500;
-    box-shadow: 0 1px 4px rgba(25, 118, 210, 0.08);
-    border: 1px solid #90caf9;
-    transition: background 0.2s, color 0.2s;
-}
-
-.accordion-filter-chip:hover {
-    background: #1976d2;
-    color: #fff;
-}
-
-.accordion-filter-remove {
-    background: none;
-    border: none;
-    color: inherit;
-    font-size: 1.1em;
-    margin-inline-start: 6px;
-    cursor: pointer;
-    border-radius: 50%;
-    inline-size: 22px;
-    block-size: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-}
-
-.accordion-filter-remove:hover {
-    background: #90caf9;
-    color: #1976d2;
 }

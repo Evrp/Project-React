@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./AccordionList.css";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const DEFAULT_TAB_OPTIONS = ["Option 1", "Option 2", "Option 3"];
 
@@ -8,9 +10,11 @@ const AccordionList = ({ items }) => {
     const [openIndex, setOpenIndex] = useState(null);
     const [selectedTabs, setSelectedTabs] = useState({});
     const [showTabsKey, setShowTabsKey] = useState(null);
-
-    // เก็บค่าที่เลือกไว้แสดงด้านบนสุด
     const [selectedLabels, setSelectedLabels] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const containerRef = useRef(null);
+    const chipsRefs = useRef({});
 
     const handleToggle = (idx) => {
         setOpenIndex(openIndex === idx ? null : idx);
@@ -36,8 +40,63 @@ const AccordionList = ({ items }) => {
         setSelectedLabels((prev) => prev.filter(sel => !(sel.key === key && sel.label === label)));
     };
 
+    // ปิด tab group และ accordion-content เมื่อคลิกนอก accordion-list
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (containerRef.current && !containerRef.current.contains(event.target)) {
+                setShowTabsKey(null);
+                setOpenIndex(null);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        const fetchInitialFilters = async () => {
+            const email = localStorage.getItem("userEmail");
+            if (!email) return;
+            setLoading(true);
+            setError("");
+            try {
+                const res = await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/filters/${encodeURIComponent(email)}`);
+                if (!res.ok) throw new Error("ไม่สามารถดึงข้อมูล filter ได้");
+                const data = await res.json();
+                if (data && data.genres && data.subGenres) {
+                    // Map genres/subGenres to selectedLabels
+                    const newSelectedLabels = [];
+                    items.forEach((item, itemIdx) => {
+                        if (item.genres && Array.isArray(item.genres)) {
+                            item.genres.forEach((genre, genreIdx) => {
+                                if (data.subGenres[genre.title]) {
+                                    data.subGenres[genre.title].forEach(sub => {
+                                        newSelectedLabels.push({ key: `${itemIdx}-${genreIdx}`, label: sub });
+                                    });
+                                }
+                            });
+                        } else if (item.tabs && Array.isArray(item.tabs)) {
+                            // For items without genres, match by item title if possible
+                            if (data.subGenres[item.title]) {
+                                data.subGenres[item.title].forEach(sub => {
+                                    newSelectedLabels.push({ key: `${itemIdx}-0`, label: sub });
+                                });
+                            }
+                        }
+                    });
+                    setSelectedLabels(newSelectedLabels);
+                }
+            } catch (err) {
+                setError("เกิดข้อผิดพลาดในการโหลด filter");
+            }
+            setLoading(false);
+        };
+        fetchInitialFilters();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [items]);
+
     return (
-        <div className="accordion-list">
+        <div className="accordion-list" ref={containerRef}>
+            <ToastContainer />
             {/* แสดง filter ที่เลือกด้านบนสุด */}
 
             {items.map((item, idx) => {
@@ -53,11 +112,21 @@ const AccordionList = ({ items }) => {
 
                                 {/* filter chips */}
                                 {selectedLabels.filter(sel => sel.key.startsWith(`${idx}-`)).length > 0 ? (
-                                    <span className="accordion-header-chips">
+                                    <span
+                                        className="accordion-header-chips"
+                                        ref={el => { chipsRefs.current[idx] = el; }}
+                                    >
                                         {selectedLabels.filter(sel => sel.key.startsWith(`${idx}-`)).map(sel => (
-                                            <span className="accordion-filter-chip" key={sel.key}>
+                                            <span className="accordion-filter-chip" key={sel.key + sel.label}>
                                                 {sel.label}
-                                                <button className="accordion-filter-remove" onClick={e => { e.stopPropagation(); handleRemoveLabel(sel.key, sel.label); }} aria-label="ลบตัวเลือก">×</button>
+                                                <span
+                                                    className="accordion-filter-remove"
+                                                    role="button"
+                                                    tabIndex={0}
+                                                    onClick={e => { e.stopPropagation(); handleRemoveLabel(sel.key, sel.label); }}
+                                                    onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); handleRemoveLabel(sel.key, sel.label); } }}
+                                                    aria-label="ลบตัวเลือก"
+                                                >×</span>
                                             </span>
                                         ))}
                                     </span>
@@ -69,10 +138,15 @@ const AccordionList = ({ items }) => {
                             {openIndex === idx && (
                                 <div className="accordion-content">
                                     {item.genres.map((genre, genreIdx) => (
-                                        <div className="accordion-content-title-with-tabs" key={genreIdx}>
+                                        <div
+                                            className="accordion-content-title-with-tabs"
+                                            key={genreIdx}
+                                            onMouseEnter={() => handleToggleTabs(idx, genreIdx)}
+                                            onMouseLeave={() => showTabsKey === `${idx}-${genreIdx}` && setShowTabsKey(null)}
+                                        >
                                             <button
                                                 className={`accordion-tab-toggle${showTabsKey === `${idx}-${genreIdx}` ? " selected" : ""}`}
-                                                onClick={() => handleToggleTabs(idx, genreIdx)}
+                                                // onClick ไม่จำเป็นแล้ว
                                                 aria-label={showTabsKey === `${idx}-${genreIdx}` ? "ซ่อนแทบ" : "แสดงแทบ"}
                                                 aria-pressed={showTabsKey === `${idx}-${genreIdx}`}
                                                 type="button"
@@ -122,7 +196,14 @@ const AccordionList = ({ items }) => {
                                         {selectedLabels.filter(sel => sel.key.startsWith(`${idx}-`)).map(sel => (
                                             <span className="accordion-filter-chip" key={sel.key}>
                                                 {sel.label}
-                                                <button className="accordion-filter-remove" onClick={e => { e.stopPropagation(); handleRemoveLabel(sel.key, sel.label); }} aria-label="ลบตัวเลือก">×</button>
+                                                <span
+                                                    className="accordion-filter-remove"
+                                                    role="button"
+                                                    tabIndex={0}
+                                                    onClick={e => { e.stopPropagation(); handleRemoveLabel(sel.key, sel.label); }}
+                                                    onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.stopPropagation(); handleRemoveLabel(sel.key, sel.label); } }}
+                                                    aria-label="ลบตัวเลือก"
+                                                >×</span>
                                             </span>
                                         ))}
                                     </span>
@@ -131,10 +212,13 @@ const AccordionList = ({ items }) => {
                             </button>
                             {openIndex === idx && (
                                 <div className="accordion-content">
-                                    <div className="accordion-content-title-with-tabs">
+                                    <div
+                                        className="accordion-content-title-with-tabs"
+                                        onMouseEnter={() => handleToggleTabs(idx, 0)}
+                                        onMouseLeave={() => showTabsKey === `${idx}-0` && setShowTabsKey(null)}
+                                    >
                                         <button
                                             className={`accordion-tab-toggle${showTabsKey === `${idx}-0` ? " selected" : ""}`}
-                                            onClick={() => handleToggleTabs(idx, 0)}
                                             aria-label={showTabsKey === `${idx}-0` ? "ซ่อนแทบ" : "แสดงแทบ"}
                                             aria-pressed={showTabsKey === `${idx}-0`}
                                             type="button"
@@ -168,6 +252,98 @@ const AccordionList = ({ items }) => {
                     );
                 }
             })}
+
+            {/* ปุ่มส่งข้อมูลไป API */}
+            <div className="submit-genres">
+                <button
+                    className="submit-genres-button"
+                    onClick={async () => {
+                        setLoading(true);
+                        setError("");
+                        // Map selectedLabels to subGenres object
+                        const subGenresObj = {};
+                        selectedLabels.forEach(sel => {
+                          const [itemIdx, genreIdx] = sel.key.split("-");
+                          if (items[itemIdx] && items[itemIdx].genres && items[itemIdx].genres[genreIdx]) {
+                            const genreTitle = items[itemIdx].genres[genreIdx].title;
+                            if (!subGenresObj[genreTitle]) subGenresObj[genreTitle] = [];
+                            if (!subGenresObj[genreTitle].includes(sel.label)) subGenresObj[genreTitle].push(sel.label);
+                          }
+                        });
+                        const selectedGenres = Object.keys(subGenresObj);
+                        const email = localStorage.getItem("userEmail");
+                        console.log("Selected Genres:", selectedGenres);
+                        console.log("Sub Genres Object:", subGenresObj);
+                        try {
+                          const response = await fetch(
+                            `${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`,
+                            {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                email,
+                                genres: selectedGenres,
+                                subGenres: subGenresObj,
+                                updatedAt: new Date().toISOString(),
+                              }),
+                            }
+                          );
+                          if (response.ok) {
+                            toast.success("บันทึกการเลือกสำเร็จ");
+                          } else {
+                            setError("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+                            toast.error("บันทึกข้อมูลล้มเหลว");
+                          }
+                        } catch (err) {
+                          setError("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
+                          toast.error("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
+                        }
+                        setLoading(false);
+                    }}
+                    disabled={loading}
+                >
+                    {loading ? "กำลังบันทึก..." : "บันทึกการเลือกทั้งหมด"}
+                </button>
+                <button
+                    className="clear-genres-button"
+                    style={{ marginLeft: 8 }}
+                    onClick={async () => {
+                        setLoading(true);
+                        setError("");
+                        setSelectedLabels([]);
+                        const email = localStorage.getItem("userEmail");
+                        try {
+                          const response = await fetch(
+                            `${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`,
+                            {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                email,
+                                genres: [],
+                                subGenres: {},
+                                updatedAt: new Date().toISOString(),
+                              }),
+                            }
+                          );
+                          if (response.ok) {
+                            toast.success("ลบตัวเลือกทั้งหมดสำเร็จ");
+                          } else {
+                            setError("เกิดข้อผิดพลาดในการลบข้อมูล");
+                            toast.error("ลบข้อมูลล้มเหลว");
+                          }
+                        } catch (err) {
+                          setError("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
+                          toast.error("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
+                        }
+                        setLoading(false);
+                    }}
+                    disabled={loading}
+                >
+                    {loading ? "..." : "ลบทั้งหมด"}
+                </button>
+                {error && <div className="error-message">{error}</div>}
+            </div>
         </div>
     );
 };
