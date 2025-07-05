@@ -294,16 +294,20 @@ const ListUser = ({
           <div className="modal-content" ref={modalRef}>
             <div className="profile-info">
               <img
-                src={selectedUser.photoURL}
+                src={Array.isArray(getnickName)
+                  ? getnickName.find((n) => n.email === selectedUser.email)?.nickname || selectedUser.photoURL
+                  : selectedUser.photoURL}
                 alt={
-                  getnickName.find((n) => n.email === selectedUser.email)
-                    ?.nickname || selectedUser.displayName
+                  Array.isArray(getnickName)
+                    ? getnickName.find((n) => n.email === selectedUser.email)?.nickname || selectedUser.displayName
+                    : selectedUser.displayName
                 }
                 className="profile-photo"
               />
               <h2>
-                {getnickName.find((n) => n.email === selectedUser.email)
-                  ?.nickname || selectedUser.displayName}
+                {Array.isArray(getnickName)
+                  ? getnickName.find((n) => n.email === selectedUser.email)?.nickname || selectedUser.displayName
+                  : selectedUser.displayName}
               </h2>
               <div className="tabs">
                 <ul className="followers">
