@@ -33,15 +33,6 @@ app.get("/users", async (req, res) => {
   }
 });
 
-// Get all nickNames
-app.get("/get-all-nicknames", async (req, res) => {
-  try {
-    const users = await Info.find();
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ error: "ไม่สามารถโหลดผู้ใช้ได้" });
-  }
-});
 
 // สำหรับดึงข้อมูลเพื่อน (usersfriends)
 app.get("/usersfriends", async (req, res) => {
