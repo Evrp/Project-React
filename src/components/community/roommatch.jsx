@@ -3,6 +3,10 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import TinderCard from "react-tinder-card";
 import { useTheme } from "../../context/themecontext";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
 import "./roommatch.css";
 
 const RoomMatch = () => {
@@ -46,13 +50,30 @@ const RoomMatch = () => {
     fetchGmails();
   }, []);
 
-  const handleEnterRoom = (roomId) => {
+  const handleEnterRoom = (roomId, roomName) => {
     navigate(`/chat/${roomId}`);
+    handleAddCommunity(roomId, roomName);
   };
-
-  const swiped = (direction, roomId, index) => {
+  const handleAddCommunity = async (roomId, roomName) => {
+    try {
+      await axios.post(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/join-community`,
+        {
+          userEmail,
+          roomId,
+          roomName,
+        }
+      );
+      toast.success("เข้าร่วมห้องสําเร็จ!");
+    } catch (error) {
+      console.error("Error adding friend:", error);
+      toast.error("ไม่สามารถเพิ่มเพื่อนได้");
+    }
+  };
+  const swiped = (direction, roomId, roomName, index) => {
+    console.log("You swiped: " + roomName);
     if (direction === "right") {
-      handleEnterRoom(roomId);
+      handleEnterRoom(roomId, roomName);
     }
     setCurrentIndex((prev) => prev - 1);
   };
@@ -62,6 +83,9 @@ const RoomMatch = () => {
       await childRefs.current[currentIndex]?.current?.swipe(dir);
     }
   };
+  useEffect(() => {
+    console.log("Rooms", rooms);
+  }, [rooms]);
 
   return (
     <div className={`room-match-container ${isDarkMode ? "dark-mode" : ""}`}>
@@ -70,7 +94,7 @@ const RoomMatch = () => {
           <TinderCard
             ref={childRefs.current[index]}
             key={room._id}
-            onSwipe={(dir) => swiped(dir, room._id, index)}
+            onSwipe={(dir) => swiped(dir, room._id, room.title, index)}
             preventSwipe={["up", "down"]}
             className="tinder-card"
           >
@@ -93,13 +117,15 @@ const RoomMatch = () => {
         </button>
         <button
           onClick={() =>
-            currentIndex >= 0 && handleEnterRoom(rooms[currentIndex]._id)
+            currentIndex >= 0 && handleEnterRoom(rooms[currentIndex]._id, rooms[currentIndex].title)
           }
           className="join-button"
         >
           Join
         </button>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+
     </div>
   );
 };

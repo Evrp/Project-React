@@ -28,15 +28,20 @@ import "../chat/Chat.css";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
+import { ImSpinner2 } from "react-icons/im";
+
 const socket = io(import.meta.env.VITE_APP_API_BASE_URL);
 import { useTheme } from "../../context/themecontext";
 import ListUser from "./userlist";
 import CommunityList from "./communitylist";
+import ChatPanel from "./ChatPanel";
+import MatchList from "./matchlist";
 
 const Chat = () => {
   const { isDarkMode, setIsDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(true);
   const [isOpencom, setIsOpencom] = useState(true);
+  const [isOpenevent, setIsOpenevent] = useState(true);
   const { roomId } = useParams();
   const [users, setUsers] = useState([]);
   const userPhoto = localStorage.getItem("userPhoto");
@@ -57,7 +62,9 @@ const Chat = () => {
   const [followers, setFollowers] = useState([]); /// เพิ่ม followers
   const [following, setFollowing] = useState([]); /// เพิ่ม following
   const [joinedRooms, setJoinedRooms] = useState([]); /// เพิ่ม joinedRooms
+  const [joinedEevnts, setJoinedEevnts] = useState([]); /// เพิ่ม joinedRooms
   const [allRooms, setRooms] = useState([]); /// เพิ่ม joinedRooms
+  const [allEvents, setEvents] = useState([]); /// เพิ่ม joinedRooms
   const [friends, setFriends] = useState([]);
   const [friendsBar, setFriendsBar] = useState([]);
   const [RoomsBar, setRoomBar] = useState([]);
@@ -67,10 +74,14 @@ const Chat = () => {
   const [isGroupChat, setIsGroupChat] = useState(false);
   const [getnickName, getNickName] = useState("");
   const [lastMessages, setLastMessages] = useState({});
+  const [loadingFriends, setLoadingFriends] = useState(true);
+  const [loadingRooms, setLoadingRooms] = useState(true);
+  const [loadingMessages, setLoadingMessages] = useState(true);
 
   const defaultProfileImage = userPhoto;
 
   const fetchUsersAndFriends = async () => {
+    setLoadingFriends(true);
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/users`
@@ -99,6 +110,8 @@ const Chat = () => {
       }
     } catch (error) {
       console.error("Error fetching users and friends:", error);
+    } finally {
+      setLoadingFriends(false);
     }
   };
 
@@ -159,11 +172,9 @@ const Chat = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `${
-      import.meta.env.VITE_APP_API_BASE_URL
-    }/api/users/${userEmail}/${
-      isFollowing ? "unfollow" : "follow"
-    }/${targetEmail}`;
+    const url = `${import.meta.env.VITE_APP_API_BASE_URL
+      }/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
+      }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -178,38 +189,19 @@ const Chat = () => {
     setSelectedUser(null);
   };
 
-  const handleDeleteRoom = async (roomName) => {
-    try {
-      const response = await axios.delete(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
-        }/api/delete-joined-rooms/${roomName}/${userEmail}`
-      );
-
-      // อัปเดต state ทันที
-      setJoinedRooms((prev) => ({
-        ...prev,
-        roomNames: prev.roomNames.filter((name) => name !== roomName),
-        roomIds: prev.roomIds.filter((id) => id !== roomName), // ใช้ roomName ถ้าเก็บเป็นชื่อ
-      }));
-
-      toast.success("ลบห้องสําเร็จ!");
-    } catch (error) {
-      console.error("ลบห้องล้มเหลว:", error);
-      toast.error("ลบห้องล้มเหลว!");
-    }
-  };
   const fetchJoinedRooms = async () => {
+    setLoadingRooms(true);
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const res = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
+        `${import.meta.env.VITE_APP_API_BASE_URL
         }/api/user-rooms/${encodedEmail}`
       );
       setJoinedRooms(res.data);
     } catch (err) {
       console.error("Error fetching joined rooms:", err);
+    } finally {
+      setLoadingRooms(false);
     }
   };
   const getallRooms = async () => {
@@ -218,6 +210,16 @@ const Chat = () => {
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/allrooms`
       );
       setRooms(res.data);
+    } catch (err) {
+      console.error("Error joining room:", err);
+    }
+  };
+  const getallEvents = async () => {
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/events-match`
+      );
+      setEvents(res.data);
     } catch (err) {
       console.error("Error joining room:", err);
     }
@@ -349,7 +351,11 @@ const Chat = () => {
       fetchJoinedRooms();
       getallRooms();
     }
-  }, [isOpencom, userEmail]);
+    else if (isOpenevent) {
+      fetchJoinedRooms();
+      getallEvents();
+    }
+  }, [isOpencom, isOpenevent, userEmail]);
   /////////Chat One To One//////////
   useEffect(() => {
     if (!roomId) return;
@@ -371,17 +377,17 @@ const Chat = () => {
 
       const filteredMessages = isGroupChat
         ? allMessages.filter((msg) => {
-            const isMyMsg = msg.receiver === activeUser;
-            return isMyMsg;
-          })
+          const isMyMsg = msg.receiver === activeUser;
+          return isMyMsg;
+        })
         : allMessages.filter((msg) => {
-            const isMyMsg =
-              msg.sender === userEmail && msg.receiver === activeUser;
-            const isTheirMsg =
-              msg.sender === activeUser &&
-              (msg.receiver === userEmail || !msg.receiver);
-            return isMyMsg || isTheirMsg;
-          });
+          const isMyMsg =
+            msg.sender === userEmail && msg.receiver === activeUser;
+          const isTheirMsg =
+            msg.sender === activeUser &&
+            (msg.receiver === userEmail || !msg.receiver);
+          return isMyMsg || isTheirMsg;
+        });
 
       setMessages(filteredMessages);
       scrollToBottom();
@@ -440,6 +446,7 @@ const Chat = () => {
   }, []);
 
   useEffect(() => {
+    setLoadingMessages(true);
     const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const newMessages = snapshot.docs.map((doc) => ({
@@ -458,6 +465,7 @@ const Chat = () => {
       });
 
       setLastMessages(latest);
+      setLoadingMessages(false);
     });
 
     return () => unsubscribe();
@@ -502,14 +510,12 @@ const Chat = () => {
 
   return (
     <RequireLogin>
-      {/* <div className="main-container"> */}
       <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
         <div className="user-container">
           <div className="chat">
             <h2>Chat</h2>
           </div>
           <div className="search-con">
-            {" "}
             <FaSearch className="search-icon" />
             <input
               type="text"
@@ -517,207 +523,143 @@ const Chat = () => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
               className="search-input-friend"
+              autoFocus
             />
           </div>
           <div className="slide-chat">
-            <ListUser
-              sortedFriends={sortedFriends}
-              lastMessages={lastMessages}
-              setActiveUser={setActiveUser}
-              setIsGroupChat={setIsGroupChat}
-              dropdownRefs={dropdownRefs}
-              getnickName={getnickName}
-              setFriends={setFriends}
-            />
-            <CommunityList
+            {loadingFriends ? (
+              <div className="loading-spinner"><ImSpinner2 className="spin" /> กำลังโหลดเพื่อน...</div>
+            ) : friends.length === 0 ? (
+              <div className="empty-list">ไม่พบเพื่อน</div>
+            ) : (
+              <ListUser
+                sortedFriends={sortedFriends}
+                lastMessages={lastMessages}
+                setActiveUser={setActiveUser}
+                setIsGroupChat={setIsGroupChat}
+                dropdownRefs={dropdownRefs}
+                getnickName={getnickName}
+                setFriends={setFriends}
+              />
+            )}
+            {loadingRooms ? (
+              <div className="loading-spinner"><ImSpinner2 className="spin" /> กำลังโหลดห้อง...</div>
+            ) : (
+              <CommunityList
+                joinedRooms={joinedRooms}
+                allRooms={allRooms}
+                isOpencom={isOpencom}
+                setIsOpencom={setIsOpencom}
+                setActiveUser={setActiveUser}
+                setIsGroupChat={setIsGroupChat}
+                dropdownRefs={dropdownRefs}
+                getnickName={getnickName}
+                setFriends={setFriends}
+                setRoombar={setRoombar}
+                loadingFriendRooms={loadingFriendRooms}
+                openMenuFor={openMenuFor}
+                setJoinedRooms={setJoinedRooms}
+                setOpenMenuFor={setOpenMenuFor}
+              />
+            )}
+            <MatchList
               joinedRooms={joinedRooms}
               allRooms={allRooms}
               setActiveUser={setActiveUser}
-              setIsGroupChat={setIsGroupChat}
-              dropdownRefs={dropdownRefs}
-              getnickName={getnickName}
-              setFriends={setFriends}
               setRoombar={setRoombar}
+              setIsGroupChat={setIsGroupChat}
               loadingFriendRooms={loadingFriendRooms}
               openMenuFor={openMenuFor}
-              setJoinedRooms={setJoinedRooms}
               setOpenMenuFor={setOpenMenuFor}
+              dropdownRefs={dropdownRefs}
+              setJoinedRooms={setJoinedRooms}
+              getnickName={getnickName}
+              setFriends={setFriends}
             />
-
-            
           </div>
         </div>
         <div className="bg-chat-con">
-          <div className="chat-container">
-            <div className="show-info">
-              <img
-                src={
-                  users.find((u) => u.email === activeUser)?.photoURL ||
-                  RoomsBar.roomImage ||
-                  userPhoto
-                }
-                alt="Profile"
-                className="chat-profile"
-              />
-
-              <h2>
-                {Array.isArray(getnickName) &&
-                  (getnickName.find((u) => u.email === activeUser)?.nickname ||
-                    users.find((u) => u.email === activeUser)?.displayName ||
-                    RoomsBar.roomName ||
-                    userName)}
-              </h2>
-            </div>
-            <div className="chat-box">
-              {messages.map((msg, index) => {
-                const isCurrentUser = msg.sender === userEmail;
-                const senderInfo = users.find(
-                  (user) =>
-                    user.email?.toLowerCase() === msg.sender?.toLowerCase()
-                );
-                const messageDate = msg.timestamp?.toDate();
-                const previousMessageDate =
-                  index > 0 ? messages[index - 1].timestamp?.toDate() : null;
-                const isNewDay =
-                  !previousMessageDate ||
-                  messageDate?.toDateString() !==
-                    previousMessageDate?.toDateString();
-
-                return (
-                  <React.Fragment key={msg.id}>
-                    {isNewDay && (
-                      <div className="chat-date-divider">
-                        {messageDate && formatChatDate(messageDate)}
-                      </div>
-                    )}
-
-                    <div
-                      className={`chat-message ${
-                        isCurrentUser ? "my-message" : "other-message"
-                      }`}
-                    >
-                      {!isCurrentUser && (
-                        <img
-                          src={senderInfo?.photoURL || defaultProfileImage}
-                          alt="Sender"
-                          className="message-avatar"
-                        />
-                      )}
-
-                      <div
-                        className={`message-content ${
-                          isCurrentUser ? "current" : "other"
-                        }`}
-                      >
-                        <div className="colum-message">
-                          <div
-                            className={`message-bubble ${
-                              isCurrentUser ? "current" : "other"
-                            }`}
-                          >
-                            {msg.content || msg.text}
-                          </div>
-                          {isCurrentUser && index === messages.length - 1 && (
-                            <div className="seen-status">
-                              {msg.isSeen ? "Seen" : ""}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </React.Fragment>
-                );
-              })}
-
-              <div ref={endOfMessagesRef} />
-            </div>
-            <div className="chat-input-container">
-              <div className="chat-border">
-                <div className="emoji-right">
-                  <TiMicrophoneOutline />
-                </div>
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                  placeholder={"Writing something..."}
-                  className="chat-input"
-                />
-                <div className="emoji">
-                  <MdAttachFile />
-                  <IoCameraOutline />
-                  <BsEmojiSmile />
-                </div>
-                {/* <button onClick={handleSend} className="chat-send-button">
-              Send
-            </button> */}
-              </div>
-            </div>
-          </div>
+          <ChatPanel
+            messages={messages}
+            users={users}
+            userEmail={userEmail}
+            userPhoto={userPhoto}
+            userName={userName}
+            RoomsBar={RoomsBar}
+            getnickName={getnickName}
+            input={input}
+            setInput={setInput}
+            handleSend={handleSend}
+            endOfMessagesRef={endOfMessagesRef}
+            defaultProfileImage={defaultProfileImage}
+            formatChatDate={formatChatDate}
+          />
           <div className="chat-container-ai">
             <div className="header-chat-ai">
               <h1>Ai Chat</h1>
               <div className="chat-box">
-                {messages.map((msg, index) => {
-                  const isCurrentUser = msg.sender === userEmail;
-                  const senderInfo = users.find(
-                    (user) =>
-                      user.email?.toLowerCase() === msg.sender?.toLowerCase()
-                  );
-                  const messageDate = msg.timestamp?.toDate();
-                  const previousMessageDate =
-                    index > 0 ? messages[index - 1].timestamp?.toDate() : null;
-                  const isNewDay =
-                    !previousMessageDate ||
-                    messageDate?.toDateString() !==
+                {loadingMessages ? (
+                  <div className="loading-spinner"><ImSpinner2 className="spin" /> กำลังโหลดข้อความ...</div>
+                ) : messages.length === 0 ? (
+                  <div className="empty-list">ยังไม่มีข้อความ</div>
+                ) : (
+                  messages.map((msg, index) => {
+                    const isCurrentUser = msg.sender === userEmail;
+                    const senderInfo = users.find(
+                      (user) =>
+                        user.email?.toLowerCase() === msg.sender?.toLowerCase()
+                    );
+                    const messageDate = msg.timestamp?.toDate();
+                    const previousMessageDate =
+                      index > 0 ? messages[index - 1].timestamp?.toDate() : null;
+                    const isNewDay =
+                      !previousMessageDate ||
+                      messageDate?.toDateString() !==
                       previousMessageDate?.toDateString();
 
-                  return (
-                    <React.Fragment key={msg.id}>
-                      {isNewDay && (
-                        <div className="chat-date-divider">
-                          {messageDate && formatChatDate(messageDate)}
-                        </div>
-                      )}
-
-                      <div
-                        className={`chat-message ${
-                          isCurrentUser ? "my-message" : "other-message"
-                        }`}
-                      >
-                        {!isCurrentUser && (
-                          <img
-                            src={senderInfo?.photoURL || defaultProfileImage}
-                            alt="Sender"
-                            className="message-avatar"
-                          />
+                    return (
+                      <React.Fragment key={msg.id}>
+                        {isNewDay && (
+                          <div className="chat-date-divider">
+                            {messageDate && formatChatDate(messageDate)}
+                          </div>
                         )}
 
                         <div
-                          className={`message-content ${
-                            isCurrentUser ? "current" : "other"
-                          }`}
+                          className={`chat-message ${isCurrentUser ? "my-message" : "other-message"
+                            }`}
                         >
-                          <div className="colum-message">
-                            <div
-                              className={`message-bubble ${
-                                isCurrentUser ? "current" : "other"
+                          {!isCurrentUser && (
+                            <img
+                              src={senderInfo?.photoURL || defaultProfileImage}
+                              alt="Sender"
+                              className="message-avatar"
+                            />
+                          )}
+
+                          <div
+                            className={`message-content ${isCurrentUser ? "current" : "other"
                               }`}
-                            >
-                              {msg.content || msg.text}
-                            </div>
-                            {isCurrentUser && index === messages.length - 1 && (
-                              <div className="seen-status">
-                                {msg.isSeen ? "Seen" : ""}
+                          >
+                            <div className="colum-message">
+                              <div
+                                className={`message-bubble ${isCurrentUser ? "current" : "other"
+                                  }`}
+                              >
+                                {msg.content || msg.text}
                               </div>
-                            )}
+                              {isCurrentUser && index === messages.length - 1 && (
+                                <div className="seen-status">
+                                  {msg.isSeen ? "Seen" : ""}
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </React.Fragment>
-                  );
-                })}
+                      </React.Fragment>
+                    );
+                  })
+                )}
 
                 <div ref={endOfMessagesRef} />
               </div>
@@ -730,24 +672,22 @@ const Chat = () => {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
                     placeholder={"Writing something..."}
                     className="chat-input"
+                    autoFocus
                   />
                   <div className="emoji">
                     <MdAttachFile />
                     <IoCameraOutline />
                     <BsEmojiSmile />
                   </div>
-                  {/* <button onClick={handleSend} className="chat-send-button">
-              Send
-            </button> */}
+                  <button onClick={handleSend} className="chat-send-button">Send</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        {/* <ToastContainer position="top-right" autoClose={3000} hideProgressBar /> */}
       </div>
     </RequireLogin>
   );

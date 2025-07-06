@@ -89,8 +89,7 @@ const ListUser = ({
       setLoadingFriendEmail(friendEmail);
 
       await axios.delete(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
+        `${import.meta.env.VITE_APP_API_BASE_URL
         }/api/users/${userEmail}/friends/${friendEmail}`
       );
 
@@ -126,11 +125,9 @@ const ListUser = ({
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `${
-      import.meta.env.VITE_APP_API_BASE_URL
-    }/api/users/${userEmail}/${
-      isFollowing ? "unfollow" : "follow"
-    }/${targetEmail}`;
+    const url = `${import.meta.env.VITE_APP_API_BASE_URL
+      }/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
+      }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -153,8 +150,7 @@ const ListUser = ({
   const fetchFollowInfo = async (targetEmail) => {
     try {
       const res = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
+        `${import.meta.env.VITE_APP_API_BASE_URL
         }/api/user/${targetEmail}/follow-info`
       );
 
@@ -178,6 +174,13 @@ const ListUser = ({
     const emails = [userEmail, friendEmail].sort();
     return `room__${emails[0]}__${emails[1]}`;
   };
+  const handleEnterRoom = (roomId) => {
+    navigate(`/chat/${roomId}`);
+    // handleAddCommunity(roomId, roomName);
+  };
+  useEffect(() => {
+    console.log("Sorted Friends:", sortedFriends);
+   }, []);
 
   return (
     <div className="favorite-container">
@@ -222,9 +225,8 @@ const ListUser = ({
                   </div>
                   <div className="con-right">
                     <span
-                      className={`status ${
-                        friend.isOnline ? "online" : "offline"
-                      }`}
+                      className={`status ${friend.isOnline ? "online" : "offline"
+                        }`}
                     >
                       {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                     </span>
@@ -260,7 +262,7 @@ const ListUser = ({
                             }}
                           >
                             {Array.isArray(currentUserfollow?.following) &&
-                            currentUserfollow.following.includes(friend.email)
+                              currentUserfollow.following.includes(friend.email)
                               ? "🔔 กำลังติดตาม"
                               : "➕ ติดตาม"}
                           </button>
