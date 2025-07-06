@@ -4,13 +4,11 @@ import { BsThreeDots } from "react-icons/bs";
 import axios from "axios";
 import { toast } from "react-toastify";
 
-const CommunityList = ({
+const MatchList = ({
   joinedRooms,
   allRooms,
   setActiveUser,
   setRoombar,
-  isOpencom,
-  setIsOpencom,
   setIsGroupChat,
   loadingFriendRooms,
   openMenuFor,
@@ -18,6 +16,7 @@ const CommunityList = ({
   dropdownRefs,
   setJoinedRooms
 }) => {
+  const [isOpencom, setIsOpencom] = useState(true);
   const userEmail = localStorage.getItem("userEmail");
 
   const handleDeleteRoom = async (roomName) => {
@@ -139,4 +138,4 @@ const CommunityList = ({
   );
 };
 
-export default CommunityList;
+export default MatchList;
