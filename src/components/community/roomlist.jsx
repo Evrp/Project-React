@@ -35,7 +35,6 @@ const RoomList = ({
         );
         // สมมติ API ส่งกลับเป็น { roomNames: [{ _id, name, ... }] }
         // ...existing code...
-        console.log("Joined Rooms:", filterjoinedRooms.data);
         const joinedIds = Array.isArray(filterjoinedRooms.data.roomIds)
           ? filterjoinedRooms.data.roomIds.filter((id) => !!id)
           : [];

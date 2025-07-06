@@ -6,17 +6,18 @@ import { toast } from "react-toastify";
 
 const MatchList = ({
   joinedRooms,
-  allRooms,
+  allEvents,
   setActiveUser,
   setRoombar,
   setIsGroupChat,
+  isOpenMatch,
+  setIsOpenMatch,
   loadingFriendRooms,
   openMenuFor,
   setOpenMenuFor,
   dropdownRefs,
-  setJoinedRooms
+  setJoinedRooms,
 }) => {
-  const [isOpencom, setIsOpencom] = useState(true);
   const userEmail = localStorage.getItem("userEmail");
 
   const handleDeleteRoom = async (roomName) => {
@@ -45,20 +46,21 @@ const MatchList = ({
     <div className="favorite-container">
       <div
         className="favorite-toggle"
-        onClick={() => setIsOpencom((prev) => !prev)}
+        onClick={() => setIsOpenMatch((prev) => !prev)}
       >
-        {isOpencom ? <FaChevronDown /> : <FaChevronRight />}
-        <span>Community</span>
+        {isOpenMatch ? <FaChevronDown /> : <FaChevronRight />}
+        <span>Match</span>
       </div>
-      {isOpencom && (
+      {isOpenMatch && (
         <div
-          className={!isOpencom ? "group-container-open" : "group-container"}
+          className={!isOpenMatch ? "group-container-open" : "group-container"}
         >
           {" "}
           <ul className="friend-list-chat">
             {joinedRooms.roomNames?.map((name, index) => {
               const roomId = joinedRooms.roomNames?.[index];
-
+              console.log("Room ID:", roomId);
+              console.log("Room Name:", allEvents);
               // ข้ามถ้า name หรือ id เป็น null
               if (!name || !roomId) return null;
 
@@ -66,39 +68,37 @@ const MatchList = ({
                 <div key={roomId}>
                   {/* <h1>{name}</h1> */}
                   <ul>
-                    {allRooms.map((room) =>
-                      room.name === name ? (
+                    {allEvents.map((room) =>
+                      room.title === name ? (
+                   
+                        // ถ้า room.title ตรงกับ name ที่ได้จาก joinedRooms
                         <li
                           // key={room.roomId}
                           className="chat-friend-item"
                           onClick={() => {
-                            setActiveUser(room.name),
-                              setRoombar(room.image, room.name);
+                            setActiveUser(room.title),
+                              setRoombar(room.image, room.title);
                             setIsGroupChat(true);
                           }}
                         >
                           <img
                             src={room.image}
-                            alt={room.name}
+                            alt={room.title}
                             className="friend-photo"
                           />
                           <div className="friend-detailss">
-                            <span className="friend-name">{room.name}</span>
-                            <span className="friend-email">
-                              Host:
-                              {room.createdBy}
-                            </span>
+                            <span className="friend-name">{room.title}</span>
                           </div>
                           <div
                             className="dropdown-wrapper"
-                            ref={(el) => (dropdownRefs.current[room.name] = el)}
+                            ref={(el) => (dropdownRefs.current[room.title] = el)}
                             onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
                           >
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setOpenMenuFor((prev) =>
-                                  prev === room.name ? null : room.name
+                                  prev === room.title ? null : room.title
                                 );
                               }}
                               className="dropdown-toggle"
@@ -106,18 +106,18 @@ const MatchList = ({
                               <BsThreeDots size={20} />
                             </button>
 
-                            {openMenuFor === room.name && (
+                            {openMenuFor === room.title && (
                               <div className="chat-dropdown-menu">
                                 <button
                                   className="dropdown-item"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleDeleteRoom(room.name);
+                                    handleDeleteRoom(room.title);
                                     setOpenMenuFor(null);
                                   }}
-                                  disabled={loadingFriendRooms === room.name}
+                                  disabled={loadingFriendRooms === room.title}
                                 >
-                                  {loadingFriendRooms === room.name
+                                  {loadingFriendRooms === room.title
                                     ? "กำลังลบ..."
                                     : "🗑️ ลบห้อง"}
                                 </button>
