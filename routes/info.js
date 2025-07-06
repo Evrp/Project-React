@@ -51,6 +51,13 @@ router.get("/user-rooms/:email", async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 });
-
+router.get("/get-all-nicknames", async (req, res) => {
+  try {
+    const users = await Info.find();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: "ไม่สามารถโหลดผู้ใช้ได้" });
+  }
+});
 // Export the router
 export default router;
