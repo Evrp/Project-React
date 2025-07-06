@@ -16,7 +16,7 @@ const ListUser = ({
   setFriends,
   setActiveRoomId, // เพิ่ม prop
 }) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
   const [openMenuFor, setOpenMenuFor] = useState(null);
   const [currentUserfollow, setCurrentUserfollow] = useState(null);
   const [followers, setFollowers] = useState([]); /// เพิ่ม followers
@@ -178,9 +178,6 @@ const ListUser = ({
     navigate(`/chat/${roomId}`);
     // handleAddCommunity(roomId, roomName);
   };
-  useEffect(() => {
-    console.log("Sorted Friends:", sortedFriends);
-   }, []);
 
   return (
     <div className="favorite-container">

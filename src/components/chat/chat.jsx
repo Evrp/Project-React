@@ -40,7 +40,7 @@ import MatchList from "./matchlist";
 const Chat = () => {
   const { isDarkMode, setIsDarkMode } = useTheme();
   const [isOpen, setIsOpen] = useState(true);
-  const [isOpencom, setIsOpencom] = useState(true);
+  const [isOpencom, setIsOpencom] = useState(false);
   const [isOpenevent, setIsOpenevent] = useState(true);
   const { roomId } = useParams();
   const [users, setUsers] = useState([]);
@@ -57,12 +57,8 @@ const Chat = () => {
   const userEmail = localStorage.getItem("userEmail");
   const messagesRef = collection(db, "messages");
   const endOfMessagesRef = useRef(null);
-  const modalRef = useRef(null); /// เพิ่ม modalRef
   const dropdownRefs = useRef({});
-  const [followers, setFollowers] = useState([]); /// เพิ่ม followers
-  const [following, setFollowing] = useState([]); /// เพิ่ม following
   const [joinedRooms, setJoinedRooms] = useState([]); /// เพิ่ม joinedRooms
-  const [joinedEevnts, setJoinedEevnts] = useState([]); /// เพิ่ม joinedRooms
   const [allRooms, setRooms] = useState([]); /// เพิ่ม joinedRooms
   const [allEvents, setEvents] = useState([]); /// เพิ่ม joinedRooms
   const [friends, setFriends] = useState([]);
@@ -77,6 +73,7 @@ const Chat = () => {
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [loadingRooms, setLoadingRooms] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(true);
+  const [isOpenMatch, setIsOpenMatch] = useState(false);
 
   const defaultProfileImage = userPhoto;
 
@@ -172,9 +169,11 @@ const Chat = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `${import.meta.env.VITE_APP_API_BASE_URL
-      }/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
-      }/${targetEmail}`;
+    const url = `${
+      import.meta.env.VITE_APP_API_BASE_URL
+    }/api/users/${userEmail}/${
+      isFollowing ? "unfollow" : "follow"
+    }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -184,17 +183,14 @@ const Chat = () => {
       console.error("Follow/unfollow error:", err);
     }
   };
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedUser(null);
-  };
 
   const fetchJoinedRooms = async () => {
     setLoadingRooms(true);
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
         }/api/user-rooms/${encodedEmail}`
       );
       setJoinedRooms(res.data);
@@ -350,12 +346,11 @@ const Chat = () => {
     if (isOpencom) {
       fetchJoinedRooms();
       getallRooms();
-    }
-    else if (isOpenevent) {
+    } else if (isOpenMatch) {
       fetchJoinedRooms();
       getallEvents();
     }
-  }, [isOpencom, isOpenevent, userEmail]);
+  }, [isOpencom, isOpenMatch, userEmail]);
   /////////Chat One To One//////////
   useEffect(() => {
     if (!roomId) return;
@@ -377,17 +372,17 @@ const Chat = () => {
 
       const filteredMessages = isGroupChat
         ? allMessages.filter((msg) => {
-          const isMyMsg = msg.receiver === activeUser;
-          return isMyMsg;
-        })
+            const isMyMsg = msg.receiver === activeUser;
+            return isMyMsg;
+          })
         : allMessages.filter((msg) => {
-          const isMyMsg =
-            msg.sender === userEmail && msg.receiver === activeUser;
-          const isTheirMsg =
-            msg.sender === activeUser &&
-            (msg.receiver === userEmail || !msg.receiver);
-          return isMyMsg || isTheirMsg;
-        });
+            const isMyMsg =
+              msg.sender === userEmail && msg.receiver === activeUser;
+            const isTheirMsg =
+              msg.sender === activeUser &&
+              (msg.receiver === userEmail || !msg.receiver);
+            return isMyMsg || isTheirMsg;
+          });
 
       setMessages(filteredMessages);
       scrollToBottom();
@@ -528,7 +523,9 @@ const Chat = () => {
           </div>
           <div className="slide-chat">
             {loadingFriends ? (
-              <div className="loading-spinner"><ImSpinner2 className="spin" /> กำลังโหลดเพื่อน...</div>
+              <div className="loading-spinner">
+                <ImSpinner2 className="spin" /> กำลังโหลดเพื่อน...
+              </div>
             ) : friends.length === 0 ? (
               <div className="empty-list">ไม่พบเพื่อน</div>
             ) : (
@@ -542,29 +539,29 @@ const Chat = () => {
                 setFriends={setFriends}
               />
             )}
-            {loadingRooms ? (
-              <div className="loading-spinner"><ImSpinner2 className="spin" /> กำลังโหลดห้อง...</div>
-            ) : (
-              <CommunityList
-                joinedRooms={joinedRooms}
-                allRooms={allRooms}
-                isOpencom={isOpencom}
-                setIsOpencom={setIsOpencom}
-                setActiveUser={setActiveUser}
-                setIsGroupChat={setIsGroupChat}
-                dropdownRefs={dropdownRefs}
-                getnickName={getnickName}
-                setFriends={setFriends}
-                setRoombar={setRoombar}
-                loadingFriendRooms={loadingFriendRooms}
-                openMenuFor={openMenuFor}
-                setJoinedRooms={setJoinedRooms}
-                setOpenMenuFor={setOpenMenuFor}
-              />
-            )}
-            <MatchList
+
+            <CommunityList
               joinedRooms={joinedRooms}
               allRooms={allRooms}
+              isOpencom={isOpencom}
+              setIsOpencom={setIsOpencom}
+              setActiveUser={setActiveUser}
+              setIsGroupChat={setIsGroupChat}
+              dropdownRefs={dropdownRefs}
+              getnickName={getnickName}
+              setFriends={setFriends}
+              setRoombar={setRoombar}
+              loadingFriendRooms={loadingFriendRooms}
+              openMenuFor={openMenuFor}
+              setJoinedRooms={setJoinedRooms}
+              setOpenMenuFor={setOpenMenuFor}
+            />
+
+            <MatchList
+              joinedRooms={joinedRooms}
+              allEvents={allEvents}
+              isOpenMatch={isOpenMatch}
+              setIsOpenMatch={setIsOpenMatch}
               setActiveUser={setActiveUser}
               setRoombar={setRoombar}
               setIsGroupChat={setIsGroupChat}
@@ -599,7 +596,9 @@ const Chat = () => {
               <h1>Ai Chat</h1>
               <div className="chat-box">
                 {loadingMessages ? (
-                  <div className="loading-spinner"><ImSpinner2 className="spin" /> กำลังโหลดข้อความ...</div>
+                  <div className="loading-spinner">
+                    <ImSpinner2 className="spin" /> กำลังโหลดข้อความ...
+                  </div>
                 ) : messages.length === 0 ? (
                   <div className="empty-list">ยังไม่มีข้อความ</div>
                 ) : (
@@ -611,11 +610,13 @@ const Chat = () => {
                     );
                     const messageDate = msg.timestamp?.toDate();
                     const previousMessageDate =
-                      index > 0 ? messages[index - 1].timestamp?.toDate() : null;
+                      index > 0
+                        ? messages[index - 1].timestamp?.toDate()
+                        : null;
                     const isNewDay =
                       !previousMessageDate ||
                       messageDate?.toDateString() !==
-                      previousMessageDate?.toDateString();
+                        previousMessageDate?.toDateString();
 
                     return (
                       <React.Fragment key={msg.id}>
@@ -626,8 +627,9 @@ const Chat = () => {
                         )}
 
                         <div
-                          className={`chat-message ${isCurrentUser ? "my-message" : "other-message"
-                            }`}
+                          className={`chat-message ${
+                            isCurrentUser ? "my-message" : "other-message"
+                          }`}
                         >
                           {!isCurrentUser && (
                             <img
@@ -638,21 +640,24 @@ const Chat = () => {
                           )}
 
                           <div
-                            className={`message-content ${isCurrentUser ? "current" : "other"
-                              }`}
+                            className={`message-content ${
+                              isCurrentUser ? "current" : "other"
+                            }`}
                           >
                             <div className="colum-message">
                               <div
-                                className={`message-bubble ${isCurrentUser ? "current" : "other"
-                                  }`}
+                                className={`message-bubble ${
+                                  isCurrentUser ? "current" : "other"
+                                }`}
                               >
                                 {msg.content || msg.text}
                               </div>
-                              {isCurrentUser && index === messages.length - 1 && (
-                                <div className="seen-status">
-                                  {msg.isSeen ? "Seen" : ""}
-                                </div>
-                              )}
+                              {isCurrentUser &&
+                                index === messages.length - 1 && (
+                                  <div className="seen-status">
+                                    {msg.isSeen ? "Seen" : ""}
+                                  </div>
+                                )}
                             </div>
                           </div>
                         </div>
@@ -682,7 +687,9 @@ const Chat = () => {
                     <IoCameraOutline />
                     <BsEmojiSmile />
                   </div>
-                  <button onClick={handleSend} className="chat-send-button">Send</button>
+                  <button onClick={handleSend} className="chat-send-button">
+                    Send
+                  </button>
                 </div>
               </div>
             </div>
