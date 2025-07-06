@@ -1,32 +1,32 @@
-import exepress from "express";
+import express from "express";
 import { Info } from "../src/model/info.js";
-const router = exepress.Router();
+const router = express.Router();
 
 // routes/api.js หรือไฟล์หลักของ backend
 router.post("/join-community", async (req, res) => {
-    const { userEmail, roomId, roomName } = req.body;
-    console.log(userEmail, roomId, roomName);
-    if (!userEmail || !roomId || !roomName) {
-        return res
-            .status(400)
-            .json({ error: "userEmail and roomId are required." });
-    }
-    try {
-        const updatedUser = await Info.findOneAndUpdate(
-            { email: userEmail },
-            {
-                $push: {
-                    joinedRooms: { roomId, roomName },
-                },
-            },
-            { new: true, runValidators: true }
-        );
+  const { userEmail, roomId, roomName } = req.body;
+  console.log(userEmail, roomId, roomName);
+  if (!userEmail || !roomId || !roomName) {
+    return res
+      .status(400)
+      .json({ error: "userEmail and roomId are required." });
+  }
+  try {
+    const updatedUser = await Info.findOneAndUpdate(
+      { email: userEmail },
+      {
+        $push: {
+          joinedRooms: { roomId, roomName },
+        },
+      },
+      { new: true, runValidators: true }
+    );
 
-        res.json(updatedUser);
-    } catch (err) {
-        console.error("Error while joining room:", err);
-        res.status(500).json({ message: "Internal server error" });
-    }
+    res.json(updatedUser);
+  } catch (err) {
+    console.error("Error while joining room:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 //////////ดึงห้องที่ผู้ใช้เชื่อมต่อ/////////////////
@@ -51,13 +51,18 @@ router.get("/user-rooms/:email", async (req, res) => {
     res.status(500).json({ error: "Internal server error." });
   }
 });
+
+// ดึงข้อมูลผู้ใช้ทั้งหมด (nicknames)
+// ใช้สำหรับแสดงรายชื่อผู้ใช้ในหน้าเพื่อน
 router.get("/get-all-nicknames", async (req, res) => {
   try {
+    console.log("Fetching all nicknames");
     const users = await Info.find();
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: "ไม่สามารถโหลดผู้ใช้ได้" });
   }
 });
+
 // Export the router
 export default router;
