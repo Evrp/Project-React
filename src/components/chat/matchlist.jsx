@@ -20,19 +20,19 @@ const MatchList = ({
 }) => {
   const userEmail = localStorage.getItem("userEmail");
 
-  const handleDeleteRoom = async (roomName) => {
+  const handleDeleteRoom = async (roomId, roomName) => {
     try {
+      console.log("Deleting room:", roomId, "for user:", userEmail);
       await axios.delete(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
-        }/api/delete-joined-rooms/${roomName}/${userEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL
+        }/api/delete-joined-rooms/${roomId}/${userEmail}`
       );
 
       // อัปเดต state ทันที
       setJoinedRooms((prev) => ({
         ...prev,
         roomNames: prev.roomNames.filter((name) => name !== roomName),
-        roomIds: prev.roomIds.filter((id) => id !== roomName), // ใช้ roomName ถ้าเก็บเป็นชื่อ
+        roomIds: prev.roomIds.filter((id) => id !== roomId), // ใช้ roomName ถ้าเก็บเป็นชื่อ
       }));
 
       toast.success("ลบห้องสําเร็จ!");
@@ -58,22 +58,16 @@ const MatchList = ({
           {" "}
           <ul className="friend-list-chat">
             {joinedRooms.roomNames?.map((name, index) => {
-              const roomId = joinedRooms.roomNames?.[index];
-              console.log("Room ID:", roomId);
-              console.log("Room Name:", allEvents);
-              // ข้ามถ้า name หรือ id เป็น null
+              // ใช้ index เป็น fallback ถ้าไม่มี id จริง
+              const roomId = joinedRooms.roomIds?.[index] || `${name}-${index}`;
               if (!name || !roomId) return null;
-
               return (
                 <div key={roomId}>
-                  {/* <h1>{name}</h1> */}
                   <ul>
-                    {allEvents.map((room) =>
+                    {allEvents.map((room, i) =>
                       room.title === name ? (
-                   
-                        // ถ้า room.title ตรงกับ name ที่ได้จาก joinedRooms
                         <li
-                          // key={room.roomId}
+                          key={room._id || `${room.title}-${i}`}
                           className="chat-friend-item"
                           onClick={() => {
                             setActiveUser(room.title),
@@ -92,7 +86,7 @@ const MatchList = ({
                           <div
                             className="dropdown-wrapper"
                             ref={(el) => (dropdownRefs.current[room.title] = el)}
-                            onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
+                            onClick={(e) => e.stopPropagation()}
                           >
                             <button
                               onClick={(e) => {
@@ -105,14 +99,13 @@ const MatchList = ({
                             >
                               <BsThreeDots size={20} />
                             </button>
-
                             {openMenuFor === room.title && (
                               <div className="chat-dropdown-menu">
                                 <button
                                   className="dropdown-item"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleDeleteRoom(room.title);
+                                    handleDeleteRoom(room._id, room.title);
                                     setOpenMenuFor(null);
                                   }}
                                   disabled={loadingFriendRooms === room.title}
