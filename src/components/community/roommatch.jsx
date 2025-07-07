@@ -13,6 +13,7 @@ const RoomMatch = () => {
   const userEmail = localStorage.getItem("userEmail");
   const { isDarkMode } = useTheme();
   const [rooms, setRooms] = useState([]);
+  const [joinedRooms, setJoinedRooms] = useState([]);
   const [users, setUsers] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const childRefs = useRef([]);
@@ -24,6 +25,17 @@ const RoomMatch = () => {
         const res = await axios.get(
           `${import.meta.env.VITE_APP_API_BASE_URL}/api/events-match`
         );
+        const filterjoinedRooms = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/user-rooms/${userEmail}`
+        );
+        // แปลง roomIds เป็น string ทั้งหมด
+        const joinedIds = Array.isArray(filterjoinedRooms.data.roomIds)
+          ? filterjoinedRooms.data.roomIds.filter((id) => !!id).map(String)
+          : [];
+        setJoinedRooms(joinedIds);
+        // ...existing code...
+        console.log("Rooms All:", res.data);
+        console.log("Rooms Joins:", joinedIds.data);
         setRooms(res.data);
         setCurrentIndex(res.data.length - 1);
         childRefs.current = Array(res.data.length)
@@ -34,7 +46,8 @@ const RoomMatch = () => {
       }
     };
     fetchRooms();
-  }, []);
+  }, [userEmail]);
+  const filteredRooms = rooms.filter((room) => !joinedRooms.includes(String(room._id)));
 
   useEffect(() => {
     const fetchGmails = async () => {
@@ -83,14 +96,12 @@ const RoomMatch = () => {
       await childRefs.current[currentIndex]?.current?.swipe(dir);
     }
   };
-  useEffect(() => {
-    console.log("Rooms", rooms);
-  }, [rooms]);
+
 
   return (
     <div className={`room-match-container ${isDarkMode ? "dark-mode" : ""}`}>
       <div className="card-stack">
-        {rooms.map((room, index) => (
+        {filteredRooms.map((room, index) => (
           <TinderCard
             ref={childRefs.current[index]}
             key={room._id}

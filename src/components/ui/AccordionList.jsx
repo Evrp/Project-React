@@ -3,7 +3,6 @@ import "./AccordionList.css";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 const DEFAULT_TAB_OPTIONS = ["Option 1", "Option 2", "Option 3"];
 
 const AccordionList = ({ items }) => {
@@ -133,7 +132,7 @@ const AccordionList = ({ items }) => {
                                 ) : (
                                     <span className="accordion-title">Select genres</span>
                                 )}
-                                <span className="arrow" style={{ marginLeft: 'auto',paddingTop: '8.2px' }}>{openIndex === idx ? <FaChevronDown /> : <FaChevronRight />}</span>
+                                <span className="arrow" style={{ marginLeft: 'auto', paddingTop: '8.2px' }}>{openIndex === idx ? <FaChevronDown /> : <FaChevronRight />}</span>
                             </button>
                             {openIndex === idx && (
                                 <div className="accordion-content">
@@ -263,40 +262,57 @@ const AccordionList = ({ items }) => {
                         // Map selectedLabels to subGenres object
                         const subGenresObj = {};
                         selectedLabels.forEach(sel => {
-                          const [itemIdx, genreIdx] = sel.key.split("-");
-                          if (items[itemIdx] && items[itemIdx].genres && items[itemIdx].genres[genreIdx]) {
-                            const genreTitle = items[itemIdx].genres[genreIdx].title;
-                            if (!subGenresObj[genreTitle]) subGenresObj[genreTitle] = [];
-                            if (!subGenresObj[genreTitle].includes(sel.label)) subGenresObj[genreTitle].push(sel.label);
-                          }
+                            const [itemIdx, genreIdx] = sel.key.split("-");
+                            if (items[itemIdx] && items[itemIdx].genres && items[itemIdx].genres[genreIdx]) {
+                                const genreTitle = items[itemIdx].genres[genreIdx].title;
+                                if (!subGenresObj[genreTitle]) subGenresObj[genreTitle] = [];
+                                if (!subGenresObj[genreTitle].includes(sel.label)) subGenresObj[genreTitle].push(sel.label);
+                            }
                         });
                         const selectedGenres = Object.keys(subGenresObj);
                         const email = localStorage.getItem("userEmail");
+                        // Validation
+                        if (!email) {
+                            setError("ไม่พบอีเมลผู้ใช้ กรุณาเข้าสู่ระบบใหม่");
+                            setLoading(false);
+                            return;
+                        }
+                        if (!Array.isArray(selectedGenres) || selectedGenres.length === 0) {
+                            setError("กรุณาเลือกอย่างน้อย 1 หมวดหมู่");
+                            setLoading(false);
+                            return;
+                        }
+                        if (typeof subGenresObj !== "object" || Object.keys(subGenresObj).length === 0) {
+                            setError("กรุณาเลือก sub-genre อย่างน้อย 1 รายการ");
+                            setLoading(false);
+                            return;
+                        }
                         console.log("Selected Genres:", selectedGenres);
                         console.log("Sub Genres Object:", subGenresObj);
                         try {
-                          const response = await fetch(
-                            `${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`,
-                            {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({
-                                email,
-                                genres: selectedGenres,
-                                subGenres: subGenresObj,
-                                updatedAt: new Date().toISOString(),
-                              }),
+                            const response = await fetch(
+                                `${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`,
+                                {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        email,
+                                        genres: selectedGenres,
+                                        subGenres: subGenresObj,
+                                        updatedAt: new Date().toISOString(),
+                                    }),
+                                }
+                            );
+                            if (response.ok) {
+                                toast.success("บันทึกการเลือกสำเร็จ");
+                            } else {
+                                const errText = await response.text();
+                                setError("เกิดข้อผิดพลาดในการบันทึกข้อมูล: " + errText);
+                                toast.error("บันทึกข้อมูลล้มเหลว");
                             }
-                          );
-                          if (response.ok) {
-                            toast.success("บันทึกการเลือกสำเร็จ");
-                          } else {
-                            setError("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
-                            toast.error("บันทึกข้อมูลล้มเหลว");
-                          }
                         } catch (err) {
-                          setError("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
-                          toast.error("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
+                            setError("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
+                            toast.error("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
                         }
                         setLoading(false);
                     }}
@@ -313,28 +329,28 @@ const AccordionList = ({ items }) => {
                         setSelectedLabels([]);
                         const email = localStorage.getItem("userEmail");
                         try {
-                          const response = await fetch(
-                            `${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`,
-                            {
-                              method: "POST",
-                              headers: { "Content-Type": "application/json" },
-                              body: JSON.stringify({
-                                email,
-                                genres: [],
-                                subGenres: {},
-                                updatedAt: new Date().toISOString(),
-                              }),
+                            const response = await fetch(
+                                `${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`,
+                                {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({
+                                        email,
+                                        genres: [],
+                                        subGenres: {},
+                                        updatedAt: new Date().toISOString(),
+                                    }),
+                                }
+                            );
+                            if (response.ok) {
+                                toast.success("ลบตัวเลือกทั้งหมดสำเร็จ");
+                            } else {
+                                setError("เกิดข้อผิดพลาดในการลบข้อมูล");
+                                toast.error("ลบข้อมูลล้มเหลว");
                             }
-                          );
-                          if (response.ok) {
-                            toast.success("ลบตัวเลือกทั้งหมดสำเร็จ");
-                          } else {
-                            setError("เกิดข้อผิดพลาดในการลบข้อมูล");
-                            toast.error("ลบข้อมูลล้มเหลว");
-                          }
                         } catch (err) {
-                          setError("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
-                          toast.error("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
+                            setError("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
+                            toast.error("เกิดข้อผิดพลาดขณะเชื่อมต่อเซิร์ฟเวอร์");
                         }
                         setLoading(false);
                     }}

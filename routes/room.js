@@ -1,6 +1,7 @@
 import express from "express";
 import { Room } from "../src/model/room.js";
 import { Info } from "../src/model/info.js";
+import { EventMatch } from "../src/model/eventmatch.js";
 const router = express.Router();
 
 // Join community
@@ -76,31 +77,17 @@ router.post("/delete-rooms", async (req, res) => {
 });
 
 // Delete joined room
-router.delete("/delete-joined-rooms/:roomName/:userEmail", async (req, res) => {
-  const { roomName, userEmail } = req.params;
+router.delete("/delete-joined-rooms/:roomId/:userEmail", async (req, res) => {
+  const { roomId, userEmail } = req.params;
   try {
-    const room = await Room.findOne({ name: roomName });
-    if (!room) {
-      return res.status(404).json({ success: false, message: "Room not found" });
-    }
-    const roomId = room._id.toString();
     const result = await Info.updateOne(
       { email: userEmail },
-      {
-        $pull: {
-          joinedRooms: {
-            $or: [
-              { roomId: roomId },
-              { roomName: roomName },
-            ],
-          },
-        },
-      }
+      { $pull: { joinedRooms: { roomId: roomId } } }
     );
     if (result.modifiedCount === 0) {
       return res.status(404).json({ success: false, message: "User or room not found in joinedRooms" });
     }
-    res.json({ success: true, message: "Room removed from user's joinedRooms", roomName, userEmail });
+    res.json({ success: true, message: "Room removed from user's joinedRooms", roomId, userEmail });
   } catch (err) {
     res.status(500).json({ success: false, message: "Delete failed", error: err.message });
   }

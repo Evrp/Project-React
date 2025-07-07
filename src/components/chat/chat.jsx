@@ -371,10 +371,7 @@ const Chat = () => {
         .filter((msg) => msg.roomId === roomId); // กรองเฉพาะข้อความในห้องนี้
 
       const filteredMessages = isGroupChat
-        ? allMessages.filter((msg) => {
-            const isMyMsg = msg.receiver === activeUser;
-            return isMyMsg;
-          })
+        ? allMessages.filter((msg) => msg.type === "group" && msg.roomId === roomId)
         : allMessages.filter((msg) => {
             const isMyMsg =
               msg.sender === userEmail && msg.receiver === activeUser;
@@ -440,31 +437,31 @@ const Chat = () => {
     getNickNameF();
   }, []);
 
-  useEffect(() => {
-    setLoadingMessages(true);
-    const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const newMessages = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+  // useEffect(() => {
+  //   setLoadingMessages(true);
+  //   const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
+  //   const unsubscribe = onSnapshot(q, (snapshot) => {
+  //     const newMessages = snapshot.docs.map((doc) => ({
+  //       id: doc.id,
+  //       ...doc.data(),
+  //     }));
 
-      setMessages(newMessages); // ให้ UI ทุกส่วนอัปเดตตามนี้
+  //     setMessages(newMessages); // ให้ UI ทุกส่วนอัปเดตตามนี้
 
-      // อัปเดตข้อความล่าสุดของแต่ละ friend
-      const latest = {};
-      newMessages.forEach((msg) => {
-        const friendEmail =
-          msg.sender === userEmail ? msg.receiver : msg.sender;
-        if (!latest[friendEmail]) latest[friendEmail] = msg;
-      });
+  //     // อัปเดตข้อความล่าสุดของแต่ละ friend
+  //     const latest = {};
+  //     newMessages.forEach((msg) => {
+  //       const friendEmail =
+  //         msg.sender === userEmail ? msg.receiver : msg.sender;
+  //       if (!latest[friendEmail]) latest[friendEmail] = msg;
+  //     });
 
-      setLastMessages(latest);
-      setLoadingMessages(false);
-    });
+  //     setLastMessages(latest);
+  //     setLoadingMessages(false);
+  //   });
 
-    return () => unsubscribe();
-  }, [userEmail]);
+  //   return () => unsubscribe();
+  // }, [userEmail]);
   /////////////เรียงข้อความตามเวลา///////////////
   useEffect(() => {
     const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
@@ -545,7 +542,10 @@ const Chat = () => {
               allRooms={allRooms}
               isOpencom={isOpencom}
               setIsOpencom={setIsOpencom}
-              setActiveUser={setActiveUser}
+              setActiveUser={(roomId) => {
+                setActiveUser(roomId);
+                setIsGroupChat(true);
+              }}
               setIsGroupChat={setIsGroupChat}
               dropdownRefs={dropdownRefs}
               getnickName={getnickName}

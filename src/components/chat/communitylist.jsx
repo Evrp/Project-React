@@ -58,19 +58,16 @@ const CommunityList = ({
           {" "}
           <ul className="friend-list-chat">
             {joinedRooms.roomNames?.map((name, index) => {
-              const roomId = joinedRooms.roomNames?.[index];
-
-              // ข้ามถ้า name หรือ id เป็น null
+              // ใช้ index เป็น fallback ถ้าไม่มี id จริง
+              const roomId = joinedRooms.roomIds?.[index] || `${name}-${index}`;
               if (!name || !roomId) return null;
-
               return (
                 <div key={roomId}>
-                  {/* <h1>{name}</h1> */}
                   <ul>
-                    {allRooms.map((room) =>
+                    {allRooms.map((room, i) =>
                       room.name === name ? (
                         <li
-                          // key={room.roomId}
+                          key={room._id || `${room.name}-${i}`}
                           className="chat-friend-item"
                           onClick={() => {
                             setActiveUser(room.name),
