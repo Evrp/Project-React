@@ -12,6 +12,8 @@ import infoRoutes  from "./routes/info.js";
 import eventRoutes from "./routes/event.js";
 import roommatchRoutes  from "./routes/eventmatch.js"; // Routes from "./routes/room.js";
 import mongoose from "mongoose";
+import { Filter } from "./src/model/filter.js";
+import axios from "axios";
 
 
 dotenv.config();
@@ -32,6 +34,7 @@ const io = new Server(server, {
 
 const port = process.env.PORT || 8080;
 const MONGO_URI = process.env.MONGO_URI;
+const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL;
 // ✅ Middleware
 app.use(
   cors({
@@ -84,6 +87,45 @@ io.on("connection", (socket) => {
     io.emit("update-users", Array.from(onlineUsers.keys()));
     console.log("🔴 Client disconnected", socket.id);
   });
+});
+// 📌 API บันทึกหมวดหมู่เพลงที่ผู้ใช้เลือก
+app.post("/api/update-genres", async (req, res) => {
+  const { email, genres, subGenres, updatedAt } = req.body;
+  if (!email || !genres || !subGenres) {
+    return res
+      .status(400)
+      .json({ message: "Missing email, genres, or subGenres" });
+  }
+
+  try {
+    const user = await Filter.findOneAndUpdate(
+      { email },
+      { genres, subGenres: subGenres || {} },
+      { new: true, upsert: true } // เพิ่ม upsert เผื่อ user ยังไม่มีใน Filter
+    );
+
+    // ✅ ส่งข้อมูลไปยัง Make.com เฉพาะกรณีที่ genres/subGenres มีข้อมูล
+    const hasGenres = Array.isArray(genres) ? genres.length > 0 : false;
+    const hasSubGenres = subGenres && typeof subGenres === "object" && Object.values(subGenres).some(arr => Array.isArray(arr) ? arr.length > 0 : false);
+    if (hasGenres && hasSubGenres) {
+      await axios.post(MAKE_WEBHOOK_URL, {
+        type: "update-genres",
+        filter_info: {
+          email: user.email,
+          genres: user.genres,
+          subGenres: user.subGenres,
+          updatedAt: updatedAt || new Date().toISOString(),
+        },
+      });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Genres updated & sent to Make.com", user });
+  } catch (error) {
+    console.error("❌ Update failed:", error);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 // ใช้งาน routes ที่แยกไว้
