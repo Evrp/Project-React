@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../ui/Eventlist.css";
 import { useTheme } from "../../context/themecontext";
+import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
 
 
 const EventList = () => {
@@ -10,6 +11,7 @@ const EventList = () => {
   const [loading, setLoading] = useState(true);
   const email = localStorage.getItem("userEmail");
   const { isDarkMode, setIsDarkMode } = useTheme();
+  const [favoriteEvents, setFavoriteEvents] = useState([]); // Store array of favorited event IDs
 
   const user = { email };
 
@@ -75,8 +77,46 @@ const EventList = () => {
     fetchEvents();
     fetchimage();
   }, []);
-  /////aa
+  const fetchFavoriteEvents = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/like`, {
+        params: { email: user.email }
+      });
+      setFavoriteEvents(res.data.map((like) => like.eventId));
+    } catch (error) {
+      console.error("❌ Error fetching favorite events:", error);
+    }
+  };
 
+  useEffect(() => {
+    fetchFavoriteEvents();
+  }, []);
+
+
+  const handleLike = async (eventId, title) => {
+    try {
+      await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/like`, { userEmail: email, eventId: eventId, eventTitle: title });
+      fetchFavoriteEvents();
+    } catch (error) {
+      console.error("❌ Error liking event:", error);
+    }
+  };
+
+  const handleUnlike = async (eventId) => {
+    try {
+      await axios.delete(`${import.meta.env.VITE_APP_API_BASE_URL}/api/like`, {
+        params: { email: user.email, eventId }
+      });
+      fetchFavoriteEvents();
+    } catch (error) {
+      console.error("❌ Error unliking event:", error);
+    }
+  };
+
+  const isFavorite = (eventId) =>
+    favoriteEvents.some((favoriteEventId) => {
+      return favoriteEventId === eventId;
+    })
 
   if (loading) return <p className="loading-text">กำลังโหลด...</p>;
 
@@ -87,7 +127,7 @@ const EventList = () => {
         <p className="empty-text">ยังไม่มีกิจกรรม</p>
       ) : (
         <div className="event-list">
-          {events.map((event) => (
+          {events.map((event, index) => (
             <div key={event._id} className="event-card">
               {eventsImage.map((item) => {
                 if (event.genre == item.genres) {
@@ -99,7 +139,30 @@ const EventList = () => {
                 }
                 return null;
               })}
-              <h3 className="event-name">{event.title}</h3>
+              <div className="row-favorite">
+                <h3 className="event-name">{event.title}</h3>
+                <button
+                  className="favorite-button"
+                  onClick={() => {
+                    // Toggle favorite status
+                    favoriteEvents.includes(event._id)
+                      ? handleUnlike(event._id, event.title)
+                      : handleLike(event._id);
+                    setFavoriteEvents((prev) => {
+                      prev.includes(event._id)
+                        ? prev.filter((id) => id !== event._id)
+                        : [...prev, event._id];
+                    });
+                  }}
+                  aria-label={favoriteEvents.includes(event._id) ? "Unfavorite" : "Favorite"}
+                >
+                  {favoriteEvents.includes(event._id) ? (
+                    <MdFavorite size={30} color="red" />
+                  ) : (
+                    <MdFavoriteBorder size={30} />
+                  )}
+                </button>
+              </div>
               <div className="event-info">
                 <p>🎵 genre: {event.genre}</p>
                 <p>📍 location: {event.location}</p>
