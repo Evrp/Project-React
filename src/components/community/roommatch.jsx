@@ -19,8 +19,10 @@ const RoomMatch = () => {
   const childRefs = useRef([]);
   const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchRooms = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(
           `${import.meta.env.VITE_APP_API_BASE_URL}/api/events-match`
@@ -33,9 +35,6 @@ const RoomMatch = () => {
           ? filterjoinedRooms.data.roomIds.filter((id) => !!id).map(String)
           : [];
         setJoinedRooms(joinedIds);
-        // ...existing code...
-        console.log("Rooms All:", res.data);
-        console.log("Rooms Joins:", joinedIds.data);
         setRooms(res.data);
         setCurrentIndex(res.data.length - 1);
         childRefs.current = Array(res.data.length)
@@ -44,6 +43,7 @@ const RoomMatch = () => {
       } catch (error) {
         console.error("โหลดห้องไม่สำเร็จ:", error);
       }
+      setLoading(false);
     };
     fetchRooms();
   }, [userEmail]);
@@ -96,34 +96,32 @@ const RoomMatch = () => {
       await childRefs.current[currentIndex]?.current?.swipe(dir);
     }
   };
-  const startwebhook = async () => {
-    const userEmail = localStorage.getItem("userEmail");
-    try {
-      if (userEmail) {
-        const response = await axios.post(
-          `${import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_URL}`,
-          { email: userEmail }
-        );
-        console.log("Webhook started successfully:", response.data);
-      }
-    } catch (error) {
-      console.error("Error starting webhook:", error);
-    }
-  };
-
+ 
   return (
-    <div className={`room-match-container ${isDarkMode ? "dark-mode" : ""}`}>
-      <button
-        type="button"
-        className="button-refresh"
-        onClick={startwebhook}
-
-      >
-        <MdOutlineRefresh size={22} />
-
-      </button>
+    <div className={`room-match-container ${isDarkMode ? "dark-mode" : ""}`}>  
+      {loading && (
+        <div className="roommatch-loading-overlay">
+          <div className="roommatch-spinner">
+            <div className="roommatch-dot"></div>
+            <div className="roommatch-dot"></div>
+            <div className="roommatch-dot"></div>
+          </div>
+          <div className="roommatch-loading-text">กำลังโหลดห้องแนะนำ กรุณารอสักครู่...</div>
+        </div>
+      )}
       <div className="card-stack">
-        {filteredRooms.map((room, index) => (
+        {!loading && filteredRooms.length === 0 && (
+          <div className="roommatch-tindercard-loading">
+            <div className="roommatch-tindercard-spinner">
+              <div className="roommatch-tindercard-bar"></div>
+              <div className="roommatch-tindercard-bar"></div>
+              <div className="roommatch-tindercard-bar"></div>
+              <div className="roommatch-tindercard-bar"></div>
+            </div>
+            <div className="roommatch-tindercard-loading-text">กำลังค้นหาห้องที่เหมาะกับคุณ...</div>
+          </div>
+        )}
+        {!loading && filteredRooms.map((room, index) => (
           <TinderCard
             ref={childRefs.current[index]}
             key={room._id}
@@ -132,8 +130,17 @@ const RoomMatch = () => {
             className="tinder-card"
           >
             <div className="room-card-match">
-              {room.image && (
+              {room.image ? (
                 <img src={room.image} alt="room" className="room-image" />
+              ) : (
+                <div className="tinder-card-inner-loading">
+                  <div className="tinder-card-spinner">
+                    <div className="tinder-card-dot"></div>
+                    <div className="tinder-card-dot"></div>
+                    <div className="tinder-card-dot"></div>
+                  </div>
+                  <div className="tinder-card-loading-text">กำลังโหลดข้อมูลห้อง...</div>
+                </div>
               )}
               <div className="room-info">
                 <h4>{room.title}</h4>
@@ -145,7 +152,7 @@ const RoomMatch = () => {
       </div>
 
       <div className="button-group">
-        <button onClick={() => swipe("left")} className="skip-button">
+        <button onClick={() => swipe("left")} className="skip-button" disabled={loading}>
           Skip
         </button>
         <button
@@ -153,6 +160,7 @@ const RoomMatch = () => {
             currentIndex >= 0 && handleEnterRoom(rooms[currentIndex]._id, rooms[currentIndex].title)
           }
           className="join-button"
+          disabled={loading}
         >
           Join
         </button>

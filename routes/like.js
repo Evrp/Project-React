@@ -1,5 +1,5 @@
 import express from "express";
-import { Like } from "../model/like.js";
+import { Like } from "../src/model/like.js"; // Import the Like model
 const app = express();
 
 // Middleware to parse JSON bodies
@@ -35,9 +35,8 @@ app.get("/likes/:userEmail", async (req, res) => {
 });
 // Route to unlike an event
 // DELETE /unlike/:userEmail/:eventId   
-app.delete("/unlike/:userEmail/:eventId", async (req, res) => {
+app.delete("/like/:userEmail/:eventId", async (req, res) => {
     const { userEmail, eventId } = req.params;
-
     try {
         const result = await Like.deleteOne({ userEmail, eventId });
         if (result.deletedCount === 0) {

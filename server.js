@@ -10,6 +10,7 @@ import friendRoutes from "./routes/friend.js";
 import roomRoutes from "./routes/room.js";
 import infoRoutes  from "./routes/info.js";
 import eventRoutes from "./routes/event.js";
+import likeRoutes from "./routes/like.js"; // Routes from "./routes/like.js";
 import roommatchRoutes  from "./routes/eventmatch.js"; // Routes from "./routes/room.js";
 import mongoose from "mongoose";
 import { Filter } from "./src/model/filter.js";
@@ -135,6 +136,7 @@ app.use("/api", roomRoutes);
 app.use("/api", eventRoutes);
 app.use("/api", infoRoutes);
 app.use("/api", roommatchRoutes);
+app.use("/api", likeRoutes);
 
 // เริ่มต้นเซิร์ฟเวอร์
 server.listen(port, () =>

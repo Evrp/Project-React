@@ -94,32 +94,41 @@ const AccordionList = ({ items }) => {
     }, [items]);
 
     return (
-        <div className="accordion-list" ref={containerRef}>
+        <div className="accordion-list theme-bg" ref={containerRef}>
             <ToastContainer />
+            {loading && (
+                <div className="accordion-loading-overlay theme-overlay">
+                    <div className="accordion-spinner theme-spinner">
+                        <div className="spinner-dot theme-spinner-dot"></div>
+                        <div className="spinner-dot theme-spinner-dot"></div>
+                        <div className="spinner-dot theme-spinner-dot"></div>
+                    </div>
+                    <div className="accordion-loading-text theme-text">กำลังบันทึกข้อมูล กรุณารอสักครู่...</div>
+                </div>
+            )}
             {/* แสดง filter ที่เลือกด้านบนสุด */}
 
             {items.map((item, idx) => {
                 // ถ้ามี genres ให้วนลูป genres
                 if (item.genres && Array.isArray(item.genres) && item.genres.length > 0) {
                     return (
-                        <div className="accordion-item" key={idx}>
+                        <div className="accordion-item theme-card" key={idx}>
                             <button
-                                className={`accordion-header${openIndex === idx ? " open" : ""}`}
+                                className={`accordion-header theme-header${openIndex === idx ? " open" : ""}`}
                                 onClick={() => handleToggle(idx)}
                                 aria-expanded={openIndex === idx}
                             >
-
                                 {/* filter chips */}
                                 {selectedLabels.filter(sel => sel.key.startsWith(`${idx}-`)).length > 0 ? (
                                     <span
-                                        className="accordion-header-chips"
+                                        className="accordion-header-chips theme-chips"
                                         ref={el => { chipsRefs.current[idx] = el; }}
                                     >
                                         {selectedLabels.filter(sel => sel.key.startsWith(`${idx}-`)).map(sel => (
-                                            <span className="accordion-filter-chip" key={sel.key + sel.label}>
+                                            <span className="accordion-filter-chip theme-chip" key={sel.key + sel.label}>
                                                 {sel.label}
                                                 <span
-                                                    className="accordion-filter-remove"
+                                                    className="accordion-filter-remove theme-chip-remove"
                                                     role="button"
                                                     tabIndex={0}
                                                     onClick={e => { e.stopPropagation(); handleRemoveLabel(sel.key, sel.label); }}
@@ -130,12 +139,12 @@ const AccordionList = ({ items }) => {
                                         ))}
                                     </span>
                                 ) : (
-                                    <span className="accordion-title">Select genres</span>
+                                    <span className="accordion-title theme-title">Select genres</span>
                                 )}
-                                <span className="arrow" style={{ marginLeft: 'auto', paddingTop: '8.2px' }}>{openIndex === idx ? <FaChevronDown /> : <FaChevronRight />}</span>
+                                <span className="arrow theme-arrow" style={{ marginLeft: 'auto', paddingTop: '8.2px' }}>{openIndex === idx ? <FaChevronDown /> : <FaChevronRight />}</span>
                             </button>
                             {openIndex === idx && (
-                                <div className="accordion-content">
+                                <div className="accordion-content theme-content">
                                     {item.genres.map((genre, genreIdx) => (
                                         <div
                                             className="accordion-content-title-with-tabs"
@@ -144,24 +153,23 @@ const AccordionList = ({ items }) => {
                                             onMouseLeave={() => showTabsKey === `${idx}-${genreIdx}` && setShowTabsKey(null)}
                                         >
                                             <button
-                                                className={`accordion-tab-toggle${showTabsKey === `${idx}-${genreIdx}` ? " selected" : ""}`}
-                                                // onClick ไม่จำเป็นแล้ว
+                                                className={`accordion-tab-toggle theme-tab-toggle${showTabsKey === `${idx}-${genreIdx}` ? " selected" : ""}`}
                                                 aria-label={showTabsKey === `${idx}-${genreIdx}` ? "ซ่อนแทบ" : "แสดงแทบ"}
                                                 aria-pressed={showTabsKey === `${idx}-${genreIdx}`}
                                                 type="button"
                                             >
-                                                <span className="accordion-content-title">{genre.title}</span>
+                                                <span className="accordion-content-title theme-content-title">{genre.title}</span>
                                                 {showTabsKey === `${idx}-${genreIdx}` ? <FaChevronDown /> : <FaChevronRight />}
                                             </button>
                                             {showTabsKey === `${idx}-${genreIdx}` && (
-                                                <div className="accordion-tabs-wrapper">
-                                                    <div className="accordion-tabs">
+                                                <div className="accordion-tabs-wrapper theme-tabs-wrapper">
+                                                    <div className="accordion-tabs theme-tabs">
                                                         {(genre.tabs || DEFAULT_TAB_OPTIONS).map((tab, tabIdx) => {
                                                             const isSelected = selectedLabels.some(sel => sel.key === `${idx}-${genreIdx}` && sel.label === tab);
                                                             return (
                                                                 <button
                                                                     key={tab}
-                                                                    className={`accordion-tab${isSelected ? " selected" : ""}`}
+                                                                    className={`accordion-tab theme-tab${isSelected ? " selected" : ""}`}
                                                                     onClick={() => handleTabSelect(idx, genreIdx, tabIdx, tab)}
                                                                     type="button"
                                                                 >
@@ -182,21 +190,21 @@ const AccordionList = ({ items }) => {
                     // กรณีไม่มี genres
                     const tabOptions = item.tabs && Array.isArray(item.tabs) && item.tabs.length > 0 ? item.tabs : DEFAULT_TAB_OPTIONS;
                     return (
-                        <div className="accordion-item" key={idx}>
+                        <div className="accordion-item theme-card" key={idx}>
                             <button
-                                className={`accordion-header${openIndex === idx ? " open" : ""}`}
+                                className={`accordion-header theme-header${openIndex === idx ? " open" : ""}`}
                                 onClick={() => handleToggle(idx)}
                                 aria-expanded={openIndex === idx}
                             >
-                                <span className="accordion-title">{item.title}</span>
+                                <span className="accordion-title theme-title">{item.title}</span>
                                 {/* filter chips */}
                                 {selectedLabels.filter(sel => sel.key.startsWith(`${idx}-`)).length > 0 && (
-                                    <span className="accordion-header-chips">
+                                    <span className="accordion-header-chips theme-chips">
                                         {selectedLabels.filter(sel => sel.key.startsWith(`${idx}-`)).map(sel => (
-                                            <span className="accordion-filter-chip" key={sel.key}>
+                                            <span className="accordion-filter-chip theme-chip" key={sel.key}>
                                                 {sel.label}
                                                 <span
-                                                    className="accordion-filter-remove"
+                                                    className="accordion-filter-remove theme-chip-remove"
                                                     role="button"
                                                     tabIndex={0}
                                                     onClick={e => { e.stopPropagation(); handleRemoveLabel(sel.key, sel.label); }}
@@ -207,33 +215,33 @@ const AccordionList = ({ items }) => {
                                         ))}
                                     </span>
                                 )}
-                                <span className="arrow" style={{ marginLeft: 'auto' }}>{openIndex === idx ? <FaChevronDown /> : <FaChevronRight />}</span>
+                                <span className="arrow theme-arrow" style={{ marginLeft: 'auto' }}>{openIndex === idx ? <FaChevronDown /> : <FaChevronRight />}</span>
                             </button>
                             {openIndex === idx && (
-                                <div className="accordion-content">
+                                <div className="accordion-content theme-content">
                                     <div
                                         className="accordion-content-title-with-tabs"
                                         onMouseEnter={() => handleToggleTabs(idx, 0)}
                                         onMouseLeave={() => showTabsKey === `${idx}-0` && setShowTabsKey(null)}
                                     >
                                         <button
-                                            className={`accordion-tab-toggle${showTabsKey === `${idx}-0` ? " selected" : ""}`}
+                                            className={`accordion-tab-toggle theme-tab-toggle${showTabsKey === `${idx}-0` ? " selected" : ""}`}
                                             aria-label={showTabsKey === `${idx}-0` ? "ซ่อนแทบ" : "แสดงแทบ"}
                                             aria-pressed={showTabsKey === `${idx}-0`}
                                             type="button"
                                         >
-                                            <span className="accordion-content-title">{item.title}</span>
+                                            <span className="accordion-content-title theme-content-title">{item.title}</span>
                                             {showTabsKey === `${idx}-0` ? <FaChevronDown /> : <FaChevronRight />}
                                         </button>
                                         {showTabsKey === `${idx}-0` && (
-                                            <div className="accordion-tabs-wrapper">
-                                                <div className="accordion-tabs">
+                                            <div className="accordion-tabs-wrapper theme-tabs-wrapper">
+                                                <div className="accordion-tabs theme-tabs">
                                                     {tabOptions.map((tab, tabIdx) => {
                                                         const isSelected = selectedLabels.some(sel => sel.key === `${idx}-0` && sel.label === tab);
                                                         return (
                                                             <button
                                                                 key={tab}
-                                                                className={`accordion-tab${isSelected ? " selected" : ""}`}
+                                                                className={`accordion-tab theme-tab${isSelected ? " selected" : ""}`}
                                                                 onClick={() => handleTabSelect(idx, 0, tabIdx, tab)}
                                                                 type="button"
                                                             >
@@ -253,9 +261,9 @@ const AccordionList = ({ items }) => {
             })}
 
             {/* ปุ่มส่งข้อมูลไป API */}
-            <div className="submit-genres">
+            <div className="submit-genres theme-submit">
                 <button
-                    className="submit-genres-button"
+                    className="submit-genres-button theme-submit-btn"
                     onClick={async () => {
                         setLoading(true);
                         setError("");
@@ -290,6 +298,11 @@ const AccordionList = ({ items }) => {
                         console.log("Selected Genres:", selectedGenres);
                         console.log("Sub Genres Object:", subGenresObj);
                         try {
+                            // เรียกลบ EventMatch ก่อน
+                            await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-all-events-match`, {
+                                method: "DELETE"
+                            });
+                            // แล้วค่อยบันทึก genres/subGenres
                             const response = await fetch(
                                 `${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`,
                                 {
@@ -301,8 +314,31 @@ const AccordionList = ({ items }) => {
                                         subGenres: subGenresObj,
                                         updatedAt: new Date().toISOString(),
                                     }),
-                                }
+                                },
                             );
+                            // เรียก webhook ต่อ
+                            const startwebhook = async () => {
+                                try {
+                                    if (email) {
+                                        const response = await fetch(
+                                            `${import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_URL}`,
+                                            {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({ email }),
+                                            }
+                                        );
+                                        if (response.ok) {
+                                            console.log("Webhook started successfully");
+                                        } else {
+                                            console.error("Error starting webhook");
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.error("Error starting webhook:", error);
+                                }
+                            };
+                            await startwebhook();
                             if (response.ok) {
                                 toast.success("บันทึกการเลือกสำเร็จ");
                             } else {
@@ -321,7 +357,7 @@ const AccordionList = ({ items }) => {
                     {loading ? "กำลังบันทึก..." : "บันทึกการเลือกทั้งหมด"}
                 </button>
                 <button
-                    className="clear-genres-button"
+                    className="clear-genres-button theme-clear-btn"
                     style={{ marginLeft: 8 }}
                     onClick={async () => {
                         setLoading(true);
@@ -358,7 +394,7 @@ const AccordionList = ({ items }) => {
                 >
                     {loading ? "..." : "ลบทั้งหมด"}
                 </button>
-                {error && <div className="error-message">{error}</div>}
+                {error && <div className="error-message theme-error">{error}</div>}
             </div>
         </div>
     );
