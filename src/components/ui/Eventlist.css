@@ -163,7 +163,7 @@
 .dark-mode .event-list {
   display: flex;
   flex-direction: column;
-  color: #f5f5f5;
+  color: #23242b;
   gap: 40px;
   max-width: 800px;
   margin: 0 auto;
@@ -447,4 +447,62 @@
 }
 .favorite-button:hover {
   color: #ff4d4d;
+}
+/* --- Dark mode for EventList --- */
+.event-container.dark-mode {
+  background: #23242b;
+  color: #ecebfa;
+}
+.event-container.dark-mode .event-card {
+  background: #2d2e3a;
+  color: #ecebfa;
+  border: 1.5px solid #554eea44;
+  box-shadow: 0 2px 12px #23242b55;
+}
+.event-container.dark-mode .event-image {
+  background: #23242b;
+  border: 2px solid #554eea33;
+}
+.event-container.dark-mode .eventlist-empty-loading {
+  background: #23242b;
+  color: #ecebfa;
+}
+.event-container.dark-mode .eventlist-empty-bar {
+  background: linear-gradient(90deg, #554eea 60%, #6c63ff 100%);
+}
+.event-container.dark-mode .eventlist-empty-text {
+  color: #ecebfa;
+}
+.event-container.dark-mode .favorite-button {
+  background: #23242b;
+  border: 1.5px solid #554eea44;
+  color: #ecebfa;
+}
+.event-container.dark-mode .favorite-button:hover {
+  background: #554eea33;
+}
+.event-container.dark-mode .delete-button,
+.event-container.dark-mode .delete-button-all {
+  background: linear-gradient(90deg, #554eea 60%, #6c63ff 100%);
+  color: #ecebfa;
+  border: none;
+}
+.event-container.dark-mode .delete-button:hover,
+.event-container.dark-mode .delete-button-all:hover {
+  background: #6c63ff;
+  color: #fff;
+}
+.event-container.dark-mode .event-link {
+  color: #a6a3ff;
+  border-bottom: 1px dashed #6c63ff;
+}
+.event-container.dark-mode .event-link:hover {
+  color: #fff;
+  background: #554eea;
+}
+.event-container.dark-mode .row-favorite {
+  border-bottom: 1px solid #554eea33;
+}
+.event-container.dark-mode .loading-text {
+  color: #ecebfa;
 }
