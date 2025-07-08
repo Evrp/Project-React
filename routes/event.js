@@ -116,7 +116,7 @@ router.get("/events", async (req, res) => {
 // Get all events
 router.get("/all-events", async (req, res) => {
     try {
-        const events = await Event.find({}).select("email title");
+        const events = await Event.find({});
         res.json(events);
     } catch (error) {
         res.status(500).json({ message: "Server error" });
