@@ -199,9 +199,26 @@
   overflow-y: auto;
   scroll-behavior: smooth;
 }
+.dark-mode .room-match-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* height: calc(100vh - 145px); */
+  height: 100%;
+  padding: 20px;
+  background-color: #23242b;
+  width: 40%;
+  right: 0;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  margin: auto;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
 
 .dark-mode {
-  background-color: #1a1a1a;
+  background-color: #23242b;
   color: white;
 }
 
