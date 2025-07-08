@@ -33,13 +33,17 @@ const Newcommu = () => {
   return (
     <RequireLogin>
       <div className={`main-con-home ${isDarkMode ? "dark-mode" : ""}`}>
-        <div className="header">
-          <div className="profile-section">
-            <span className="bell-icon">&#128276;</span>
-            <span className="divider">|</span>
-            <img src={userPhoto} alt="Profile" className="profile-image-com" />
+        <header className="header-home">
+          <div className="profile-section-home">
+            <button className="bell-btn-home" aria-label="Notifications">
+              <span className="bell-icon-home">&#128276;</span>
+            </button>
+            <span className="divider-home">|</span>
+            <div className="profile-img-wrapper-home">
+              <img src={userPhoto} alt="Profile" className="profile-image-home" />
+            </div>
           </div>
-        </div>
+        </header>
         <div className="event-list-co">
           {/* <h2 className="event-title">Community Recommand</h2> */}
           <div className="bg-event-con">
