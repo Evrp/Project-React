@@ -110,10 +110,13 @@ const Friend = () => {
   const handleAddFriend = async (friendEmail) => {
     try {
       setLoadingFriendEmail(friendEmail);
-      await axios.post(`${import.meta.env.VITE_APP_API_BASE_URL}/api/add-friend`, {
-        userEmail,
-        friendEmail,
-      });
+      await axios.post(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/add-friend`,
+        {
+          userEmail,
+          friendEmail,
+        }
+      );
       const addedUser = users.find((user) => user.email === friendEmail);
       if (addedUser) {
         setFriends((prev) =>
@@ -142,7 +145,9 @@ const Friend = () => {
     try {
       setLoadingFriendEmail(friendEmail);
       await axios.delete(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}/friends/${friendEmail}`
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/api/users/${userEmail}/friends/${friendEmail}`
       );
       setFriends((prevFriends) =>
         prevFriends.filter((friend) => friend.email !== friendEmail)
@@ -223,7 +228,9 @@ const Friend = () => {
       return;
     }
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}/${
+    const url = `${
+      import.meta.env.VITE_APP_API_BASE_URL
+    }/api/users/${userEmail}/${
       isFollowing ? "unfollow" : "follow"
     }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
@@ -273,7 +280,9 @@ const Friend = () => {
   const fetchFollowInfo = async (targetEmail) => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user/${targetEmail}/follow-info`
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/api/user/${targetEmail}/follow-info`
       );
       setFollowers(res.data.followers);
       setFollowing(res.data.following);
@@ -303,7 +312,7 @@ const Friend = () => {
           <h1>Friend</h1>
         </div>
         {error && <div className="error-message">{error}</div>}
-        {loading && <div className="loading-message">Loading...</div>}
+
         <div className="search-friend-con">
           <input
             type="text"
@@ -321,8 +330,8 @@ const Friend = () => {
               filteredFriends.length === filteredUsers.length
                 ? "special-friend-list"
                 : filteredFriends.length > 0
-                  ? "con-friend-list"
-                  : "empty-friend-list"
+                ? "con-friend-list"
+                : "empty-friend-list"
             }
           >
             <ul className="friend-list">
@@ -343,7 +352,9 @@ const Friend = () => {
                     </div>
                     <div className="con-right">
                       <span
-                        className={`status ${friend.isOnline ? "online" : "offline"}`}
+                        className={`status ${
+                          friend.isOnline ? "online" : "offline"
+                        }`}
                         aria-label={friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                       >
                         {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
@@ -364,7 +375,10 @@ const Friend = () => {
                           <BsThreeDots size={20} />
                         </button>
                         {openMenuFor === friend.email && (
-                          <div className="dropdown-menu" onMouseLeave={() => setOpenMenuFor(null)}>
+                          <div
+                            className="dropdown-menu"
+                            onMouseLeave={() => setOpenMenuFor(null)}
+                          >
                             <button
                               className="dropdown-item"
                               onClick={() => {
@@ -386,12 +400,17 @@ const Friend = () => {
                                   return;
                                 handleFollow(friend.email);
                               }}
-                              aria-label={Array.isArray(currentUserfollow?.following) &&
-                                currentUserfollow.following.includes(friend.email)
-                                ? "Following" : "Follow"}
+                              aria-label={
+                                Array.isArray(currentUserfollow?.following) &&
+                                currentUserfollow.following.includes(
+                                  friend.email
+                                )
+                                  ? "Following"
+                                  : "Follow"
+                              }
                             >
                               {Array.isArray(currentUserfollow?.following) &&
-                                currentUserfollow.following.includes(friend.email)
+                              currentUserfollow.following.includes(friend.email)
                                 ? "Following"
                                 : "Follow"}
                             </button>
@@ -416,7 +435,17 @@ const Friend = () => {
                 ))
               ) : (
                 <div className="empty-friend">
-                  <p>No friends found</p>
+                  <div className="roomlist-empty-loading">
+                    <div className="roomlist-empty-spinner">
+                      <div className="roomlist-empty-bar"></div>
+                      <div className="roomlist-empty-bar"></div>
+                      <div className="roomlist-empty-bar"></div>
+                      <div className="roomlist-empty-bar"></div>
+                    </div>
+                    <div className="roomlist-empty-text">
+                      ยังไม่มีเพื่อนในรายการโปรด
+                    </div>
+                  </div>
                 </div>
               )}
             </ul>
@@ -427,8 +456,8 @@ const Friend = () => {
               filteredUsers.length > 0 && filteredFriends.length === 0
                 ? "special-friend-recommand"
                 : filteredUsers.length === filteredFriends.length
-                  ? "empty-friend-recommand"
-                  : "con-friend-recommand"
+                ? "empty-friend-recommand"
+                : "con-friend-recommand"
             }
           >
             <ul className="friend-recommend">
@@ -451,7 +480,9 @@ const Friend = () => {
                       </div>
                       <div className="con-right">
                         <span
-                          className={`status ${user.isOnline ? "online" : "offline"}`}
+                          className={`status ${
+                            user.isOnline ? "online" : "offline"
+                          }`}
                           aria-label={user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                         >
                           {user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
@@ -484,7 +515,10 @@ const Friend = () => {
                             <BsThreeDots size={20} />
                           </button>
                           {openMenuFor === user.email && (
-                            <div className="dropdown-menu" onMouseLeave={() => setOpenMenuFor(null)}>
+                            <div
+                              className="dropdown-menu"
+                              onMouseLeave={() => setOpenMenuFor(null)}
+                            >
                               <button
                                 className="dropdown-item"
                                 onClick={() => {
@@ -505,12 +539,17 @@ const Friend = () => {
                                     return;
                                   handleFollow(user.email);
                                 }}
-                                aria-label={Array.isArray(currentUserfollow?.following) &&
-                                  currentUserfollow.following.includes(user.email)
-                                  ? "Following" : "Follow"}
+                                aria-label={
+                                  Array.isArray(currentUserfollow?.following) &&
+                                  currentUserfollow.following.includes(
+                                    user.email
+                                  )
+                                    ? "Following"
+                                    : "Follow"
+                                }
                               >
                                 {Array.isArray(currentUserfollow?.following) &&
-                                  currentUserfollow.following.includes(user.email)
+                                currentUserfollow.following.includes(user.email)
                                   ? "Following"
                                   : "Follow"}
                               </button>
@@ -546,7 +585,11 @@ const Friend = () => {
                 </div>
                 <p>Email: {selectedUser.email}</p>
                 <p>สถานะ: {selectedUser.isOnline ? "ออนไลน์" : "ออฟไลน์"}</p>
-                <button className="close-btn" onClick={handleCloseModal} aria-label="ปิดโปรไฟล์">
+                <button
+                  className="close-btn"
+                  onClick={handleCloseModal}
+                  aria-label="ปิดโปรไฟล์"
+                >
                   ปิด
                 </button>
               </div>

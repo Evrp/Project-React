@@ -1,3 +1,187 @@
+/* TinderCard modern loading animation for no rooms */
+.roommatch-tindercard-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  width: 100%;
+  background: rgba(255,255,255,0.85);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.08);
+  margin: 0 auto;
+  padding: 32px 0 24px 0;
+}
+
+.roommatch-tindercard-spinner {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.roommatch-tindercard-bar {
+  width: 10px;
+  height: 40px;
+  background: linear-gradient(135deg, #7f53ac 0%, #657ced 100%);
+  border-radius: 8px;
+  animation: roommatch-tindercard-bounce 1.2s infinite ease-in-out;
+}
+
+.roommatch-tindercard-bar:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.roommatch-tindercard-bar:nth-child(3) {
+  animation-delay: 0.4s;
+}
+.roommatch-tindercard-bar:nth-child(4) {
+  animation-delay: 0.6s;
+}
+
+@keyframes roommatch-tindercard-bounce {
+  0%, 100% {
+    transform: scaleY(1);
+    background: linear-gradient(135deg, #7f53ac 0%, #657ced 100%);
+  }
+  50% {
+    transform: scaleY(1.7);
+    background: linear-gradient(135deg, #657ced 0%, #7f53ac 100%);
+  }
+}
+
+.roommatch-tindercard-loading-text {
+  color: #444;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-top: 8px;
+  letter-spacing: 0.01em;
+  text-align: center;
+}
+/* TinderCard loading spinner (เรียบหรู) */
+.tinder-card.loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  background: rgba(255,255,255,0.85);
+  border-radius: 24px;
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.08);
+  margin: 0 auto;
+  width: 340px;
+  max-width: 90vw;
+  position: relative;
+}
+.tinder-card-inner-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+}
+.tinder-card-spinner {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  justify-content: center;
+  align-items: center;
+}
+.tinder-card-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6a82fb 0%, #fc5c7d 100%);
+  opacity: 0.7;
+  animation: tinder-bounce 1.2s infinite ease-in-out;
+}
+.tinder-card-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.tinder-card-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes tinder-bounce {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+.tinder-card-loading-text {
+  color: #444;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-align: center;
+  margin-top: 4px;
+  opacity: 0.85;
+}
+.dark-mode .tinder-card.loading-card {
+  background: rgba(30,32,38,0.92);
+  box-shadow: 0 4px 24px 0 rgba(0,0,0,0.18);
+}
+.dark-mode .tinder-card-loading-text {
+  color: #e0e0e0;
+}
+/* Overlay for loading spinner in RoomMatch */
+.roommatch-loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(255,255,255,0.7);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+
+.roommatch-spinner {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.roommatch-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4f8cff 60%, #1e293b 100%);
+  animation: roommatch-bounce 1.2s infinite ease-in-out both;
+}
+.roommatch-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.roommatch-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes roommatch-bounce {
+  0%, 80%, 100% {
+    transform: scale(0.7);
+    opacity: 0.6;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+.roommatch-loading-text {
+  font-size: 1.15rem;
+  color: #1e293b;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background: rgba(255,255,255,0.85);
+  padding: 12px 32px;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.07);
+}
 .room-match-container {
   display: flex;
   flex-direction: column;
@@ -23,6 +207,10 @@
 
 .card-stack {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   width: 320px;
   height: 520px;
 }
@@ -104,22 +292,4 @@
 
 .join-button:hover {
   background-color: #0056b3;
-}
-.button-refresh{
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  margin-bottom: 2rem;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
-}
-.button-refresh:hover {
-  background-color: #0056b3;
-  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.2);
 }

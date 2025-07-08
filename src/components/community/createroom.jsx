@@ -55,7 +55,7 @@ const CreateRoom = ({ onRoomCreated }) => {
 
   return (
     <div className="create-room-bt">
-      <button onClick={() => setShowForm(!showForm)}>
+      <button className ="create-room-button" onClick={() => setShowForm(!showForm)}>
         {showForm ? <IoMdCloseCircle /> : <IoMdAddCircle />}
         {showForm ? "Cancel" : "Create Room"}
       </button>

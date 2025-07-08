@@ -1,3 +1,46 @@
+/* --- Modern loading overlay and spinner for Friend list --- */
+.fr-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(44, 46, 61, 0.75);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(2px);
+}
+
+.fr-spinner {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.fr-spinner-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6c63ff 60%, #554eea 100%);
+  animation: fr-bounce 1s infinite alternate;
+}
+.fr-spinner-dot:nth-child(2) { animation-delay: 0.2s; }
+.fr-spinner-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes fr-bounce {
+  to { transform: translateY(-16px); opacity: 0.7; }
+}
+
+.fr-loading-text {
+  color: #ecebfa;
+  font-size: 1.1rem;
+  font-weight: 500;
+  text-shadow: 0 1px 4px #23242b44;
+  letter-spacing: 0.02em;
+}
+
+/* --- End loading overlay spinner --- */
+
 .fr-container {
   background-color: #f7f8fc;
   min-height: 100vh;
