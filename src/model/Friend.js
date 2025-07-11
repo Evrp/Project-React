@@ -40,6 +40,5 @@ FriendSchema.statics.getAllUsers = async function () {
   return await this.find(); // ดึง users ทั้งหมดใน collection 'friends'
 };
 
-const Friend = mongoose.model("friends", FriendSchema);
-
+export const Friend = mongoose.model("Friend", FriendSchema);
 export default Friend;
