@@ -1,11 +1,11 @@
 import "./Home.css";
-import EventList from "../ui/Eventlist";
+import EventList from "./event/Eventlist";
 import RequireLogin from "../ui/RequireLogin";
 import { useTheme } from "../../context/themecontext";
 import RoomMatch from "../community/roommatch";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import AccordionList from "../ui/AccordionList";
+import AccordionList from "./cardmatch/AccordionList";
 
 const Newcommu = () => {
   const userPhoto = localStorage.getItem("userPhoto");
