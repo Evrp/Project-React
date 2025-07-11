@@ -222,14 +222,16 @@
   color: white;
 }
 
+/* ปรับ card-stack และ room-card-match ให้แนวตั้ง เน้นความสูง รูปเต็มใบ */
 .card-stack {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 320px;
-  height: 520px;
+  justify-content: flex-start;
+  width: 340px;
+  height: 540px;
+  margin: 0 auto;
 }
 
 .tinder-card {
@@ -239,74 +241,85 @@
 }
 
 .room-card-match {
-  background: white;
-  border-radius: 20px;
+  position: relative;
+  width: 100%;
   height: 100%;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  padding: 15px;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 6px 32px 0 rgba(44,46,61,0.13);
+  background: #fff;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 
-.dark-mode .room-card {
-  background: #2a2a2a;
-  color: white;
-}
-
-.room-image {
+.room-image,
+.room-image.room-image-full {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: 220px;
-  object-fit: cover;
-  border-radius: 12px;
-  margin-bottom: 10px;
+  height: 100%;
+  object-fit: cover;           /* ให้รูปเต็มใบ ไม่เบลอ */
+  object-position: center;
+  z-index: 1;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #23242b 60%, #657ced 100%);
+  filter: none;                /* ไม่เบลอรูป */
+}
+
+/* เฉพาะ .room-info ให้ blur เฉพาะพื้นหลัง */
+.room-info {
+  position: relative;
+  z-index: 2;
+  background: rgba(36, 38, 56, 0.60);
+  color: #fff;
+  padding: 28px 24px 18px 24px;
+  border-bottom-left-radius: 22px;
+  border-bottom-right-radius: 22px;
+  font-size: 1.15rem;
+  font-weight: 500;
+  backdrop-filter: blur(6px);   /* เบลอเฉพาะพื้นหลัง */
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .room-info h4 {
-  font-size: 20px;
-  margin: 10px 0 5px;
+  font-size: 22px;
+  margin: 0 0 6px 0;
 }
 
 .room-info p {
-  font-size: 14px;
-  color: #666;
+  font-size: 15px;
+  color: #e0e0e0;
+  margin: 0;
 }
 
-.dark-mode .room-info p {
-  color: #ccc;
+.dark-mode .room-card-match {
+  background: #23242b;
+  box-shadow: 0 6px 32px 0 rgba(30,32,38,0.18);
 }
 
-.button-group {
-  margin-top: 20px;
-  display: flex;
-  gap: 15px;
-}
-
-.skip-button,
-.join-button {
-  padding: 10px 20px;
-  margin-block-start: 2rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
-}
-
-.skip-button {
-  background-color: #ddd;
-  color: #000;
-}
-
-.skip-button:hover {
-  background-color: #ccc;
-}
-
-.join-button {
-  background-color: #007bff;
+.dark-mode .room-info {
+  background: rgba(36, 38, 56, 0.80);
   color: #fff;
 }
 
-.join-button:hover {
-  background-color: #0056b3;
+@media (max-width: 600px) {
+  .card-stack {
+    width: 98vw;
+    height: 65vw;
+    min-height: 340px;
+    max-width: 99vw;
+  }
+  .room-card-match {
+    border-radius: 14px;
+  }
+  .room-info {
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    padding: 18px 10px 12px 10px;
+    font-size: 1rem;
+  }
 }

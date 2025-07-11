@@ -59,9 +59,10 @@ const RoomMatch = () => {
       } catch (error) {
         console.error("โหลดห้องไม่สำเร็จ:", error);
       }
+      console.log("Fetched users:", users);
     };
     fetchGmails();
-  }, []);
+  }, [users]);
 
   const handleEnterRoom = (roomId, roomName) => {
     navigate(`/chat/${roomId}`);
@@ -130,20 +131,31 @@ const RoomMatch = () => {
             className="tinder-card"
           >
             <div className="room-card-match">
-              {room.image ? (
-                <img src={room.image} alt="room" className="room-image" />
-              ) : (
-                <div className="tinder-card-inner-loading">
-                  <div className="tinder-card-spinner">
-                    <div className="tinder-card-dot"></div>
-                    <div className="tinder-card-dot"></div>
-                    <div className="tinder-card-dot"></div>
+              {/* หา user ที่ email ตรงกับ room.email เพื่อเอารูป */}
+              {(() => {
+                const user = users.find((u) => u.email === room.email);
+                if (user && user.photoURL) {
+                  return (
+                    <img
+                      src={user.photoURL}
+                      alt="room"
+                      className="room-image room-image-full" // เพิ่มคลาส room-image-full
+                    />
+                  );
+                }
+                return (
+                  <div className="tinder-card-inner-loading">
+                    <div className="tinder-card-spinner">
+                      <div className="tinder-card-dot"></div>
+                      <div className="tinder-card-dot"></div>
+                      <div className="tinder-card-dot"></div>
+                    </div>
+                    <div className="tinder-card-loading-text">กำลังโหลดข้อมูลห้อง...</div>
                   </div>
-                  <div className="tinder-card-loading-text">กำลังโหลดข้อมูลห้อง...</div>
-                </div>
-              )}
+                );
+              })()}
               <div className="room-info">
-                <h4>{room.title}</h4>
+                {/* <h4>{room.title}</h4> */}
                 <p>{room.email}</p>
               </div>
             </div>
