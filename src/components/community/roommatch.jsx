@@ -59,7 +59,6 @@ const RoomMatch = () => {
       } catch (error) {
         console.error("โหลดห้องไม่สำเร็จ:", error);
       }
-      console.log("Fetched users:", users);
     };
     fetchGmails();
   }, [users]);
