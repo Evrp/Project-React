@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import "./Eventlist.css";
 import { useTheme } from "../../../context/themecontext";
@@ -11,6 +11,8 @@ const EventList = () => {
   const email = localStorage.getItem("userEmail");
   const { isDarkMode, setIsDarkMode } = useTheme();
   const [favoriteEvents, setFavoriteEvents] = useState([]); // Store array of favorited event IDs
+  const [pendingFavorites, setPendingFavorites] = useState([]);
+  const debounceRef = useRef(null);
 
   const user = { email };
 
@@ -68,6 +70,17 @@ const EventList = () => {
       console.error("❌ Error deleting all events:", error);
     }
   };
+  const handleDeleteAllLikes = async () => {
+    try {
+      await axios.delete(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/like/${email}`
+      );
+      setFavoriteEvents([]); // ล้าง state favorite
+    } catch (error) {
+      console.error("❌ Error deleting all likes:", error);
+    }
+  };
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -120,17 +133,32 @@ const EventList = () => {
 
   const handleUnlike = async (eventId) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_APP_API_BASE_URL}/api/like/${email}/${eventId}`,);
+      await axios.delete(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/like/${email}/${eventId}`
+      );
       fetchFavoriteEvents();
     } catch (error) {
       console.error("❌ Error unliking event:", error);
     }
   };
 
-  const isFavorite = (eventId) =>
-    favoriteEvents.some((favoriteEventId) => {
-      return favoriteEventId === eventId;
+
+  const handleFavoriteChange = (eventId, isFavorite) => {
+    setPendingFavorites((prev) => [...prev, { eventId, isFavorite }]);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      sendFavoritesToWebhook(pendingFavorites);
+      setPendingFavorites([]);
+    }, 1500); // 1.5 วินาทีหลังจากกดครั้งล่าสุด
+  };
+
+  const sendFavoritesToWebhook = async (changes) => {
+    if (changes.length === 0) return;
+    await axios.post(import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_URL, {
+      email: email,
+      changes, // [{eventId, isFavorite}]
     });
+  };
 
   if (loading) return <p className="loading-text">กำลังโหลด...</p>;
 
@@ -170,17 +198,21 @@ const EventList = () => {
                 <button
                   className="favorite-button"
                   onClick={() => {
-                    // Toggle favorite status
-                    Array.isArray(favoriteEvents) &&
-                    favoriteEvents.includes(event._id)
-                      ? handleUnlike(event._id, event.title)
-                      : handleLike(event._id, event.title);
+                    const isFav =
+                      Array.isArray(favoriteEvents) &&
+                      favoriteEvents.includes(event._id);
+                    if (isFav) {
+                      handleUnlike(event._id, event.title);
+                    } else {
+                      handleLike(event._id, event.title);
+                    }
                     setFavoriteEvents((prev) => {
                       if (!Array.isArray(prev)) return [event._id];
                       return prev.includes(event._id)
                         ? prev.filter((id) => id !== event._id)
                         : [...prev, event._id];
                     });
+                    handleFavoriteChange(event._id, !isFav); // <-- เพิ่มบรรทัดนี้
                   }}
                   aria-label={
                     Array.isArray(favoriteEvents) &&
@@ -212,7 +244,10 @@ const EventList = () => {
                 Info more
               </a>
               <button
-                onClick={() => handleDelete(event._id)}
+                onClick={() => {
+                  handleDelete(event._id);
+                  handleUnlike(event._id); // <-- เพิ่มลบ like ของ event นี้ด้วย
+                }}
                 className="delete-button"
               >
                 🗑️ Delete
@@ -220,8 +255,18 @@ const EventList = () => {
             </div>
           ))}
           <div className="btn-delete-all">
-            <button onClick={handleDeleteAll} className="delete-button-all" title="ลบกิจกรรมทั้งหมด">
-              <span role="img" aria-label="delete">🗑️</span> Delete all
+            <button
+              onClick={() => {
+                handleDeleteAll();
+                handleDeleteAllLikes(); // <-- เพิ่มลบ likes ด้วย
+              }}
+              className="delete-button-all"
+              title="ลบกิจกรรมทั้งหมด"
+            >
+              <span role="img" aria-label="delete">
+                🗑️
+              </span>{" "}
+              Delete all
             </button>
           </div>
         </div>

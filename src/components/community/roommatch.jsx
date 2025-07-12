@@ -48,6 +48,7 @@ const RoomMatch = () => {
     fetchRooms();
   }, [userEmail]);
   const filteredRooms = rooms.filter((room) => !joinedRooms.includes(String(room._id)));
+  // console.log("Filtered Rooms:", filteredRooms);
 
   useEffect(() => {
     const fetchGmails = async () => {
@@ -96,7 +97,11 @@ const RoomMatch = () => {
       await childRefs.current[currentIndex]?.current?.swipe(dir);
     }
   };
- 
+  const getHighResPhoto = (url) => {
+    if (!url) return url;
+    // รองรับทั้ง ...=s96-c และ ...=s96-c&... หรือ ...=s96-c?... (กรณีมี query string ต่อท้าย)
+    return url.replace(/=s\d+-c(?=[&?]|$)/, '=s400-c');
+  };
   return (
     <div className={`room-match-container ${isDarkMode ? "dark-mode" : ""}`}>  
       {loading && (
@@ -118,10 +123,10 @@ const RoomMatch = () => {
               <div className="roommatch-tindercard-bar"></div>
               <div className="roommatch-tindercard-bar"></div>
             </div>
-            <div className="roommatch-tindercard-loading-text">กำลังค้นหาห้องที่เหมาะกับคุณ...</div>
+            <div className="roommatch-tindercard-loading-text">ไม่พบห้องที่เหมาะสม หรือคุณปัดหมดแล้ว<br/>กำลังค้นหาห้องใหม่...</div>
           </div>
         )}
-        {!loading && filteredRooms.map((room, index) => (
+        {!loading && filteredRooms.length > 0 && filteredRooms.map((room, index) => (
           <TinderCard
             ref={childRefs.current[index]}
             key={room._id}
@@ -136,9 +141,9 @@ const RoomMatch = () => {
                 if (user && user.photoURL) {
                   return (
                     <img
-                      src={user.photoURL}
+                      src={getHighResPhoto(user.photoURL)}
                       alt="room"
-                      className="room-image room-image-full" // เพิ่มคลาส room-image-full
+                      className="room-image-match" // เพิ่มคลาส room-image-full
                     />
                   );
                 }
@@ -153,9 +158,10 @@ const RoomMatch = () => {
                   </div>
                 );
               })()}
-              <div className="room-info">
+              <div className="room-match-info">
                 {/* <h4>{room.title}</h4> */}
                 <p>{room.email}</p>
+                <p>{room.title}</p>
               </div>
             </div>
           </TinderCard>
