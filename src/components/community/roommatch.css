@@ -236,8 +236,8 @@
 
 .tinder-card {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  inline-size: 100%;
+  block-size: 100%;
 }
 
 .room-card-match {
@@ -253,44 +253,47 @@
   justify-content: flex-end;
 }
 
-.room-image,
-.room-image.room-image-full {
+.room-image-match {
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 100%;
-  object-fit: cover;           /* ให้รูปเต็มใบ ไม่เบลอ */
+  height: 95%;
+  object-fit: cover; /* เปลี่ยนจาก contain เป็น cover ให้รูปเต็ม card */
   object-position: center;
   z-index: 1;
-  border-radius: 22px;
-  background: linear-gradient(135deg, #23242b 60%, #657ced 100%);
-  filter: none;                /* ไม่เบลอรูป */
+  /* border-radius: 22px; */
+  filter: none;
+  image-rendering: auto;
+  background: transparent;
 }
 
-/* เฉพาะ .room-info ให้ blur เฉพาะพื้นหลัง */
-.room-info {
-  position: relative;
+.room-match-info {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 2;
-  background: rgba(36, 38, 56, 0.60);
+  /* background-color: linear-gradient(10deg, rgba(36,38,56,0.05) 100%, rgba(36,38,56,0.7) 10%, rgba(0,0,0,0.92) 20%); */
+  background: linear-gradient(180deg, rgba(36,38,56,0.0999) 10%, rgba(36,38,56,0.7) 20%, rgba(0,0,0,0.9) 50%);
   color: #fff;
-  padding: 28px 24px 18px 24px;
+  padding: 18px 24px 5px 24px;
   border-bottom-left-radius: 22px;
   border-bottom-right-radius: 22px;
   font-size: 1.15rem;
   font-weight: 500;
-  backdrop-filter: blur(6px);   /* เบลอเฉพาะพื้นหลัง */
-  min-height: 90px;
+  backdrop-filter: blur(1px);
+  min-height: 50px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
 }
 
-.room-info h4 {
+.room-match-info h4 {
   font-size: 22px;
   margin: 0 0 6px 0;
 }
 
-.room-info p {
+.room-match-info p {
   font-size: 15px;
   color: #e0e0e0;
   margin: 0;
@@ -301,25 +304,94 @@
   box-shadow: 0 6px 32px 0 rgba(30,32,38,0.18);
 }
 
-.dark-mode .room-info {
+.dark-mode .room-match-info {
   background: rgba(36, 38, 56, 0.80);
   color: #fff;
 }
 
+/* --- Button group for RoomMatch --- */
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 2.2rem;
+  margin-top: 32px;
+  margin-bottom: 12px;
+}
+
+.skip-button {
+  background: linear-gradient(90deg, #ecebfa 60%, #e3e6f8 100%);
+  color: #554eea;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.7rem 2.2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 12px #554eea22;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  outline: none;
+}
+.skip-button:hover:not(:disabled) {
+  background: #ecebfa;
+  color: #23242b;
+  box-shadow: 0 4px 18px #554eea33;
+}
+.skip-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.join-button {
+  background: linear-gradient(90deg, #6c63ff 60%, #554eea 100%);
+  color: #fff;
+  border: none;
+  border-radius: 2rem;
+  padding: 0.7rem 2.2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 12px #554eea44;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
+  outline: none;
+}
+.join-button:hover:not(:disabled) {
+  background: #554eea;
+  color: #ecebfa;
+  box-shadow: 0 4px 18px #554eea77;
+}
+.join-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive */
 @media (max-width: 600px) {
-  .card-stack {
-    width: 98vw;
-    height: 65vw;
-    min-height: 340px;
-    max-width: 99vw;
+  .button-group {
+    gap: 1.1rem;
+    margin-top: 18px;
   }
-  .room-card-match {
-    border-radius: 14px;
-  }
-  .room-info {
-    border-bottom-left-radius: 14px;
-    border-bottom-right-radius: 14px;
-    padding: 18px 10px 12px 10px;
+  .skip-button, .join-button {
+    padding: 0.6rem 1.2rem;
     font-size: 1rem;
   }
+}
+
+/* Dark mode */
+.dark-mode .skip-button {
+  background: #2d2e3a;
+  color: #ecebfa;
+  box-shadow: 0 2px 12px #23242b44;
+}
+.dark-mode .skip-button:hover:not(:disabled) {
+  background: #554eea33;
+  color: #fff;
+}
+.dark-mode .join-button {
+  background: linear-gradient(90deg, #554eea 60%, #6c63ff 100%);
+  color: #ecebfa;
+  box-shadow: 0 2px 12px #23242b77;
+}
+.dark-mode .join-button:hover:not(:disabled) {
+  background: #6c63ff;
+  color: #fff;
 }

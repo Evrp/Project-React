@@ -317,28 +317,28 @@ const AccordionList = ({ items }) => {
                                 },
                             );
                             // เรียก webhook ต่อ
-                            const startwebhook = async () => {
-                                try {
-                                    if (email) {
-                                        const response = await fetch(
-                                            `${import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_URL}`,
-                                            {
-                                                method: "POST",
-                                                headers: { "Content-Type": "application/json" },
-                                                body: JSON.stringify({ email }),
-                                            }
-                                        );
-                                        if (response.ok) {
-                                            console.log("Webhook started successfully");
-                                        } else {
-                                            console.error("Error starting webhook");
-                                        }
-                                    }
-                                } catch (error) {
-                                    console.error("Error starting webhook:", error);
-                                }
-                            };
-                            await startwebhook();
+                            // const startwebhook = async () => {
+                            //     try {
+                            //         if (email) {
+                            //             const response = await fetch(
+                            //                 `${import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_URL}`,
+                            //                 {
+                            //                     method: "POST",
+                            //                     headers: { "Content-Type": "application/json" },
+                            //                     body: JSON.stringify({ email }),
+                            //                 }
+                            //             );
+                            //             if (response.ok) {
+                            //                 console.log("Webhook started successfully");
+                            //             } else {
+                            //                 console.error("Error starting webhook");
+                            //             }
+                            //         }
+                            //     } catch (error) {
+                            //         console.error("Error starting webhook:", error);
+                            //     }
+                            // };
+                            // await startwebhook();
                             if (response.ok) {
                                 toast.success("บันทึกการเลือกสำเร็จ");
                             } else {

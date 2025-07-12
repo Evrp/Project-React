@@ -391,6 +391,8 @@
 .delete-button-all {
   display: flex;
   align-items: center;
+  justify-content: center;
+  width: 100%;
   gap: 8px;
   padding: 8px 22px 8px 18px;
   background: linear-gradient(90deg, #f7f7f7 60%, #e0e7ff 100%);
