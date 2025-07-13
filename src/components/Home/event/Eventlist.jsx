@@ -21,16 +21,12 @@ const EventList = () => {
       const res = await axios.get(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/get-image-genres`
       );
-      console.log("✅ Fetched:", res.data);
 
       const imageList = res.data.imageGenres;
 
       imageList.forEach((item) => {
-        // console.log("🎨 Genre:", item.genres);
-        // console.log("🖼️ Image:", item.image);
-      });
-      console.log("✅ Fetched:", imageList[1]);
 
+      });
       // หรือถ้าจะเก็บใน state:
       setEventsImage(imageList);
     } catch (err) {
@@ -115,7 +111,6 @@ const EventList = () => {
 
   useEffect(() => {
     fetchFavoriteEvents();
-    console.log("✅ Fetched favorite events:", favoriteEvents);
   }, []);
 
   const handleLike = async (eventId, title) => {
@@ -142,21 +137,23 @@ const EventList = () => {
     }
   };
 
-
-  const handleFavoriteChange = (eventTitle, isFavorite) => {
-    setPendingFavorites((prev) => [...prev, { eventTitle, isFavorite }]);
+  // เมื่อ user favorite/unfavorite ให้รอ 5 วิหลังจากกดครั้งสุดท้าย แล้วส่ง favoriteEvents array ไป webhook
+  const handleFavoriteChange = () => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      sendFavoritesToWebhook(pendingFavorites);
-      setPendingFavorites([]);
-    }, 1500); // 1.5 วินาทีหลังจากกดครั้งล่าสุด
+      // แปลง favoriteEvents (array ของ eventId) เป็น eventTitle
+      const favoriteTitles = events
+        .filter((event) => favoriteEvents.includes(event._id))
+        .map((event) => event.title);
+      sendFavoritesToWebhook(favoriteTitles);
+    }, 5000); // 5 วินาทีหลังจากกดครั้งล่าสุด
   };
 
-  const sendFavoritesToWebhook = async (changes) => {
-    if (changes.length === 0) return;
+  const sendFavoritesToWebhook = async (favoriteTitlesArr) => {
+    if (!Array.isArray(favoriteTitlesArr) || favoriteTitlesArr.length === 0) return;
     await axios.post(import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_URL, {
       email: email,
-      changes, // [{eventId, isFavorite}]
+      favorites: favoriteTitlesArr, // ส่ง array eventTitle ที่ favorite ปัจจุบัน
     });
   };
 
@@ -212,7 +209,7 @@ const EventList = () => {
                         ? prev.filter((id) => id !== event._id)
                         : [...prev, event._id];
                     });
-                    handleFavoriteChange(event.title, !isFav); // <-- เพิ่มบรรทัดนี้
+                    handleFavoriteChange(); // เรียกเพื่อ debounce 5 วิ แล้วส่ง favoriteEvents array
                   }}
                   aria-label={
                     Array.isArray(favoriteEvents) &&

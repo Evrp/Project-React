@@ -299,9 +299,9 @@ const AccordionList = ({ items }) => {
                         console.log("Sub Genres Object:", subGenresObj);
                         try {
                             // เรียกลบ EventMatch ก่อน
-                            await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-all-events-match`, {
-                                method: "DELETE"
-                            });
+                            // await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-all-events-match`, {
+                            //     method: "DELETE"
+                            // });
                             // แล้วค่อยบันทึก genres/subGenres
                             const response = await fetch(
                                 `${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`,
