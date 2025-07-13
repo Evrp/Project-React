@@ -3,7 +3,7 @@ import { EventMatch } from "../src/model/eventmatch.js";
 const router = express.Router();
 
 router.post("/save-event-match", async (req, res) => {
-  const { title, isFirst, email, image } =
+  const { title, isFirst, email, roomId, usermatch } =
     req.body;
 
   try {
@@ -15,7 +15,8 @@ router.post("/save-event-match", async (req, res) => {
     const newEvent = new EventMatch({
       title,
       email,
-      image,
+      roomId,
+      usermatch,
     });
 
     await newEvent.save();
