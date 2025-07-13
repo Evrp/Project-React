@@ -4,6 +4,7 @@ import { BsThreeDots } from "react-icons/bs";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "../chat/Chat.css";
 
 const ListUser = ({
@@ -16,6 +17,7 @@ const ListUser = ({
   setFriends,
   setActiveRoomId, // เพิ่ม prop
 }) => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [openMenuFor, setOpenMenuFor] = useState(null);
   const [currentUserfollow, setCurrentUserfollow] = useState(null);
@@ -116,6 +118,7 @@ const ListUser = ({
       console.error("โหลด Gmail currentUser ไม่ได้:", err);
     }
   };
+  
 
   const handleFollow = async (targetEmail) => {
     await fetchGmailUser();
@@ -178,6 +181,7 @@ const ListUser = ({
     navigate(`/chat/${roomId}`);
     // handleAddCommunity(roomId, roomName);
   };
+  console.log("Sorted Friends:", sortedFriends);
 
   return (
     <div className="favorite-container">
@@ -194,6 +198,7 @@ const ListUser = ({
                   key={index}
                   className="chat-friend-item"
                   onClick={() => {
+                    handleEnterRoom(friend.displayName);
                     setActiveUser(friend.email);
                     setIsGroupChat(false);
                     if (setActiveRoomId)

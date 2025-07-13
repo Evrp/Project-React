@@ -18,4 +18,4 @@ npm install react-tinder-card
 Run Web and Server
 npm run dev ( Frontend )
 node server.js ( Backend )
-lt --port 8080 ( localtunnel)
+npx lt --port 8080 ( localtunnel)

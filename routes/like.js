@@ -43,6 +43,17 @@ app.get("/likes", async (req, res) => {
         res.status(500).json({ message: "Error fetching likes", error: err.message });
     }
 });
+// Route to get all likes except for a specific user
+// GET /likes/exclude/:email
+app.get("/likes/exclude/:email", async (req, res) => {
+    const { email } = req.params;
+    try {
+        const likes = await Like.find({ userEmail: { $ne: email } });
+        res.json(likes);
+    } catch (err) {
+        res.status(500).json({ message: "Error fetching likes", error: err.message });
+    }
+});
 // Route to unlike an event
 // DELETE /unlike/:userEmail/:eventId   
 app.delete("/like/:userEmail/:eventId", async (req, res) => {

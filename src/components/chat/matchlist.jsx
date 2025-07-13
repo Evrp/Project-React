@@ -3,12 +3,13 @@ import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { BsThreeDots } from "react-icons/bs";
 import axios from "axios";
 import { toast } from "react-toastify";
-
+import { useNavigate } from "react-router-dom";
 const MatchList = ({
   joinedRooms,
   allEvents,
   setActiveUser,
   setRoombar,
+  users,
   setIsGroupChat,
   isOpenMatch,
   setIsOpenMatch,
@@ -18,6 +19,7 @@ const MatchList = ({
   dropdownRefs,
   setJoinedRooms,
 }) => {
+  const navigate = useNavigate();
   const userEmail = localStorage.getItem("userEmail");
 
   const handleDeleteRoom = async (roomId, roomName) => {
@@ -40,6 +42,9 @@ const MatchList = ({
       console.error("ลบห้องล้มเหลว:", error);
       toast.error("ลบห้องล้มเหลว!");
     }
+  };
+  const handleEnterRoom = (roomId) => {
+    navigate(`/chat/${roomId}`);
   };
 
   return (
@@ -70,18 +75,28 @@ const MatchList = ({
                           key={room._id || `${room.title}-${i}`}
                           className="chat-friend-item"
                           onClick={() => {
-                            setActiveUser(room.title),
-                              setRoombar(room.image, room.title);
+                            handleEnterRoom(room.roomId);
+                            setActiveUser(room.usermatch); // ส่ง email ของ usermatch ไปเป็น activeUser (receiver)
+                            setRoombar(room.image, room.title);
                             setIsGroupChat(true);
                           }}
                         >
                           <img
-                            src={room.image}
+                            src={
+                              (() => {
+                                const user = users.find(
+                                  (u) => u.email === room.usermatch
+                                );
+                                return user && user.photoURL
+                                  ? user.photoURL
+                                  : "/default-profile.png"; // fallback รูป default
+                              })()
+                            }
                             alt={room.title}
                             className="friend-photo"
                           />
                           <div className="friend-detailss">
-                            <span className="friend-name">{room.title}</span>
+                            <span className="friend-name">{room.usermatch}</span>
                           </div>
                           <div
                             className="dropdown-wrapper"

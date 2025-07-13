@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { BsThreeDots } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -18,6 +19,7 @@ const CommunityList = ({
   dropdownRefs,
   setJoinedRooms
 }) => {
+  const navigate = useNavigate();
   const userEmail = localStorage.getItem("userEmail");
 
   const handleDeleteRoom = async (roomName) => {
@@ -40,6 +42,9 @@ const CommunityList = ({
       console.error("ลบห้องล้มเหลว:", error);
       toast.error("ลบห้องล้มเหลว!");
     }
+  };
+  const handleEnterRoom = (roomId) => {
+    navigate(`/chat/${roomId}`);
   };
 
   return (
@@ -73,6 +78,7 @@ const CommunityList = ({
                             setActiveUser(room.name),
                               setRoombar(room.image, room.name);
                             setIsGroupChat(true);
+                            handleEnterRoom(room._id);
                           }}
                         >
                           <img
