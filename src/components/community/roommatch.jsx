@@ -62,7 +62,7 @@ const RoomMatch = () => {
       }
     };
     fetchGmails();
-  }, [users]);
+  }, []);
 
   const handleEnterRoom = (roomId, roomName) => {
     navigate(`/chat/${roomId}`);
@@ -103,7 +103,7 @@ const RoomMatch = () => {
     return url.replace(/=s\d+-c(?=[&?]|$)/, '=s400-c');
   };
   return (
-    <div className={`room-match-container ${isDarkMode ? "dark-mode" : ""}`}>  
+    <div className={`room-match-container ${isDarkMode ? "dark-mode" : ""}`}>
       {loading && (
         <div className="roommatch-loading-overlay">
           <div className="roommatch-spinner">
@@ -123,7 +123,7 @@ const RoomMatch = () => {
               <div className="roommatch-tindercard-bar"></div>
               <div className="roommatch-tindercard-bar"></div>
             </div>
-            <div className="roommatch-tindercard-loading-text">ไม่พบห้องที่เหมาะสม หรือคุณปัดหมดแล้ว<br/>กำลังค้นหาห้องใหม่...</div>
+            <div className="roommatch-tindercard-loading-text">ไม่พบห้องที่เหมาะสม หรือคุณปัดหมดแล้ว<br />กำลังค้นหาห้องใหม่...</div>
           </div>
         )}
         {!loading && filteredRooms.length > 0 && filteredRooms.map((room, index) => (
