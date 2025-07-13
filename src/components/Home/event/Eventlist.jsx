@@ -143,8 +143,8 @@ const EventList = () => {
   };
 
 
-  const handleFavoriteChange = (eventId, isFavorite) => {
-    setPendingFavorites((prev) => [...prev, { eventId, isFavorite }]);
+  const handleFavoriteChange = (eventTitle, isFavorite) => {
+    setPendingFavorites((prev) => [...prev, { eventTitle, isFavorite }]);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       sendFavoritesToWebhook(pendingFavorites);
@@ -212,7 +212,7 @@ const EventList = () => {
                         ? prev.filter((id) => id !== event._id)
                         : [...prev, event._id];
                     });
-                    handleFavoriteChange(event._id, !isFav); // <-- เพิ่มบรรทัดนี้
+                    handleFavoriteChange(event.title, !isFav); // <-- เพิ่มบรรทัดนี้
                   }}
                   aria-label={
                     Array.isArray(favoriteEvents) &&

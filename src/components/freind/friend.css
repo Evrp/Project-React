@@ -499,6 +499,9 @@
 
 .empty-friend-list {
   height: fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .con-friend-list::-webkit-scrollbar {

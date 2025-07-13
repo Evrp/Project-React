@@ -24,8 +24,9 @@ const RoomMatch = () => {
     const fetchRooms = async () => {
       setLoading(true);
       try {
+        console.log("User Email:", userEmail);
         const res = await axios.get(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/events-match`
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/events-match/${userEmail}`
         );
         const filterjoinedRooms = await axios.get(
           `${import.meta.env.VITE_APP_API_BASE_URL}/api/user-rooms/${userEmail}`
@@ -36,6 +37,7 @@ const RoomMatch = () => {
           : [];
         setJoinedRooms(joinedIds);
         setRooms(res.data);
+        console.log("Fetched Rooms:", res.data);
         setCurrentIndex(res.data.length - 1);
         childRefs.current = Array(res.data.length)
           .fill(0)
@@ -137,7 +139,7 @@ const RoomMatch = () => {
             <div className="room-card-match">
               {/* หา user ที่ email ตรงกับ room.email เพื่อเอารูป */}
               {(() => {
-                const user = users.find((u) => u.email === room.email);
+                const user = users.find((u) => u.email === room.usermatch);
                 if (user && user.photoURL) {
                   return (
                     <img
@@ -160,7 +162,7 @@ const RoomMatch = () => {
               })()}
               <div className="room-match-info">
                 {/* <h4>{room.title}</h4> */}
-                <p>{room.email}</p>
+                <p>{room.usermatch}</p>
                 <p>{room.title}</p>
               </div>
             </div>

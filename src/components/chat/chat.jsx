@@ -97,6 +97,7 @@ const Chat = () => {
             photoURL: user.photoURL,
             email: user.email,
             displayName: user.displayName,
+            _id: user._id, 
             isOnline: user.isOnline || false,
           }))
           .sort((a, b) => a.displayName.localeCompare(b.displayName));
@@ -213,7 +214,7 @@ const Chat = () => {
   const getallEvents = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/events-match`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/events-match/${userEmail}`
       );
       setEvents(res.data);
     } catch (err) {
@@ -494,6 +495,7 @@ const Chat = () => {
 
     return () => unsubscribe();
   }, [userEmail]);
+  console.log(" friends:", friends);
   const sortedFriends = [...friends].sort((a, b) => {
     const timeA = lastMessages[a.email]?.timestamp?.toDate()?.getTime() || 0;
     const timeB = lastMessages[b.email]?.timestamp?.toDate()?.getTime() || 0;
@@ -560,6 +562,7 @@ const Chat = () => {
             <MatchList
               joinedRooms={joinedRooms}
               allEvents={allEvents}
+              users={users}
               isOpenMatch={isOpenMatch}
               setIsOpenMatch={setIsOpenMatch}
               setActiveUser={setActiveUser}

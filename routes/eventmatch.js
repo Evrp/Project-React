@@ -2,14 +2,13 @@ import express from "express";
 import { EventMatch } from "../src/model/eventmatch.js";
 const router = express.Router();
 
-router.post("/save-event-match", async (req, res) => {
-  const { title, isFirst, email, roomId, usermatch } =
+router.post("/events-match", async (req, res) => {
+  const { title, email, roomId, usermatch } =
     req.body;
 
   try {
-    if (isFirst) {
-      const deleted = await EventMatch.deleteMany({});
-      console.log("🧹 Deleted all events:", deleted.deletedCount);
+    if (!title || !email || !roomId || !usermatch) {
+      return res.status(400).json({ error: "Title, email, roomId, and usermatch are required." });
     }
 
     const newEvent = new EventMatch({
@@ -27,16 +26,16 @@ router.post("/save-event-match", async (req, res) => {
   }
 });
 
-router.get("/events-match", async (req, res) => {
+router.get("/events-match/:email", async (req, res) => {
   try {
-    const events = await EventMatch.find({}); // เรียงตามวันที่
+    const events = await EventMatch.find({ email: req.params.email }); // เรียงตามวันที่
     res.json(events);
   } catch (error) {
     console.error("❌ Error fetching events:", error);
     res.status(500).json({ message: "Server error" });
   }
 })
-router.delete("/api/delete-all-events-match", async (req, res) => {
+router.delete("/delete-all-events-match", async (req, res) => {
   try {
     await EventMatch.deleteMany({}); // ลบทุกเอกสารใน collection
     res.status(200).json({ message: "ลบกิจกรรมทั้งหมดเรียบร้อยแล้ว" });
