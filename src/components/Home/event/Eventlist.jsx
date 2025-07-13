@@ -235,14 +235,14 @@ const EventList = () => {
                 <p>🗓️ date: {event.date}</p>
               </div>
               <p className="event-description">{event.description}</p>
-              <a
+              {/* <a
                 href={event.link}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="event-link"
               >
                 Info more
-              </a>
+              </a> */}
               <button
                 onClick={() => {
                   handleDelete(event._id);
