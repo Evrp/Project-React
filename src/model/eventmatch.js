@@ -6,7 +6,8 @@ const eventSchema = new mongoose.Schema(
   {
     title: String,
     email: String,
-    image: String,
+    roomId: String,
+    usermatch: String, 
   },
   { timestamps: true }
 );
