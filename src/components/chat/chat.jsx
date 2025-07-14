@@ -227,22 +227,22 @@ const Chat = () => {
     }
   };
   const handleSend = async () => {
-    if (input.trim() === "" || !activeUser) return;
-
+    if (input.trim() === "" || (!isGroupChat && !selectedUser)) return;
+    console.log("Sending message:", input, "to roomId:", roomId, "activeUser:", activeUser);
     const messageData = {
       sender: userEmail,
       content: input,
       timestamp: serverTimestamp(),
       roomId: roomId,
+      // receiver: activeUser, 
       isSeen: false,
     };
 
-    // เพิ่ม receiver สำหรับแชทส่วนตัว
-    if (!isGroupChat && activeUser) {
-      messageData.receiver = activeUser;
+    // เพิ่ม receiver สำหรับแชทส่วนตัว (เก็บ selectedUser)
+    if (!isGroupChat && selectedUser) {
+      messageData.receiver = selectedUser.email;
     }
-    confirm;
-    if (isGroupChat == true) {
+    if (isGroupChat === true) {
       // สำหรับแชทกลุ่ม
       messageData.type = "group";
       messageData.receiver = null;
@@ -356,6 +356,7 @@ const Chat = () => {
   useEffect(() => {
     if (!roomId) return;
     const roomRef = doc(db, "messages", roomId);
+    console.log("activeUser:", activeUser);
     const roomUnsubscribe = onSnapshot(roomRef, (doc) => {
       const data = doc.data();
 
@@ -495,7 +496,6 @@ const Chat = () => {
 
     return () => unsubscribe();
   }, [userEmail]);
-  console.log(" friends:", friends);
   const sortedFriends = [...friends].sort((a, b) => {
     const timeA = lastMessages[a.email]?.timestamp?.toDate()?.getTime() || 0;
     const timeB = lastMessages[b.email]?.timestamp?.toDate()?.getTime() || 0;
@@ -566,6 +566,7 @@ const Chat = () => {
               isOpenMatch={isOpenMatch}
               setIsOpenMatch={setIsOpenMatch}
               setActiveUser={setActiveUser}
+              handleProfileClick={handleProfileClick}
               setRoombar={setRoombar}
               setIsGroupChat={setIsGroupChat}
               loadingFriendRooms={loadingFriendRooms}
