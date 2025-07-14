@@ -136,13 +136,6 @@
 }
 
 /* ชื่อของเพื่อน */
-.friend-name {
-  margin-left: 12px;
-  font-size: 1.1rem;
-  color: #555;
-  font-weight: 500;
-  width: 70%;
-}
 
 /* หากไม่มีเพื่อนออนไลน์ */
 .no-friends {

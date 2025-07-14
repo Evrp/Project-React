@@ -181,7 +181,6 @@ const ListUser = ({
     navigate(`/chat/${roomId}`);
     // handleAddCommunity(roomId, roomName);
   };
-  console.log("Sorted Friends:", sortedFriends);
 
   return (
     <div className="favorite-container">

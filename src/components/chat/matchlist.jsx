@@ -13,6 +13,7 @@ const MatchList = ({
   setIsGroupChat,
   isOpenMatch,
   setIsOpenMatch,
+  handleProfileClick,
   loadingFriendRooms,
   openMenuFor,
   setOpenMenuFor,
@@ -26,7 +27,8 @@ const MatchList = ({
     try {
       console.log("Deleting room:", roomId, "for user:", userEmail);
       await axios.delete(
-        `${import.meta.env.VITE_APP_API_BASE_URL
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
         }/api/delete-joined-rooms/${roomId}/${userEmail}`
       );
 
@@ -78,29 +80,40 @@ const MatchList = ({
                             handleEnterRoom(room.roomId);
                             setActiveUser(room.usermatch); // ส่ง email ของ usermatch ไปเป็น activeUser (receiver)
                             setRoombar(room.image, room.title);
-                            setIsGroupChat(true);
+                            setIsGroupChat(false);
+                            handleProfileClick(room.usermatch);
                           }}
                         >
                           <img
-                            src={
-                              (() => {
-                                const user = users.find(
-                                  (u) => u.email === room.usermatch
-                                );
-                                return user && user.photoURL
-                                  ? user.photoURL
-                                  : "/default-profile.png"; // fallback รูป default
-                              })()
-                            }
+                            src={(() => {
+                              const user = users.find(
+                                (u) => u.email === room.usermatch
+                              );
+                              return user && user.photoURL
+                                ? user.photoURL
+                                : "/default-profile.png"; // fallback รูป default
+                            })()}
                             alt={room.title}
                             className="friend-photo"
                           />
                           <div className="friend-detailss">
-                            <span className="friend-name">{room.usermatch}</span>
+                            <span className="friend-name">
+                              {(() => {
+                                const user = users.find(
+                                  (u) => u.email === room.usermatch
+                                );
+                                return user && user.displayName
+                                  ? user.displayName
+                                  : room.usermatch; // fallback รูป default
+                              })()}
+                            </span>
+                            <span className="friend-title">{room.title}</span>
                           </div>
-                          <div
+                          {/* <div
                             className="dropdown-wrapper"
-                            ref={(el) => (dropdownRefs.current[room.title] = el)}
+                            ref={(el) =>
+                              (dropdownRefs.current[room.title] = el)
+                            }
                             onClick={(e) => e.stopPropagation()}
                           >
                             <button
@@ -131,7 +144,7 @@ const MatchList = ({
                                 </button>
                               </div>
                             )}
-                          </div>
+                          </div> */}
                         </li>
                       ) : null
                     )}
