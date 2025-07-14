@@ -3,18 +3,19 @@ import { EventMatch } from "../src/model/eventmatch.js";
 const router = express.Router();
 
 router.post("/events-match", async (req, res) => {
-  const { title, email, roomId, usermatch } =
+  const { title, email, roomId, usermatch, chance } =
     req.body;
 
   try {
-    if (!title || !email || !roomId || !usermatch) {
-      return res.status(400).json({ error: "Title, email, roomId, and usermatch are required." });
+    if (!title || !email || !roomId || !usermatch || !chance) {
+      return res.status(400).json({ error: "Title, email, roomId, chance and usermatch are required." });
     }
 
     const newEvent = new EventMatch({
       title,
       email,
       roomId,
+      chance,
       usermatch, // Assuming this is a string field for user match
     });
 
@@ -43,6 +44,21 @@ router.delete("/delete-all-events-match", async (req, res) => {
     console.error("❌ Error deleting events:", error);
     res.status(500).json({ message: "Server error" });
   }
-})
+});
+
+// ลบ event match เฉพาะห้องที่ระบุ
+router.delete("/delete-event-match/:roomId", async (req, res) => {
+  try {
+    const { roomId } = req.params;
+    const result = await EventMatch.deleteOne({ roomId });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ message: "Event match not found" });
+    }
+    res.status(200).json({ message: "ลบ event match เรียบร้อยแล้ว" });
+  } catch (error) {
+    console.error("❌ Error deleting event match:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 export default router;
