@@ -259,9 +259,7 @@ const Profile = () => {
     };
     if (userEmail) fetchAll();
   }, [userEmail]);
-  useEffect(() => {
-    console.log("user Photo:", userPhoto);
-  }, []);
+ 
 
   // UI
   if (!userEmail || !userPhoto) {

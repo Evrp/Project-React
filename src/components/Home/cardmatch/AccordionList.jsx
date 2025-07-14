@@ -295,8 +295,6 @@ const AccordionList = ({ items }) => {
                             setLoading(false);
                             return;
                         }
-                        console.log("Selected Genres:", selectedGenres);
-                        console.log("Sub Genres Object:", subGenresObj);
                         try {
                             // เรียกลบ EventMatch ก่อน
                             // await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-all-events-match`, {

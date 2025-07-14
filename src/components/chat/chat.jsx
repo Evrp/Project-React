@@ -228,7 +228,6 @@ const Chat = () => {
   };
   const handleSend = async () => {
     if (input.trim() === "" || (!isGroupChat && !selectedUser)) return;
-    console.log("Sending message:", input, "to roomId:", roomId, "activeUser:", activeUser);
     const messageData = {
       sender: userEmail,
       content: input,
@@ -356,7 +355,6 @@ const Chat = () => {
   useEffect(() => {
     if (!roomId) return;
     const roomRef = doc(db, "messages", roomId);
-    console.log("activeUser:", activeUser);
     const roomUnsubscribe = onSnapshot(roomRef, (doc) => {
       const data = doc.data();
 

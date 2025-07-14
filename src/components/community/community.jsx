@@ -43,7 +43,6 @@ const Newcommu = () => {
 
   useEffect(() => {
     fetchGmailUser(); // ดึงข้อมูล Gmail user จาก backend
-    console.log("isDeleteMode", isDeleteMode);
   }, []);
 
   const handleNewRoom = (room) => {
@@ -62,7 +61,6 @@ const Newcommu = () => {
       toast.warning("กรุณาเลือกห้องที่ต้องการลบ");
       return;
     }
-    console.log("selectedRooms", selectedRooms);
 
     const confirm = window.confirm(
       `คุณแน่ใจว่าต้องการลบ ${selectedRooms.length} ห้องหรือไม่?`
@@ -321,7 +319,6 @@ const Newcommu = () => {
       }
     };
     getNickNameF();
-    console.log("handlematchfriends", handlematchfriend);
   }, []);
 
   return (

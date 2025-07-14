@@ -25,7 +25,6 @@ const MatchList = ({
 
   const handleDeleteRoom = async (roomId, roomName) => {
     try {
-      console.log("Deleting room:", roomId, "for user:", userEmail);
       await axios.delete(
         `${
           import.meta.env.VITE_APP_API_BASE_URL

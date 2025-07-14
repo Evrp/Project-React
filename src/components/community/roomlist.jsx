@@ -38,7 +38,6 @@ const RoomList = ({
         const joinedIds = Array.isArray(filterjoinedRooms.data.roomIds)
           ? filterjoinedRooms.data.roomIds.filter((id) => !!id)
           : [];
-        console.log("Joined Room IDs:", joinedIds);
         setJoinedRoomIds(joinedIds);
         // ...existing code...
 
