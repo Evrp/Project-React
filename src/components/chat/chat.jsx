@@ -29,6 +29,7 @@ import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { ImSpinner2 } from "react-icons/im";
+import ChatContainerAI from "./ChatContainerAI";
 
 const socket = io(import.meta.env.VITE_APP_API_BASE_URL);
 import { useTheme } from "../../context/themecontext";
@@ -97,7 +98,7 @@ const Chat = () => {
             photoURL: user.photoURL,
             email: user.email,
             displayName: user.displayName,
-            _id: user._id, 
+            _id: user._id,
             isOnline: user.isOnline || false,
           }))
           .sort((a, b) => a.displayName.localeCompare(b.displayName));
@@ -228,13 +229,20 @@ const Chat = () => {
   };
   const handleSend = async () => {
     if (input.trim() === "" || (!isGroupChat && !selectedUser)) return;
-    console.log("Sending message:", input, "to roomId:", roomId, "activeUser:", activeUser);
+    console.log(
+      "Sending message:",
+      input,
+      "to roomId:",
+      roomId,
+      "activeUser:",
+      activeUser
+    );
     const messageData = {
       sender: userEmail,
       content: input,
       timestamp: serverTimestamp(),
       roomId: roomId,
-      // receiver: activeUser, 
+      // receiver: activeUser,
       isSeen: false,
     };
 
@@ -373,7 +381,9 @@ const Chat = () => {
         .filter((msg) => msg.roomId === roomId); // กรองเฉพาะข้อความในห้องนี้
 
       const filteredMessages = isGroupChat
-        ? allMessages.filter((msg) => msg.type === "group" && msg.roomId === roomId)
+        ? allMessages.filter(
+            (msg) => msg.type === "group" && msg.roomId === roomId
+          )
         : allMessages.filter((msg) => {
             const isMyMsg =
               msg.sender === userEmail && msg.receiver === activeUser;
@@ -521,23 +531,15 @@ const Chat = () => {
             />
           </div>
           <div className="slide-chat">
-            {loadingFriends ? (
-              <div className="loading-spinner">
-                <ImSpinner2 className="spin" /> กำลังโหลดเพื่อน...
-              </div>
-            ) : friends.length === 0 ? (
-              <div className="empty-list">ไม่พบเพื่อน</div>
-            ) : (
-              <ListUser
-                sortedFriends={sortedFriends}
-                lastMessages={lastMessages}
-                setActiveUser={setActiveUser}
-                setIsGroupChat={setIsGroupChat}
-                dropdownRefs={dropdownRefs}
-                getnickName={getnickName}
-                setFriends={setFriends}
-              />
-            )}
+            <ListUser
+              sortedFriends={sortedFriends}
+              lastMessages={lastMessages}
+              setActiveUser={setActiveUser}
+              setIsGroupChat={setIsGroupChat}
+              dropdownRefs={dropdownRefs}
+              getnickName={getnickName}
+              setFriends={setFriends}
+            />
 
             <CommunityList
               joinedRooms={joinedRooms}
@@ -595,109 +597,19 @@ const Chat = () => {
             defaultProfileImage={defaultProfileImage}
             formatChatDate={formatChatDate}
           />
-          <div className="chat-container-ai">
-            <div className="header-chat-ai">
-              <h1>Ai Chat</h1>
-              <div className="chat-box">
-                {loadingMessages ? (
-                  <div className="loading-spinner">
-                    <ImSpinner2 className="spin" /> กำลังโหลดข้อความ...
-                  </div>
-                ) : messages.length === 0 ? (
-                  <div className="empty-list">ยังไม่มีข้อความ</div>
-                ) : (
-                  messages.map((msg, index) => {
-                    const isCurrentUser = msg.sender === userEmail;
-                    const senderInfo = users.find(
-                      (user) =>
-                        user.email?.toLowerCase() === msg.sender?.toLowerCase()
-                    );
-                    const messageDate = msg.timestamp?.toDate();
-                    const previousMessageDate =
-                      index > 0
-                        ? messages[index - 1].timestamp?.toDate()
-                        : null;
-                    const isNewDay =
-                      !previousMessageDate ||
-                      messageDate?.toDateString() !==
-                        previousMessageDate?.toDateString();
-
-                    return (
-                      <React.Fragment key={msg.id}>
-                        {isNewDay && (
-                          <div className="chat-date-divider">
-                            {messageDate && formatChatDate(messageDate)}
-                          </div>
-                        )}
-
-                        <div
-                          className={`chat-message ${
-                            isCurrentUser ? "my-message" : "other-message"
-                          }`}
-                        >
-                          {!isCurrentUser && (
-                            <img
-                              src={senderInfo?.photoURL || defaultProfileImage}
-                              alt="Sender"
-                              className="message-avatar"
-                            />
-                          )}
-
-                          <div
-                            className={`message-content ${
-                              isCurrentUser ? "current" : "other"
-                            }`}
-                          >
-                            <div className="colum-message">
-                              <div
-                                className={`message-bubble ${
-                                  isCurrentUser ? "current" : "other"
-                                }`}
-                              >
-                                {msg.content || msg.text}
-                              </div>
-                              {isCurrentUser &&
-                                index === messages.length - 1 && (
-                                  <div className="seen-status">
-                                    {msg.isSeen ? "Seen" : ""}
-                                  </div>
-                                )}
-                            </div>
-                          </div>
-                        </div>
-                      </React.Fragment>
-                    );
-                  })
-                )}
-
-                <div ref={endOfMessagesRef} />
-              </div>
-              <div className="chat-input-container">
-                <div className="chat-border">
-                  <div className="emoji-right">
-                    <TiMicrophoneOutline />
-                  </div>
-                  <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                    placeholder={"Writing something..."}
-                    className="chat-input"
-                    autoFocus
-                  />
-                  <div className="emoji">
-                    <MdAttachFile />
-                    <IoCameraOutline />
-                    <BsEmojiSmile />
-                  </div>
-                  <button onClick={handleSend} className="chat-send-button">
-                    Send
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          
+          <ChatContainerAI
+            loadingMessages={loadingMessages}
+            messages={messages}
+            users={users}
+            userEmail={userEmail}
+            defaultProfileImage={defaultProfileImage}
+            formatChatDate={formatChatDate}
+            endOfMessagesRef={endOfMessagesRef}
+            input={input}
+            setInput={setInput}
+            handleSend={handleSend}
+          />
         </div>
       </div>
     </RequireLogin>

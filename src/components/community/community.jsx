@@ -43,7 +43,6 @@ const Newcommu = () => {
 
   useEffect(() => {
     fetchGmailUser(); // ดึงข้อมูล Gmail user จาก backend
-    console.log("isDeleteMode", isDeleteMode);
   }, []);
 
   const handleNewRoom = (room) => {
@@ -321,7 +320,6 @@ const Newcommu = () => {
       }
     };
     getNickNameF();
-    console.log("handlematchfriends", handlematchfriend);
   }, []);
 
   return (

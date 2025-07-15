@@ -40,61 +40,67 @@ const ChatPanel = ({
         </h2>
       </div>
       <div className="chat-box">
-        {messages.map((msg, index) => {
-          const isCurrentUser = msg.sender === userEmail;
-          const senderInfo = users.find(
-            (user) => user.email?.toLowerCase() === msg.sender?.toLowerCase()
-          );
-          const messageDate = msg.timestamp?.toDate();
-          const previousMessageDate =
-            index > 0 ? messages[index - 1].timestamp?.toDate() : null;
-          const isNewDay =
-            !previousMessageDate ||
-            messageDate?.toDateString() !== previousMessageDate?.toDateString();
+        {messages.length === 0 ? (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <span style={{ color: '#888', fontSize: '1.1rem' }}>ยังไม่มีข้อความ</span>
+          </div>
+        ) : (
+          messages.map((msg, index) => {
+            const isCurrentUser = msg.sender === userEmail;
+            const senderInfo = users.find(
+              (user) => user.email?.toLowerCase() === msg.sender?.toLowerCase()
+            );
+            const messageDate = msg.timestamp?.toDate();
+            const previousMessageDate =
+              index > 0 ? messages[index - 1].timestamp?.toDate() : null;
+            const isNewDay =
+              !previousMessageDate ||
+              messageDate?.toDateString() !== previousMessageDate?.toDateString();
 
-          return (
-            <React.Fragment key={msg.id}>
-              {isNewDay && (
-                <div className="chat-date-divider">
-                  {messageDate && formatChatDate(messageDate)}
-                </div>
-              )}
-              <div
-                className={`chat-message ${
-                  isCurrentUser ? "my-message" : "other-message"
-                }`}
-              >
-                {!isCurrentUser && (
-                  <img
-                    src={senderInfo?.photoURL || defaultProfileImage}
-                    alt="Sender"
-                    className="message-avatar"
-                  />
+            return (
+              <React.Fragment key={msg.id}>
+                {isNewDay && (
+                  <div className="chat-date-divider">
+                    {messageDate && formatChatDate(messageDate)}
+                  </div>
                 )}
                 <div
-                  className={`message-content ${
-                    isCurrentUser ? "current" : "other"
+                  className={`chat-message ${
+                    isCurrentUser ? "my-message" : "other-message"
                   }`}
                 >
-                  <div className="colum-message">
-                    <div
-                      className={`message-bubble ${
-                        isCurrentUser ? "current" : "other"
-                      }`}
-                    >
-                      {msg.content || msg.text}
-                    </div>
-                    {isCurrentUser && index === messages.length - 1 && (
-                      <div className="seen-status">
-                        {msg.isSeen ? "Seen" : ""}
+                  {!isCurrentUser && (
+                    <img
+                      src={senderInfo?.photoURL || defaultProfileImage}
+                      alt="Sender"
+                      className="message-avatar"
+                    />
+                  )}
+                  <div
+                    className={`message-content ${
+                      isCurrentUser ? "current" : "other"
+                    }`}
+                  >
+                    <div className="colum-message">
+                      <div
+                        className={`message-bubble ${
+                          isCurrentUser ? "current" : "other"
+                        }`}
+                      >
+                        {msg.content || msg.text}
                       </div>
-                    )}
+                      {isCurrentUser && index === messages.length - 1 && (
+                        <div className="seen-status">
+                          {msg.isSeen ? "Seen" : ""}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </React.Fragment>
-          );
-        })}
+              </React.Fragment>
+            );
+          })
+        )}
         <div ref={endOfMessagesRef} />
       </div>
       <div className="chat-input-container">
