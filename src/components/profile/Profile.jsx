@@ -253,7 +253,7 @@ const Profile = () => {
         setFollowing(followRes.data.following);
         setNickName(nickRes.data.nickname || "");
       } catch (err) {
-        setError("โหลดข้อมูลผู้ใช้ล้มเหลว");
+        setError("คุณสามารถตั้งค่าโปรไฟล์ได้ที่นี่");
       }
       setLoading(false);
     };

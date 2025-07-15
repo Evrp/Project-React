@@ -91,7 +91,8 @@ const ListUser = ({
       setLoadingFriendEmail(friendEmail);
 
       await axios.delete(
-        `${import.meta.env.VITE_APP_API_BASE_URL
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
         }/api/users/${userEmail}/friends/${friendEmail}`
       );
 
@@ -118,7 +119,6 @@ const ListUser = ({
       console.error("โหลด Gmail currentUser ไม่ได้:", err);
     }
   };
-  
 
   const handleFollow = async (targetEmail) => {
     await fetchGmailUser();
@@ -128,9 +128,11 @@ const ListUser = ({
     }
 
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `${import.meta.env.VITE_APP_API_BASE_URL
-      }/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
-      }/${targetEmail}`;
+    const url = `${
+      import.meta.env.VITE_APP_API_BASE_URL
+    }/api/users/${userEmail}/${
+      isFollowing ? "unfollow" : "follow"
+    }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -153,7 +155,8 @@ const ListUser = ({
   const fetchFollowInfo = async (targetEmail) => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
         }/api/user/${targetEmail}/follow-info`
       );
 
@@ -181,7 +184,7 @@ const ListUser = ({
     navigate(`/chat/${roomId}`);
     // handleAddCommunity(roomId, roomName);
   };
-
+  console.log("sortedFriends", sortedFriends);
   return (
     <div className="favorite-container">
       <div className="favorite-toggle" onClick={handleToggle}>
@@ -197,7 +200,7 @@ const ListUser = ({
                   key={index}
                   className="chat-friend-item"
                   onClick={() => {
-                    handleEnterRoom(friend.displayName);
+                    handleEnterRoom(friend.roomId);
                     setActiveUser(friend.email);
                     setIsGroupChat(false);
                     if (setActiveRoomId)
@@ -226,8 +229,9 @@ const ListUser = ({
                   </div>
                   <div className="con-right">
                     <span
-                      className={`status ${friend.isOnline ? "online" : "offline"
-                        }`}
+                      className={`status ${
+                        friend.isOnline ? "online" : "offline"
+                      }`}
                     >
                       {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                     </span>
@@ -263,7 +267,7 @@ const ListUser = ({
                             }}
                           >
                             {Array.isArray(currentUserfollow?.following) &&
-                              currentUserfollow.following.includes(friend.email)
+                            currentUserfollow.following.includes(friend.email)
                               ? "🔔 กำลังติดตาม"
                               : "➕ ติดตาม"}
                           </button>
@@ -297,19 +301,24 @@ const ListUser = ({
           <div className="modal-content" ref={modalRef}>
             <div className="profile-info">
               <img
-                src={Array.isArray(getnickName)
-                  ? getnickName.find((n) => n.email === selectedUser.email)?.nickname || selectedUser.photoURL
-                  : selectedUser.photoURL}
+                src={
+                  Array.isArray(getnickName)
+                    ? getnickName.find((n) => n.email === selectedUser.email)
+                        ?.nickname || selectedUser.photoURL
+                    : selectedUser.photoURL
+                }
                 alt={
                   Array.isArray(getnickName)
-                    ? getnickName.find((n) => n.email === selectedUser.email)?.nickname || selectedUser.displayName
+                    ? getnickName.find((n) => n.email === selectedUser.email)
+                        ?.nickname || selectedUser.displayName
                     : selectedUser.displayName
                 }
                 className="profile-photo"
               />
               <h2>
                 {Array.isArray(getnickName)
-                  ? getnickName.find((n) => n.email === selectedUser.email)?.nickname || selectedUser.displayName
+                  ? getnickName.find((n) => n.email === selectedUser.email)
+                      ?.nickname || selectedUser.displayName
                   : selectedUser.displayName}
               </h2>
               <div className="tabs">

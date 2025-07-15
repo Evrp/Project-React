@@ -8,10 +8,13 @@ import { IoMdPersonAdd } from "react-icons/io";
 import RequireLogin from "../ui/RequireLogin";
 import { BsThreeDots } from "react-icons/bs";
 import { useTheme } from "../../context/themecontext";
+import { useParams } from "react-router-dom";
 
 const socket = io(import.meta.env.VITE_APP_API_BASE_URL);
 
 const Friend = () => {
+  // รับ roomId จาก URL ถ้ามี เช่น /friend/:roomId
+  const { roomId } = useParams();
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState([]);
   const [currentUserfollow, setCurrentUserfollow] = useState(null);
@@ -54,7 +57,8 @@ const Friend = () => {
       const allUsers = allUsersRes.data;
       setUsers(allUsers);
       if (Array.isArray(currentUser.friends)) {
-        const friendEmails = currentUser.friends;
+        // ดึง email จาก friends array (object)
+        const friendEmails = currentUser.friends.map(f => f.email);
         const filteredFriends = allUsers
           .filter((user) => friendEmails.includes(user.email))
           .map((user) => ({
@@ -107,14 +111,31 @@ const Friend = () => {
     setSearchTerm(e.target.value.toLowerCase());
   };
 
+  // ฟังก์ชันสุ่ม roomId (UUID v4 แบบง่าย)
+  function generateRoomId() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = (Math.random() * 16) | 0,
+        v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  }
+
   const handleAddFriend = async (friendEmail) => {
     try {
       setLoadingFriendEmail(friendEmail);
+      // ใช้ roomId จาก useParams ถ้ามี ถ้าไม่มีให้ gen ใหม่
+      const finalRoomId = roomId || generateRoomId();
       await axios.post(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/add-friend`,
         {
           userEmail,
           friendEmail,
+          roomId: finalRoomId,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
       );
       const addedUser = users.find((user) => user.email === friendEmail);
@@ -205,7 +226,7 @@ const Friend = () => {
       setCurrentUser(userData);
       setLoadingCurrentUser(false);
     } catch (err) {
-      setError("เกิดข้อผิดพลาดในการโหลดข้อมูลผู้ใช้");
+      setError("คุณสามารถเพิ่มเพื่อนได้ทันที");
       setCurrentUser(null);
       setLoadingCurrentUser(false);
     }
