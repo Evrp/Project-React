@@ -50,7 +50,8 @@ router.delete("/users/:userEmail/friends/:friendEmail", async (req, res) => {
     try {
         const user = await Friend.findOne({ email: userEmail });
         if (!user) return res.status(404).json({ message: "User not found" });
-        user.friends = user.friends.filter((email) => email !== friendEmail);
+        // Remove friend object from friends array by email
+        user.friends = user.friends.filter(f => f.email !== friendEmail);
         await user.save();
         res.json({ message: "Friend removed successfully", friends: user.friends });
     } catch (err) {
