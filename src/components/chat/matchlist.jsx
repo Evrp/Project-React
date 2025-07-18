@@ -68,13 +68,19 @@ const MatchList = ({
               // ใช้ index เป็น fallback ถ้าไม่มี id จริง
               const roomId = joinedRooms.roomIds?.[index] || `${name}-${index}`;
               if (!name || !roomId) return null;
+              // สร้าง key ที่ unique จริง ๆ
+              const divKey = `${roomId}-${index}`;
               return (
-                <div key={roomId}>
+                <div key={divKey}>
                   <ul>
-                    {allEvents.map((room, i) =>
-                      room.title === name ? (
+                    {allEvents.map((room, i) => {
+                      // สร้าง key ที่ unique สำหรับแต่ละ li
+                      const liKey = `${
+                        room._id || room.roomId || room.title
+                      }-${i}`;
+                      return room.title === name ? (
                         <li
-                          key={room._id || `${room.title}-${i}`}
+                          key={liKey}
                           className="chat-friend-item"
                           onClick={() => {
                             handleEnterRoom(room.roomId);
@@ -146,8 +152,8 @@ const MatchList = ({
                             )}
                           </div> */}
                         </li>
-                      ) : null
-                    )}
+                      ) : null;
+                    })}
                   </ul>
                 </div>
               );

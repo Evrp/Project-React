@@ -120,17 +120,15 @@ const Chat = () => {
       const userRes = await axios.get(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${encodedEmail}`
       );
-      const currentUser = userRes.data;
-
+      const currentUser = userRes.data; 
       if (Array.isArray(currentUser.friends)) {
-        const friendEmails = currentUser.friends;
-
+        const friendArray = currentUser.friends;
+        const friendEmails = friendArray.map((f) => f.email);
         // ดึง users ทั้งหมดมาเพื่อจับคู่กับ friend emails
         const allUsersRes = await axios.get(
           `${import.meta.env.VITE_APP_API_BASE_URL}/api/users`
         );
         const allUsers = allUsersRes.data;
-
         const filteredFriends = allUsers
           .filter((user) => friendEmails.includes(user.email))
           .map((user) => ({
@@ -364,7 +362,6 @@ const Chat = () => {
   useEffect(() => {
     if (!roomId) return;
     const roomRef = doc(db, "messages", roomId);
-    console.log("activeUser:", activeUser);
     const roomUnsubscribe = onSnapshot(roomRef, (doc) => {
       const data = doc.data();
 
