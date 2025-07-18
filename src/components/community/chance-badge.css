@@ -1,0 +1,19 @@
+.room-chance-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark mode style */
+.dark-mode .room-chance-badge {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}

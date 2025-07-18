@@ -11,6 +11,7 @@ const EventList = () => {
   const email = localStorage.getItem("userEmail");
   const { isDarkMode, setIsDarkMode } = useTheme();
   const [favoriteEvents, setFavoriteEvents] = useState([]); // Store array of favorited event IDs
+  // เก็บ action ที่เพิ่งกด (batch)
   const [pendingFavorites, setPendingFavorites] = useState([]);
   const debounceRef = useRef(null);
 
@@ -137,25 +138,25 @@ const EventList = () => {
     }
   };
 
-  // เมื่อ user favorite/unfavorite ให้รอ 5 วิหลังจากกดครั้งสุดท้าย แล้วส่ง favoriteEvents array ไป webhook
-  const handleFavoriteChange = () => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      // แปลง favoriteEvents (array ของ eventId) เป็น eventTitle
-      const favoriteTitles = events
-        .filter((event) => favoriteEvents.includes(event._id))
-        .map((event) => event.title);
-      sendFavoritesToWebhook(favoriteTitles);
-    }, 5000); // 5 วินาทีหลังจากกดครั้งล่าสุด
-  };
-
-  const sendFavoritesToWebhook = async (favoriteTitlesArr) => {
-    if (!Array.isArray(favoriteTitlesArr) || favoriteTitlesArr.length === 0) return;
+  // ส่ง batch ที่ pending ไป webhook แล้วล้าง state
+  const sendPendingFavoritesToWebhook = async (pendingArr) => {
+    if (!Array.isArray(pendingArr) || pendingArr.length === 0) return;
     await axios.post(import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_URL, {
       email: email,
-      favorites: favoriteTitlesArr, // ส่ง array eventTitle ที่ favorite ปัจจุบัน
+      actions: pendingArr.map(({ event }) => ({ event })), // [{event}]
     });
   };
+
+  // Debounce: หลังจากกดหัวใจ batch ใด batch นั้นจะถูกส่งไป webhook หลัง delay แล้วล้าง state
+  useEffect(() => {
+    if (!pendingFavorites.length) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      sendPendingFavoritesToWebhook(pendingFavorites);
+      setPendingFavorites([]); // ล้าง batch หลังส่ง
+    }, 5000);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingFavorites]);
 
   if (loading) return <p className="loading-text">กำลังโหลด...</p>;
 
@@ -200,8 +201,12 @@ const EventList = () => {
                       favoriteEvents.includes(event._id);
                     if (isFav) {
                       handleUnlike(event._id, event.title);
+                      // ไม่ต้องส่ง unlike ไป webhook
                     } else {
                       handleLike(event._id, event.title);
+                      // เวลากด like
+                      setPendingFavorites((prev) => [...prev, { event: event.title }]);
+
                     }
                     setFavoriteEvents((prev) => {
                       if (!Array.isArray(prev)) return [event._id];
@@ -209,7 +214,6 @@ const EventList = () => {
                         ? prev.filter((id) => id !== event._id)
                         : [...prev, event._id];
                     });
-                    handleFavoriteChange(); // เรียกเพื่อ debounce 5 วิ แล้วส่ง favoriteEvents array
                   }}
                   aria-label={
                     Array.isArray(favoriteEvents) &&

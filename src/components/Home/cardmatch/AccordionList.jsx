@@ -298,11 +298,7 @@ const AccordionList = ({ items }) => {
                         console.log("Selected Genres:", selectedGenres);
                         console.log("Sub Genres Object:", subGenresObj);
                         try {
-                            // เรียกลบ EventMatch ก่อน
-                            // await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-all-events-match`, {
-                            //     method: "DELETE"
-                            // });
-                            // แล้วค่อยบันทึก genres/subGenres
+                            // บันทึกข้อมูลทั้งหมดเหมือนเดิม
                             const response = await fetch(
                                 `${import.meta.env.VITE_APP_API_BASE_URL}/api/update-genres`,
                                 {
@@ -316,29 +312,35 @@ const AccordionList = ({ items }) => {
                                     }),
                                 },
                             );
-                            // เรียก webhook ต่อ
-                            // const startwebhook = async () => {
-                            //     try {
-                            //         if (email) {
-                            //             const response = await fetch(
-                            //                 `${import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_URL}`,
-                            //                 {
-                            //                     method: "POST",
-                            //                     headers: { "Content-Type": "application/json" },
-                            //                     body: JSON.stringify({ email }),
-                            //                 }
-                            //             );
-                            //             if (response.ok) {
-                            //                 console.log("Webhook started successfully");
-                            //             } else {
-                            //                 console.error("Error starting webhook");
-                            //             }
-                            //         }
-                            //     } catch (error) {
-                            //         console.error("Error starting webhook:", error);
-                            //     }
-                            // };
-                            // await startwebhook();
+
+                            // เรียก webhook เฉพาะ label ที่เพิ่งเลือกล่าสุด
+                            if (selectedLabels.length > 0) {
+                                const lastLabel = selectedLabels[selectedLabels.length - 1];
+                                // หา genre ที่ตรงกับ label นี้
+                                let genreTitle = null;
+                                if (lastLabel) {
+                                    const [itemIdx, genreIdx] = lastLabel.key.split("-");
+                                    if (items[itemIdx] && items[itemIdx].genres && items[itemIdx].genres[genreIdx]) {
+                                        genreTitle = items[itemIdx].genres[genreIdx].title;
+                                    } else if (items[itemIdx] && items[itemIdx].title) {
+                                        genreTitle = items[itemIdx].title;
+                                    }
+                                }
+                                if (genreTitle) {
+                                    await fetch(`${import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_URL}`,
+                                        {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({
+                                                email,
+                                                genre: genreTitle,
+                                                subGenre: lastLabel.label
+                                            })
+                                        }
+                                    );
+                                }
+                            }
+
                             if (response.ok) {
                                 toast.success("บันทึกการเลือกสำเร็จ");
                             } else {

@@ -56,6 +56,26 @@
   letter-spacing: 0.01em;
   text-align: center;
 }
+.container-tinder-card{
+  margin-top: 0 auto ;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+}
+.room-chance{
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255,255,255,0.8);
+  color: #333;
+  padding: 6px 12px;
+  border-radius: 12px;
+  margin-bottom: auto;
+  font-size: 0.9rem;
+  font-weight: bold;
+  z-index: 10;
+}
 /* TinderCard loading spinner (เรียบหรู) */
 .tinder-card.loading-card {
   display: flex;

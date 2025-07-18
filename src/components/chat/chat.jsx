@@ -25,6 +25,7 @@ import {
   where,
 } from "firebase/firestore";
 import "../chat/Chat.css";
+import "../chat/ChatResponsive.css";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
@@ -86,23 +87,27 @@ const Chat = () => {
       );
       const allUsers = response.data;
       setUsers(allUsers);
-
       const currentUser = allUsers.find((u) => u.email === userEmail);
-      if (currentUser && Array.isArray(currentUser.friends)) {
-        const friendEmails = currentUser.friends.map((f) =>
+      console.log("Current user:", currentUser);
+      if (currentUser && Array.isArray(currentUser)) {
+        // กรณี friends เป็น array ของ object หรือ string
+        const friendEmails = currentUser.map((f) =>
           typeof f === "string" ? f : f.email
         );
+        console.log("Friend emails:", friendEmails);
+
+        // ดึงข้อมูล user ของแต่ละ friend จาก allUsers
         const filteredFriends = allUsers
           .filter((user) => friendEmails.includes(user.email))
           .map((user) => ({
-            photoURL: user.photoURL,
-            email: user.email,
-            displayName: user.displayName,
-            _id: user._id,
-            isOnline: user.isOnline || false,
+        photoURL: user.photoURL,
+        email: user.email,
+        displayName: user.displayName,
+        _id: user._id,
+        isOnline: user.isOnline || false,
           }))
           .sort((a, b) => a.displayName.localeCompare(b.displayName));
-
+        console.log("Filtered friends:", filteredFriends);
         setFriends(filteredFriends);
       } else {
         setFriends([]);
@@ -121,10 +126,11 @@ const Chat = () => {
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${encodedEmail}`
       );
       const currentUser = userRes.data;
+      console.log("Current user:", currentUser);
 
-      if (Array.isArray(currentUser.friends)) {
+      if (Array.isArray(currentUser)) {
         const friendEmails = currentUser.friends;
-
+        console.log("Friend emails:", currentUser);
         // ดึง users ทั้งหมดมาเพื่อจับคู่กับ friend emails
         const allUsersRes = await axios.get(
           `${import.meta.env.VITE_APP_API_BASE_URL}/api/users`
@@ -140,6 +146,7 @@ const Chat = () => {
             isOnline: user.isOnline || false,
           }))
           .sort((a, b) => a.displayName.localeCompare(b.displayName));
+        console.log("Filtered friends:", filteredFriends);
         setFriends(filteredFriends);
         setUsers(allUsers);
       } else {
@@ -163,36 +170,14 @@ const Chat = () => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
-  const handleFollow = async (targetEmail) => {
-    await fetchGmailUser();
-    if (!currentUserfollow || !Array.isArray(currentUserfollow.following)) {
-      console.warn("currentUser ยังไม่พร้อม หรือ following ไม่มี");
-      return;
-    }
 
-    const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `${
-      import.meta.env.VITE_APP_API_BASE_URL
-    }/api/users/${userEmail}/${
-      isFollowing ? "unfollow" : "follow"
-    }/${targetEmail}`;
-    const method = isFollowing ? "DELETE" : "POST";
-
-    try {
-      await axios({ method, url });
-      await fetchGmailUser();
-    } catch (err) {
-      console.error("Follow/unfollow error:", err);
-    }
-  };
 
   const fetchJoinedRooms = async () => {
     setLoadingRooms(true);
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const res = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
+        `${import.meta.env.VITE_APP_API_BASE_URL
         }/api/user-rooms/${encodedEmail}`
       );
       setJoinedRooms(res.data);
@@ -382,16 +367,16 @@ const Chat = () => {
 
       const filteredMessages = isGroupChat
         ? allMessages.filter(
-            (msg) => msg.type === "group" && msg.roomId === roomId
-          )
+          (msg) => msg.type === "group" && msg.roomId === roomId
+        )
         : allMessages.filter((msg) => {
-            const isMyMsg =
-              msg.sender === userEmail && msg.receiver === activeUser;
-            const isTheirMsg =
-              msg.sender === activeUser &&
-              (msg.receiver === userEmail || !msg.receiver);
-            return isMyMsg || isTheirMsg;
-          });
+          const isMyMsg =
+            msg.sender === userEmail && msg.receiver === activeUser;
+          const isTheirMsg =
+            msg.sender === activeUser &&
+            (msg.receiver === userEmail || !msg.receiver);
+          return isMyMsg || isTheirMsg;
+        });
 
       setMessages(filteredMessages);
       scrollToBottom();
@@ -511,7 +496,6 @@ const Chat = () => {
     const timeB = lastMessages[b.email]?.timestamp?.toDate()?.getTime() || 0;
     return timeB - timeA; // เรียงจากใหม่ -> เก่า
   });
-
   return (
     <RequireLogin>
       <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
@@ -597,7 +581,7 @@ const Chat = () => {
             defaultProfileImage={defaultProfileImage}
             formatChatDate={formatChatDate}
           />
-          
+
           <ChatContainerAI
             loadingMessages={loadingMessages}
             messages={messages}
