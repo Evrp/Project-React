@@ -1,11 +1,11 @@
 /* AI Chat Container Styles - Modern & Responsive */
-.chat-container-ai {
+.bg-chat-con .chat-container-ai {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 80px); /* ลบความสูงของ Navbar */
-  width: 100%;
+  height: calc(100vh - 80px) !important; /* ลบความสูงของ Navbar */
+  width: 40% !important;
   max-width: 1000px;
-  margin: 20px auto;
+  margin: 0;
   background-color: #ffffff;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -14,15 +14,16 @@
   position: relative;
 }
 
-.header-chat-ai {
+.chat-container-ai .header-chat-ai {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex-grow: 1;
+  height: 100% !important;
   padding: 0;
   position: relative;
 }
 
-.chat-header {
+.chat-container-ai .chat-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -32,7 +33,7 @@
   color: white;
 }
 
-.chat-header h1 {
+.chat-container-ai .chat-header h1 {
   font-size: 20px;
   font-weight: 600;
   margin: 0;
@@ -41,7 +42,7 @@
   gap: 8px;
 }
 
-.chat-header .ai-status {
+.chat-container-ai .chat-header .ai-status {
   font-size: 14px;
   background-color: rgba(255, 255, 255, 0.2);
   padding: 4px 10px;
@@ -50,7 +51,7 @@
   font-weight: normal;
 }
 
-/* .chat-box {
+.chat-container-ai .chat-box {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -59,12 +60,12 @@
   background-color: #f8fafc;
   scrollbar-width: thin;
   scrollbar-color: #d4d4d8 #f8fafc;
-  height: calc(100% - 130px);
+  height: calc(100% - 130px) !important;
 }
 
-.chat-box::-webkit-scrollbar {
+.chat-container-ai .chat-box::-webkit-scrollbar {
   width: 6px;
-} */
+}
 
 .chat-box::-webkit-scrollbar-track {
   background: #f8fafc;
@@ -171,13 +172,13 @@
   display: none;
 }
 
-.chat-input-container {
+.chat-container-ai .chat-input-container {
   padding: 16px;
   background-color: white;
   border-top: 1px solid #f0f2f5;
 }
 
-.chat-border {
+.chat-container-ai .chat-border {
   display: flex;
   align-items: center;
   background-color: #f8fafc;
@@ -187,11 +188,11 @@
   transition: all 0.2s ease;
 }
 
-.chat-border:focus-within {
+.chat-container-ai .chat-border:focus-within {
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
 
-.chat-input {
+.chat-container-ai .chat-input {
   flex-grow: 1;
   border: none;
   outline: none;

@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 // กำหนด Schema สำหรับข้อมูลผู้ใช้และรายการเพื่อน
@@ -50,7 +50,7 @@ const UserSchema = new Schema({
   }
 }, { timestamps: true });
 
-// ไม่จำเป็นต้องสร้าง index ซ้ำเพราะได้กำหนด unique: true ไว้แล้วที่ฟิลด์ email
-// UserSchema.index({ email: 1 });
+// สร้างอินเด็กซ์สำหรับการค้นหาอย่างรวดเร็ว
+UserSchema.index({ email: 1 });
 
-export default mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User', UserSchema);

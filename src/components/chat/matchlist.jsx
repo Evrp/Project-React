@@ -84,10 +84,23 @@ const MatchList = ({
                           className="chat-friend-item"
                           onClick={() => {
                             handleEnterRoom(room.roomId);
-                            setActiveUser(room.usermatch); // ส่ง email ของ usermatch ไปเป็น activeUser (receiver)
+                            // ตรวจสอบให้แน่ใจว่า room.usermatch เป็น email (string) เสมอ
+                            const userEmail = typeof room.usermatch === 'object' ? 
+                                                room.usermatch.email || null : 
+                                                room.usermatch;
+                            
+                            if (!userEmail) {
+                              console.error('usermatch email not found!', room);
+                              return;
+                            }
+                            
+                            setActiveUser(userEmail); // ส่ง email ของ usermatch ไปเป็น activeUser (receiver)
                             setRoombar(room.image, room.title);
                             setIsGroupChat(false);
-                            handleProfileClick(room.usermatch);
+                            
+                            // หา user object จาก users array เพื่อส่งให้ handleProfileClick
+                            const userObject = users.find(u => u.email === userEmail) || { email: userEmail };
+                            handleProfileClick(userObject);
                           }}
                         >
                           <img

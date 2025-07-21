@@ -24,8 +24,8 @@ import {
   doc,
   where,
 } from "firebase/firestore";
-import "../chat/Chat.css";
-import "../chat/ChatResponsive.css";
+import "../chat/ChatMerged.css";
+import "../chat/ChatAI.css";
 import "../chat/ListItems.css";
 import "../chat/DropdownMenu.css";
 import "../chat/OnlineStatus.css";
@@ -213,7 +213,15 @@ const Chat = () => {
     }
   };
   const handleSend = async () => {
-    if (input.trim() === "" || (!isGroupChat && !selectedUser)) return;
+    // ตรวจสอบว่ามีข้อความที่จะส่งหรือไม่
+    if (input.trim() === "") return;
+    
+    // ตรวจสอบว่าเป็นแชทส่วนตัวและมีผู้รับหรือไม่
+    if (!isGroupChat && !selectedUser && !activeUser) {
+      console.warn("ไม่สามารถส่งข้อความได้: ไม่มีผู้รับที่ระบุ");
+      return;
+    }
+    
     console.log(
       "Sending message:",
       input,
@@ -222,27 +230,42 @@ const Chat = () => {
       "activeUser:",
       activeUser
     );
+    
+    // สร้างข้อมูลข้อความพื้นฐาน
     const messageData = {
       sender: userEmail,
       content: input,
       timestamp: serverTimestamp(),
-      roomId: roomId,
-      // receiver: activeUser,
+      roomId: roomId || "direct", // ใช้ "direct" เป็นค่าเริ่มต้นถ้าไม่มี roomId
       isSeen: false,
     };
 
-    // เพิ่ม receiver สำหรับแชทส่วนตัว (เก็บ selectedUser)
-    if (!isGroupChat && selectedUser) {
-      messageData.receiver = selectedUser.email;
-    }
+    // กำหนดผู้รับตามลำดับความสำคัญ
     if (isGroupChat === true) {
       // สำหรับแชทกลุ่ม
       messageData.type = "group";
-      messageData.receiver = null;
+      messageData.receiver = null; // ในกลุ่มไม่มีผู้รับเฉพาะ
+    } 
+    else if (selectedUser && selectedUser.email) {
+      // กรณีมี selectedUser ให้ใช้ email จาก selectedUser
+      messageData.receiver = selectedUser.email;
+    }
+    else if (activeUser) {
+      // ถ้าไม่มี selectedUser แต่มี activeUser ใช้ activeUser แทน
+      messageData.receiver = typeof activeUser === 'string' ? activeUser : activeUser.email;
+    }
+    else {
+      console.error("ไม่สามารถส่งข้อความได้: ไม่มีผู้รับ");
+      return; // ถ้าไม่มีผู้รับเลย ไม่ส่งข้อความ
     }
 
-    await addDoc(messagesRef, messageData);
-    setInput("");
+    try {
+      await addDoc(messagesRef, messageData);
+      setInput("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง");
+    }
   };
   const formatRelativeTime = (timestamp) => {
     if (!timestamp) return "";
@@ -626,7 +649,7 @@ const Chat = () => {
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
-              className="search-input-friend"
+              className="search-input-chat"
               autoFocus
             />
           </div>

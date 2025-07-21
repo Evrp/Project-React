@@ -16,6 +16,16 @@ import mongoose from "mongoose";
 import { Filter } from "./src/model/filter.js";
 import axios from "axios";
 
+// Import new routes (ES Modules style)
+import friendRequestRoutes from "./routes/friendRequest.js";
+import friendApiRoutes from "./routes/friendApi.js";
+
+// Debug routes
+console.log("Registered routes:");
+console.log("- friendRequestRoutes:", Object.keys(friendRequestRoutes).length > 0 ? "Loaded" : "Empty");
+
+
+
 
 dotenv.config();
 const allowedOrigins = [
@@ -54,6 +64,7 @@ db.on("error", (err) => console.error("❌ MongoDB Error:", err));
 const onlineUsers = new Map(); // email => Set of socket IDs
 const userDetails = new Map(); // email => {displayName, photoURL, email}
 const lastSeenTimes = new Map(); // email => timestamp ล่าสุดที่เห็นผู้ใช้
+const userSockets = {}; // email => socket.id (เก็บ socket ID ล่าสุดของแต่ละ user)
 
 // ฟังก์ชันส่งสถานะปัจจุบันให้ทุก client
 const broadcastUserStatus = () => {
@@ -90,6 +101,9 @@ io.on("connection", (socket) => {
       onlineUsers.set(email, new Set());
     }
     onlineUsers.get(email).add(socket.id);
+    
+    // เก็บ socket ID ล่าสุดของผู้ใช้สำหรับการส่งการแจ้งเตือนส่วนตัว
+    userSockets[email] = socket.id;
     
     // ลบเวลาออฟไลน์ล่าสุด (เพราะตอนนี้ออนไลน์แล้ว)
     lastSeenTimes.delete(email);
@@ -224,6 +238,35 @@ app.post("/api/update-genres", async (req, res) => {
   }
 });
 
+// เก็บ socket instance ไว้ใช้ใน middleware
+app.set('io', io);
+app.set('userSockets', userSockets);
+
+// ใช้งานเส้นทาง debug เพื่อตรวจสอบ API routes ทั้งหมด
+app.get('/api/debug/routes', (req, res) => {
+  const routes = [];
+  app._router.stack.forEach(middleware => {
+    if (middleware.route) {
+      // Routes registered directly on the app
+      routes.push({
+        path: middleware.route.path,
+        methods: Object.keys(middleware.route.methods)
+      });
+    } else if (middleware.name === 'router') {
+      // Router middleware
+      middleware.handle.stack.forEach(handler => {
+        if (handler.route) {
+          routes.push({
+            path: '/api' + handler.route.path,
+            methods: Object.keys(handler.route.methods)
+          });
+        }
+      });
+    }
+  });
+  res.json(routes);
+});
+
 // ใช้งาน routes ที่แยกไว้
 app.use("/api", userRoutes);
 app.use("/api", friendRoutes);
@@ -232,6 +275,11 @@ app.use("/api", eventRoutes);
 app.use("/api", infoRoutes);
 app.use("/api", roommatchRoutes);
 app.use("/api", likeRoutes);
+
+// ลงทะเบียน friendRequest routes โดยตรงเพื่อแก้ปัญหาเรื่อง 404
+app.use("/api", friendRequestRoutes);
+app.use("/api", friendApiRoutes);
+
 
 // เริ่มต้นเซิร์ฟเวอร์
 server.listen(port, () =>
