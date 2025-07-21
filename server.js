@@ -52,35 +52,64 @@ db.once("open", () => console.log("🔥 MongoDB Connected"));
 db.on("error", (err) => console.error("❌ MongoDB Error:", err));
 
 const onlineUsers = new Map(); // email => Set of socket IDs
+const userDetails = new Map(); // email => {displayName, photoURL, email}
 const lastSeenTimes = new Map(); // email => timestamp ล่าสุดที่เห็นผู้ใช้
+
+// ฟังก์ชันส่งสถานะปัจจุบันให้ทุก client
+const broadcastUserStatus = () => {
+  // ส่งข้อมูลแบบมีโครงสร้างชัดเจน
+  const onlineUsersEmails = Array.from(onlineUsers.keys());
+  const lastSeenObj = {};
+  
+  // แปลง Map เป็น object ธรรมดา
+  lastSeenTimes.forEach((timestamp, email) => {
+    lastSeenObj[email] = timestamp;
+  });
+  
+  io.emit("update-users", {
+    onlineUsers: onlineUsersEmails,
+    lastSeenTimes: lastSeenObj
+  });
+};
 
 io.on("connection", (socket) => {
   console.log("🟢 New client connected", socket.id);
 
   socket.on("user-online", (user) => {
-    console.log("🧑‍💻 Online user", user); // <<< เพิ่ม log นี้
-    console.log("🟢 User online", user.email);
-    const { email } = user;
+    console.log("🧑‍💻 User online", user);
+    const { email, displayName, photoURL } = user;
+    if (!email) return;
+    
     socket.email = email;
-
+    
+    // เก็บข้อมูลผู้ใช้
+    userDetails.set(email, { displayName, photoURL, email });
+    
     // เพิ่ม socket.id เข้าไปใน Set
     if (!onlineUsers.has(email)) {
       onlineUsers.set(email, new Set());
     }
     onlineUsers.get(email).add(socket.id);
-
-    // อัปเดตให้ทุก client
-    console.log("🧑‍💻 Online user", user);
-    io.emit("update-users", {
-      onlineUsers: Array.from(onlineUsers.keys()),
-      lastSeenTimes: Object.fromEntries(lastSeenTimes)
+    
+    // ลบเวลาออฟไลน์ล่าสุด (เพราะตอนนี้ออนไลน์แล้ว)
+    lastSeenTimes.delete(email);
+    
+    // แจ้งเตือนทุกคนว่ามีคนออนไลน์
+    broadcastUserStatus();
+    
+    // ส่งเฉพาะข้อมูลผู้ใช้นี้ว่าออนไลน์
+    io.emit("user-online", {
+      email,
+      displayName,
+      photoURL,
+      isOnline: true
     });
   });
 
   socket.on("user-ping", (userData) => {
     // อัปเดตเวลาล่าสุดที่เห็นผู้ใช้
     if (userData && userData.email) {
-      const { email } = userData;
+      const { email, displayName, photoURL } = userData;
       if (onlineUsers.has(email)) {
         // ผู้ใช้ยังออนไลน์อยู่ ไม่ต้องทำอะไร
       } else {
@@ -88,11 +117,16 @@ io.on("connection", (socket) => {
         onlineUsers.set(email, new Set([socket.id]));
         socket.email = email;
         
-        // อัปเดตให้ทุก client
-        io.emit("update-users", {
-          onlineUsers: Array.from(onlineUsers.keys()),
-          lastSeenTimes: Object.fromEntries(lastSeenTimes)
-        });
+        // เก็บข้อมูลผู้ใช้
+        if (displayName && photoURL) {
+          userDetails.set(email, { displayName, photoURL, email });
+        }
+        
+        // ลบเวลาออฟไลน์ล่าสุด (เพราะตอนนี้ออนไลน์แล้ว)
+        lastSeenTimes.delete(email);
+        
+        // แจ้งเตือนทุกคน
+        broadcastUserStatus();
       }
     }
   });
@@ -105,15 +139,22 @@ io.on("connection", (socket) => {
         if (onlineUsers.get(email).size === 0) {
           onlineUsers.delete(email);
           // บันทึกเวลาล่าสุดที่ออฟไลน์
-          lastSeenTimes.set(email, new Date().toISOString());
+          const timestamp = new Date().toISOString();
+          lastSeenTimes.set(email, timestamp);
+          
+          // ส่งข้อมูลว่าผู้ใช้ออฟไลน์พร้อมเวลาล่าสุด
+          io.emit("user-offline", {
+            email,
+            isOnline: false,
+            lastSeen: timestamp,
+            displayName: userDetails.get(email)?.displayName,
+            photoURL: userDetails.get(email)?.photoURL
+          });
         }
       }
       
       // ส่ง user list ไปให้ทุก client
-      io.emit("update-users", {
-        onlineUsers: Array.from(onlineUsers.keys()),
-        lastSeenTimes: Object.fromEntries(lastSeenTimes)
-      });
+      broadcastUserStatus();
     }
   });
 
@@ -125,16 +166,22 @@ io.on("connection", (socket) => {
       if (onlineUsers.get(email).size === 0) {
         onlineUsers.delete(email); // ไม่มี socket เหลือแล้ว
         // บันทึกเวลาล่าสุดที่ออฟไลน์
-        lastSeenTimes.set(email, new Date().toISOString());
+        const timestamp = new Date().toISOString();
+        lastSeenTimes.set(email, timestamp);
+        
+        // ส่งข้อมูลว่าผู้ใช้ออฟไลน์พร้อมเวลาล่าสุด
+        io.emit("user-offline", {
+          email,
+          isOnline: false,
+          lastSeen: timestamp,
+          displayName: userDetails.get(email)?.displayName,
+          photoURL: userDetails.get(email)?.photoURL
+        });
       }
     }
 
     // ส่ง user list ไปให้ทุก client
-    io.emit("update-users", {
-      onlineUsers: Array.from(onlineUsers.keys()),
-      lastSeenTimes: Object.fromEntries(lastSeenTimes)
-    });
-    console.log("🔴 Client disconnected", socket.id);
+    broadcastUserStatus();
   });
 });
 // 📌 API บันทึกหมวดหมู่เพลงที่ผู้ใช้เลือก

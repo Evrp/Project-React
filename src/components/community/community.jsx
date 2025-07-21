@@ -270,17 +270,23 @@ const Newcommu = () => {
     fetchCurrentUserAndFriends();
     socket.emit("user-online", { displayName, photoURL, email: userEmail });
 
-    socket.on("update-users", (onlineUsers) => {
+    socket.on("update-users", (data) => {
+      // ตรวจสอบโครงสร้างข้อมูล
+      const onlineUsersList = Array.isArray(data) ? data : 
+                           (data && Array.isArray(data.onlineUsers)) ? data.onlineUsers : [];
+      
       setUsers((prevUsers) =>
         prevUsers.map((user) => ({
           ...user,
-          isOnline: onlineUsers.includes(user.email),
+          isOnline: user.email ? onlineUsersList.includes(user.email) : false,
+          lastSeen: data.lastSeenTimes ? data.lastSeenTimes[user.email] : null
         }))
       );
       setFriends((prevFriends) =>
         prevFriends.map((friend) => ({
           ...friend,
-          isOnline: onlineUsers.includes(friend.email),
+          isOnline: friend.email ? onlineUsersList.includes(friend.email) : false,
+          lastSeen: data.lastSeenTimes ? data.lastSeenTimes[friend.email] : null
         }))
       );
     });

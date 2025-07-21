@@ -4,6 +4,7 @@ import io from "socket.io-client";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./friend.css";
+import "./OnlineStatus.css";
 import { IoMdPersonAdd } from "react-icons/io";
 import RequireLogin from "../ui/RequireLogin";
 import { BsThreeDots } from "react-icons/bs";
@@ -11,6 +12,23 @@ import { useTheme } from "../../context/themecontext";
 import { useParams } from "react-router-dom";
 
 const socket = io(import.meta.env.VITE_APP_API_BASE_URL);
+
+// ฟังก์ชันเพื่อจัดการกับเวลาที่แสดง last seen
+const formatLastSeen = (timestamp) => {
+  if (!timestamp) return "ไม่มีข้อมูล";
+  
+  const now = new Date();
+  const lastSeen = new Date(timestamp);
+  const diffInMinutes = Math.floor((now - lastSeen) / (1000 * 60));
+  
+  if (diffInMinutes < 1) return "เมื่อสักครู่";
+  if (diffInMinutes < 60) return `${diffInMinutes} นาทีที่แล้ว`;
+  
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) return `${diffInHours} ชั่วโมงที่แล้ว`;
+  
+  return lastSeen.toLocaleDateString();
+};
 
 const Friend = () => {
   // รับ roomId จาก URL ถ้ามี เช่น /friend/:roomId
@@ -82,28 +100,114 @@ const Friend = () => {
   useEffect(() => {
     if (!userEmail) return;
     fetchCurrentUserAndFriends();
+    
+    // แจ้งสถานะออนไลน์เมื่อเริ่มต้น
     socket.emit("user-online", {
       displayName,
       photoURL,
       email: userEmail,
     });
-    // ฟังสถานะอัปเดต
-    socket.on("update-users", (onlineEmails) => {
+    
+    // ฟังสถานะอัปเดตผู้ใช้ออนไลน์
+    socket.on("update-users", (data) => {
+      // เช็คว่า data เป็น array หรือ object
+      console.log("ข้อมูลที่ได้จาก update-users:", data);
+      
+      // ถ้าข้อมูลเป็น array ใช้ตามเดิม
+      if (Array.isArray(data)) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => ({
+            ...user,
+            isOnline: data.some(onlineUser => onlineUser.email === user.email),
+            lastSeen: data.find(onlineUser => onlineUser.email === user.email)?.lastSeen || user.lastSeen
+          }))
+        );
+        setFriends((prevFriends) =>
+          prevFriends.map((friend) => ({
+            ...friend,
+            isOnline: data.some(onlineUser => onlineUser.email === friend.email),
+            lastSeen: data.find(onlineUser => onlineUser.email === friend.email)?.lastSeen || friend.lastSeen
+          }))
+        );
+      } 
+      // ถ้าข้อมูลเป็น object มี onlineUsers เป็น array
+      else if (data && Array.isArray(data.onlineUsers)) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => ({
+            ...user,
+            isOnline: data.onlineUsers.includes(user.email),
+            lastSeen: data.lastSeenTimes && data.lastSeenTimes[user.email] || user.lastSeen
+          }))
+        );
+        setFriends((prevFriends) =>
+          prevFriends.map((friend) => ({
+            ...friend,
+            isOnline: data.onlineUsers.includes(friend.email),
+            lastSeen: data.lastSeenTimes && data.lastSeenTimes[friend.email] || friend.lastSeen
+          }))
+        );
+      }
+      // ถ้าข้อมูลเป็น string array (แบบเก่า)
+      else if (Array.isArray(data)) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => ({
+            ...user,
+            isOnline: data.includes(user.email),
+            lastSeen: user.lastSeen
+          }))
+        );
+        setFriends((prevFriends) =>
+          prevFriends.map((friend) => ({
+            ...friend,
+            isOnline: data.includes(friend.email),
+            lastSeen: friend.lastSeen
+          }))
+        );
+      }
+    });
+    
+    // ฟังเมื่อมีผู้ใช้ออฟไลน์
+    socket.on("user-offline", (userData) => {
       setUsers((prevUsers) =>
-        prevUsers.map((user) => ({
-          ...user,
-          isOnline: onlineEmails.includes(user.email),
-        }))
+        prevUsers.map((user) => 
+          user.email === userData.email 
+            ? { ...user, isOnline: false, lastSeen: userData.lastSeen } 
+            : user
+        )
       );
       setFriends((prevFriends) =>
-        prevFriends.map((friend) => ({
-          ...friend,
-          isOnline: onlineEmails.includes(friend.email),
-        }))
+        prevFriends.map((friend) => 
+          friend.email === userData.email 
+            ? { ...friend, isOnline: false, lastSeen: userData.lastSeen } 
+            : friend
+        )
       );
     });
+    
+    // ฟังเมื่อมีผู้ใช้ออนไลน์
+    socket.on("user-online", (userData) => {
+      setUsers((prevUsers) =>
+        prevUsers.map((user) => 
+          user.email === userData.email 
+            ? { ...user, isOnline: true, lastSeen: null } 
+            : user
+        )
+      );
+      setFriends((prevFriends) =>
+        prevFriends.map((friend) => 
+          friend.email === userData.email 
+            ? { ...friend, isOnline: true, lastSeen: null } 
+            : friend
+        )
+      );
+    });
+    
+    // ทำความสะอาด event listeners เมื่อ unmount
     return () => {
+      socket.emit("user-offline", { email: userEmail });
       socket.off("update-users");
+      socket.off("user-offline");
+      socket.off("user-online");
     };
   }, [userEmail]);
 
@@ -378,7 +482,11 @@ const Friend = () => {
                         }`}
                         aria-label={friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                       >
-                        {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
+                        {friend.isOnline 
+                          ? "ออนไลน์" 
+                          : friend.lastSeen 
+                            ? `ออฟไลน์ - ${formatLastSeen(friend.lastSeen)}` 
+                            : "ออฟไลน์"}
                       </span>
                       <div
                         className="dropdown-wrapper"
@@ -506,7 +614,11 @@ const Friend = () => {
                           }`}
                           aria-label={user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                         >
-                          {user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
+                          {user.isOnline 
+                            ? "ออนไลน์" 
+                            : user.lastSeen 
+                              ? `ออฟไลน์ - ${formatLastSeen(user.lastSeen)}` 
+                              : "ออฟไลน์"}
                         </span>
                         <button
                           className="add-friend-btn"
@@ -605,7 +717,11 @@ const Friend = () => {
                   </ul>
                 </div>
                 <p>Email: {selectedUser.email}</p>
-                <p>สถานะ: {selectedUser.isOnline ? "ออนไลน์" : "ออฟไลน์"}</p>
+                <p>สถานะ: {selectedUser.isOnline 
+                  ? "ออนไลน์" 
+                  : selectedUser.lastSeen 
+                    ? `ออฟไลน์ - เห็นล่าสุด ${formatLastSeen(selectedUser.lastSeen)}` 
+                    : "ออฟไลน์"}</p>
                 <button
                   className="close-btn"
                   onClick={handleCloseModal}

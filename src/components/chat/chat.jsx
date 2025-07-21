@@ -340,24 +340,95 @@ const Chat = () => {
 
     // รับข้อมูลการอัปเดตสถานะผู้ใช้จากเซิร์ฟเวอร์
     socket.on("update-users", (data) => {
-      const { onlineUsers, lastSeenTimes } = data;
+      // เช็คว่า data เป็น array หรือ object
+      console.log("ข้อมูลที่ได้จาก update-users:", data);
       
-      // อัปเดตสถานะของผู้ใช้ทั้งหมด
+      // ถ้าข้อมูลเป็น array ใช้ตามเดิม
+      if (Array.isArray(data)) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => ({
+            ...user,
+            isOnline: data.some(onlineUser => onlineUser.email === user.email),
+            lastSeen: data.find(onlineUser => onlineUser.email === user.email)?.lastSeen || user.lastSeen
+          }))
+        );
+        setFriends((prevFriends) =>
+          prevFriends.map((friend) => ({
+            ...friend,
+            isOnline: data.some(onlineUser => onlineUser.email === friend.email),
+            lastSeen: data.find(onlineUser => onlineUser.email === friend.email)?.lastSeen || friend.lastSeen
+          }))
+        );
+      } 
+      // ถ้าข้อมูลเป็น object มี onlineUsers เป็น array
+      else if (data && Array.isArray(data.onlineUsers)) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => ({
+            ...user,
+            isOnline: user.email ? data.onlineUsers.includes(user.email) : false,
+            lastSeen: data.lastSeenTimes && data.lastSeenTimes[user.email] || user.lastSeen
+          }))
+        );
+        setFriends((prevFriends) =>
+          prevFriends.map((friend) => ({
+            ...friend,
+            isOnline: friend.email ? data.onlineUsers.includes(friend.email) : false,
+            lastSeen: data.lastSeenTimes && data.lastSeenTimes[friend.email] || friend.lastSeen
+          }))
+        );
+      }
+      // ถ้าข้อมูลเป็น string array (แบบเก่า)
+      else if (Array.isArray(data)) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => ({
+            ...user,
+            isOnline: data.includes(user.email),
+            lastSeen: user.lastSeen
+          }))
+        );
+        setFriends((prevFriends) =>
+          prevFriends.map((friend) => ({
+            ...friend,
+            isOnline: data.includes(friend.email),
+            lastSeen: friend.lastSeen
+          }))
+        );
+      }
+    });
+    
+    // ฟังเมื่อมีผู้ใช้ออฟไลน์
+    socket.on("user-offline", (userData) => {
       setUsers((prevUsers) =>
-        prevUsers.map((user) => ({
-          ...user,
-          isOnline: onlineUsers.includes(user.email),
-          lastSeen: lastSeenTimes[user.email] || null
-        }))
+        prevUsers.map((user) => 
+          user.email === userData.email 
+            ? { ...user, isOnline: false, lastSeen: userData.lastSeen } 
+            : user
+        )
       );
-      
-      // อัปเดตสถานะของเพื่อน
       setFriends((prevFriends) =>
-        prevFriends.map((friend) => ({
-          ...friend,
-          isOnline: onlineUsers.includes(friend.email),
-          lastSeen: lastSeenTimes[friend.email] || null
-        }))
+        prevFriends.map((friend) => 
+          friend.email === userData.email 
+            ? { ...friend, isOnline: false, lastSeen: userData.lastSeen } 
+            : friend
+        )
+      );
+    });
+    
+    // ฟังเมื่อมีผู้ใช้ออนไลน์
+    socket.on("user-online", (userData) => {
+      setUsers((prevUsers) =>
+        prevUsers.map((user) => 
+          user.email === userData.email 
+            ? { ...user, isOnline: true, lastSeen: null } 
+            : user
+        )
+      );
+      setFriends((prevFriends) =>
+        prevFriends.map((friend) => 
+          friend.email === userData.email 
+            ? { ...friend, isOnline: true, lastSeen: null } 
+            : friend
+        )
       );
     });
     
@@ -372,6 +443,8 @@ const Chat = () => {
       // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้ออฟไลน์เมื่อออกจากหน้า chat
       socket.emit("user-offline", { email: userEmail });
       socket.off("update-users");
+      socket.off("user-offline");
+      socket.off("user-online");
       socket.off("connect");
       clearInterval(pingInterval);
     };
