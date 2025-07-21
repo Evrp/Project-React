@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { MdOutlineRefresh } from "react-icons/md";
 
 import "./roommatch.css";
+import "./chance-badge.css";
 
 const RoomMatch = () => {
   const userEmail = localStorage.getItem("userEmail");
@@ -25,8 +26,7 @@ const RoomMatch = () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
+          `${import.meta.env.VITE_APP_API_BASE_URL
           }/api/events-match/${userEmail}`
         );
         const filterjoinedRooms = await axios.get(
@@ -134,9 +134,10 @@ const RoomMatch = () => {
             </div>
           </div>
         )}
-        {!loading &&
+          {!loading &&
           filteredRooms.length > 0 &&
           filteredRooms.map((room, index) => (
+            <div className="container-tinder-card" key={room._id}>
             <TinderCard
               ref={childRefs.current[index]}
               key={room._id}
@@ -145,6 +146,7 @@ const RoomMatch = () => {
               className="tinder-card"
             >
               <div className="room-card-match">
+                <div className="room-chance-badge">โอกาสแมช {room.chance}</div>
                 {/* หา user ที่ email ตรงกับ room.email เพื่อเอารูป */}
                 {(() => {
                   const user = users.find((u) => u.email === room.usermatch);
@@ -176,7 +178,8 @@ const RoomMatch = () => {
                   <p>{room.title}</p>
                 </div>
               </div>
-            </TinderCard>
+            </TinderCard></div>
+
           ))}
       </div>
 

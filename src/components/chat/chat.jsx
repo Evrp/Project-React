@@ -25,6 +25,10 @@ import {
   where,
 } from "firebase/firestore";
 import "../chat/Chat.css";
+import "../chat/ChatResponsive.css";
+import "../chat/ListItems.css";
+import "../chat/DropdownMenu.css";
+import "../chat/OnlineStatus.css";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
@@ -86,23 +90,27 @@ const Chat = () => {
       );
       const allUsers = response.data;
       setUsers(allUsers);
-
       const currentUser = allUsers.find((u) => u.email === userEmail);
-      if (currentUser && Array.isArray(currentUser.friends)) {
-        const friendEmails = currentUser.friends.map((f) =>
+      console.log("Current user:", currentUser);
+      if (currentUser && Array.isArray(currentUser)) {
+        // กรณี friends เป็น array ของ object หรือ string
+        const friendEmails = currentUser.map((f) =>
           typeof f === "string" ? f : f.email
         );
+        console.log("Friend emails:", friendEmails);
+
+        // ดึงข้อมูล user ของแต่ละ friend จาก allUsers
         const filteredFriends = allUsers
           .filter((user) => friendEmails.includes(user.email))
           .map((user) => ({
-            photoURL: user.photoURL,
-            email: user.email,
-            displayName: user.displayName,
-            _id: user._id,
-            isOnline: user.isOnline || false,
+        photoURL: user.photoURL,
+        email: user.email,
+        displayName: user.displayName,
+        _id: user._id,
+        isOnline: user.isOnline || false,
           }))
           .sort((a, b) => a.displayName.localeCompare(b.displayName));
-
+        console.log("Filtered friends:", filteredFriends);
         setFriends(filteredFriends);
       } else {
         setFriends([]);
@@ -138,6 +146,7 @@ const Chat = () => {
             isOnline: user.isOnline || false,
           }))
           .sort((a, b) => a.displayName.localeCompare(b.displayName));
+        console.log("Filtered friends:", filteredFriends);
         setFriends(filteredFriends);
         setUsers(allUsers);
       } else {
@@ -161,36 +170,14 @@ const Chat = () => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
-  const handleFollow = async (targetEmail) => {
-    await fetchGmailUser();
-    if (!currentUserfollow || !Array.isArray(currentUserfollow.following)) {
-      console.warn("currentUser ยังไม่พร้อม หรือ following ไม่มี");
-      return;
-    }
 
-    const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `${
-      import.meta.env.VITE_APP_API_BASE_URL
-    }/api/users/${userEmail}/${
-      isFollowing ? "unfollow" : "follow"
-    }/${targetEmail}`;
-    const method = isFollowing ? "DELETE" : "POST";
-
-    try {
-      await axios({ method, url });
-      await fetchGmailUser();
-    } catch (err) {
-      console.error("Follow/unfollow error:", err);
-    }
-  };
 
   const fetchJoinedRooms = async () => {
     setLoadingRooms(true);
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const res = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
+        `${import.meta.env.VITE_APP_API_BASE_URL
         }/api/user-rooms/${encodedEmail}`
       );
       setJoinedRooms(res.data);
@@ -258,6 +245,8 @@ const Chat = () => {
     setInput("");
   };
   const formatRelativeTime = (timestamp) => {
+    if (!timestamp) return "";
+    
     const now = new Date();
     const diffMs = now - timestamp;
     const diffSec = Math.floor(diffMs / 1000);
@@ -274,6 +263,20 @@ const Chat = () => {
       month: "short",
       year: "numeric",
     });
+  };
+  
+  // ฟังก์ชันสำหรับแสดงสถานะออนไลน์หรือเวลาออฟไลน์ล่าสุด
+  const formatOnlineStatus = (user) => {
+    if (!user) return "";
+    
+    if (user.isOnline) {
+      return "ออนไลน์";
+    } else if (user.lastSeen) {
+      const lastSeenDate = new Date(user.lastSeen);
+      return `ออฟไลน์ - ${formatRelativeTime(lastSeenDate)}`;
+    } else {
+      return "ออฟไลน์";
+    }
   };
   const formatChatDate = (date) => {
     const now = new Date();
@@ -324,27 +327,55 @@ const Chat = () => {
     if (!userEmail) return;
 
     fetchCurrentUserAndFriends();
+    
+    // เมื่อเข้าสู่หน้า chat ส่งข้อมูลว่าผู้ใช้ออนไลน์
     socket.emit("user-online", { displayName, photoURL, email: userEmail });
+    
+    // ตั้งค่า ping เพื่อบอกเซิร์ฟเวอร์ว่าผู้ใช้ยังออนไลน์อยู่ ทุก 30 วินาที
+    const pingInterval = setInterval(() => {
+      if (socket.connected) {
+        socket.emit("user-ping", { email: userEmail });
+      }
+    }, 30000);
 
-    socket.on("update-users", (onlineUsers) => {
+    // รับข้อมูลการอัปเดตสถานะผู้ใช้จากเซิร์ฟเวอร์
+    socket.on("update-users", (data) => {
+      const { onlineUsers, lastSeenTimes } = data;
+      
+      // อัปเดตสถานะของผู้ใช้ทั้งหมด
       setUsers((prevUsers) =>
         prevUsers.map((user) => ({
           ...user,
           isOnline: onlineUsers.includes(user.email),
+          lastSeen: lastSeenTimes[user.email] || null
         }))
       );
+      
+      // อัปเดตสถานะของเพื่อน
       setFriends((prevFriends) =>
         prevFriends.map((friend) => ({
           ...friend,
           isOnline: onlineUsers.includes(friend.email),
+          lastSeen: lastSeenTimes[friend.email] || null
         }))
       );
     });
+    
+    // เมื่อเชื่อมต่อกับเซิร์ฟเวอร์ใหม่ (reconnect)
+    socket.on("connect", () => {
+      // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้กลับมาออนไลน์
+      socket.emit("user-online", { displayName, photoURL, email: userEmail });
+    });
 
+    // Cleanup function
     return () => {
+      // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้ออฟไลน์เมื่อออกจากหน้า chat
+      socket.emit("user-offline", { email: userEmail });
       socket.off("update-users");
+      socket.off("connect");
+      clearInterval(pingInterval);
     };
-  }, [userEmail]);
+  }, [userEmail, displayName, photoURL]);
   useEffect(() => {
     fetchGmailUser();
   }, []);
@@ -379,16 +410,16 @@ const Chat = () => {
 
       const filteredMessages = isGroupChat
         ? allMessages.filter(
-            (msg) => msg.type === "group" && msg.roomId === roomId
-          )
+          (msg) => msg.type === "group" && msg.roomId === roomId
+        )
         : allMessages.filter((msg) => {
-            const isMyMsg =
-              msg.sender === userEmail && msg.receiver === activeUser;
-            const isTheirMsg =
-              msg.sender === activeUser &&
-              (msg.receiver === userEmail || !msg.receiver);
-            return isMyMsg || isTheirMsg;
-          });
+          const isMyMsg =
+            msg.sender === userEmail && msg.receiver === activeUser;
+          const isTheirMsg =
+            msg.sender === activeUser &&
+            (msg.receiver === userEmail || !msg.receiver);
+          return isMyMsg || isTheirMsg;
+        });
 
       setMessages(filteredMessages);
       scrollToBottom();
@@ -508,7 +539,6 @@ const Chat = () => {
     const timeB = lastMessages[b.email]?.timestamp?.toDate()?.getTime() || 0;
     return timeB - timeA; // เรียงจากใหม่ -> เก่า
   });
-
   return (
     <RequireLogin>
       <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
@@ -536,6 +566,7 @@ const Chat = () => {
               dropdownRefs={dropdownRefs}
               getnickName={getnickName}
               setFriends={setFriends}
+              formatOnlineStatus={formatOnlineStatus}
             />
 
             <CommunityList
@@ -594,7 +625,7 @@ const Chat = () => {
             defaultProfileImage={defaultProfileImage}
             formatChatDate={formatChatDate}
           />
-          
+
           <ChatContainerAI
             loadingMessages={loadingMessages}
             messages={messages}

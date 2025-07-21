@@ -1,0 +1,49 @@
+/* สไตล์สำหรับสถานะออนไลน์/ออฟไลน์ */
+.online-status {
+  font-size: 0.8rem;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+}
+
+.online-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.status-online {
+  color: #2ecc71;
+}
+
+.status-online .online-indicator {
+  background-color: #2ecc71;
+  box-shadow: 0 0 5px #2ecc71;
+}
+
+.status-offline {
+  color: #95a5a6;
+}
+
+.status-offline .online-indicator {
+  background-color: #95a5a6;
+}
+
+/* เอฟเฟคกระพริบสำหรับสถานะออนไลน์ */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.status-online .online-indicator {
+  animation: pulse 2s infinite;
+}
+
+/* สไตล์สำหรับเวลาล่าสุดที่ออนไลน์ */
+.last-seen {
+  font-size: 0.75rem;
+  color: #7f8c8d;
+  font-style: italic;
+}

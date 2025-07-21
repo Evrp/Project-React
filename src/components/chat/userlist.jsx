@@ -16,6 +16,7 @@ const ListUser = ({
   getnickName,
   setFriends,
   setActiveRoomId, // เพิ่ม prop
+  formatOnlineStatus, // เพิ่ม prop สำหรับแสดงสถานะออนไลน์
 }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -227,13 +228,15 @@ const ListUser = ({
                     </div>
                   </div>
                   <div className="con-right">
-                    <span
-                      className={`status ${
-                        friend.isOnline ? "online" : "offline"
+                    <div 
+                      className={`online-status ${
+                        friend.isOnline ? "status-online" : "status-offline"
                       }`}
                     >
-                      {friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
-                    </span>
+                      <span className="online-indicator"></span>
+                      {formatOnlineStatus ? formatOnlineStatus(friend) : 
+                        (friend.isOnline ? "ออนไลน์" : "ออฟไลน์")}
+                    </div>
                     <div
                       className="chat-dropdown-wrapper"
                       ref={(el) => (dropdownRefs.current[friend.email] = el)}
@@ -241,7 +244,7 @@ const ListUser = ({
                     >
                       <button
                         onClick={(e) => handleMenuClick(friend)}
-                        className="chat-dropdown-toggle"
+                        className={`chat-dropdown-toggle ${openMenuFor === friend.email ? 'active' : ''}`}
                       >
                         <BsThreeDots size={20} />
                       </button>
@@ -329,7 +332,11 @@ const ListUser = ({
                 </ul>
               </div>
               <p>Email: {selectedUser.email}</p>
-              <p>สถานะ: {selectedUser.isOnline ? "ออนไลน์" : "ออฟไลน์"}</p>
+              <div className={`online-status ${selectedUser.isOnline ? "status-online" : "status-offline"}`}>
+                <span className="online-indicator"></span>
+                <span>สถานะ: {formatOnlineStatus ? formatOnlineStatus(selectedUser) : 
+                  (selectedUser.isOnline ? "ออนไลน์" : "ออฟไลน์")}</span>
+              </div>
             </div>
           </div>
         </div>

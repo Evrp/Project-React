@@ -8,6 +8,7 @@ import Community from "./components/community/community";
 import Setup from "./components/setting/setup";
 import Home from "./components/Home/Home";
 import Chat from "./components/chat/chat";
+import ChatContainerAI from "./components/chat/ChatContainerAI";
 import { Route, Routes, useLocation } from "react-router-dom";
 // import ForgotPassword from "./Log/ForgotForm";
 
@@ -29,6 +30,7 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/community" element={<Community />} />
         <Route path="/chat/:roomId" element={<Chat />} />
+        <Route path="/ai-chat" element={<ChatContainerAI />} />
       </Routes>
     </>
   );

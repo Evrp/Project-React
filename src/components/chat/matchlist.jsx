@@ -129,7 +129,7 @@ const MatchList = ({
                                   prev === room.title ? null : room.title
                                 );
                               }}
-                              className="dropdown-toggle"
+                              className={`chat-dropdown-toggle ${openMenuFor === room.title ? 'active' : ''}`}
                             >
                               <BsThreeDots size={20} />
                             </button>
