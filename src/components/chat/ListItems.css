@@ -1,0 +1,126 @@
+/* ListItems.css - Additional styles for list items */
+
+.list-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6366f1;
+  margin: 15px 10px 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dark-mode .list-section-title {
+  color: #818cf8;
+}
+
+.list-section-divider {
+  height: 1px;
+  background: linear-gradient(to right, rgba(99, 102, 241, 0.2), rgba(99, 102, 241, 0.05));
+  margin: 6px 0 10px;
+}
+
+.dark-mode .list-section-divider {
+  background: linear-gradient(to right, rgba(129, 140, 248, 0.3), rgba(129, 140, 248, 0.05));
+}
+
+.list-item-badge {
+  background-color: #6366f1;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
+}
+
+.list-item-online {
+  position: absolute;
+  bottom: 2px;
+  left: 50px;
+  width: 10px;
+  height: 10px;
+  background-color: #10b981;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.dark-mode .list-item-online {
+  border-color: #242526;
+}
+
+.list-item-avatar {
+  position: relative;
+}
+
+.list-empty-state {
+  text-align: center;
+  padding: 30px 0;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.dark-mode .list-empty-state {
+  color: #64748b;
+}
+
+.user-list-container,
+.community-list-container,
+.match-list-container {
+  padding: 5px 0;
+}
+
+.list-item-content {
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px;
+  flex: 1;
+}
+
+.list-item-username {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 2px;
+  color: #333;
+}
+
+.dark-mode .list-item-username {
+  color: #e4e6eb;
+}
+
+.list-item-subtitle {
+  font-size: 12px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.dark-mode .list-item-subtitle {
+  color: #94a3b8;
+}
+
+/* Add pulsing animation for new messages */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.has-new-message {
+  position: relative;
+}
+
+.has-new-message::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #6366f1;
+  animation: pulse 2s infinite;
+}

@@ -50,7 +50,7 @@
   font-weight: normal;
 }
 
-.chat-box {
+/* .chat-box {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -64,7 +64,7 @@
 
 .chat-box::-webkit-scrollbar {
   width: 6px;
-}
+} */
 
 .chat-box::-webkit-scrollbar-track {
   background: #f8fafc;
@@ -232,6 +232,9 @@
   border: none;
   border-radius: 18px;
   padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
   font-size: 15px;
   font-weight: 500;
   cursor: pointer;

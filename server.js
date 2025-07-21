@@ -52,6 +52,7 @@ db.once("open", () => console.log("🔥 MongoDB Connected"));
 db.on("error", (err) => console.error("❌ MongoDB Error:", err));
 
 const onlineUsers = new Map(); // email => Set of socket IDs
+const lastSeenTimes = new Map(); // email => timestamp ล่าสุดที่เห็นผู้ใช้
 
 io.on("connection", (socket) => {
   console.log("🟢 New client connected", socket.id);
@@ -70,22 +71,69 @@ io.on("connection", (socket) => {
 
     // อัปเดตให้ทุก client
     console.log("🧑‍💻 Online user", user);
-    io.emit("update-users", Array.from(onlineUsers.keys()));
+    io.emit("update-users", {
+      onlineUsers: Array.from(onlineUsers.keys()),
+      lastSeenTimes: Object.fromEntries(lastSeenTimes)
+    });
+  });
+
+  socket.on("user-ping", (userData) => {
+    // อัปเดตเวลาล่าสุดที่เห็นผู้ใช้
+    if (userData && userData.email) {
+      const { email } = userData;
+      if (onlineUsers.has(email)) {
+        // ผู้ใช้ยังออนไลน์อยู่ ไม่ต้องทำอะไร
+      } else {
+        // ถ้าไม่มี socket id ของผู้ใช้ ให้เพิ่มเข้ามาใหม่
+        onlineUsers.set(email, new Set([socket.id]));
+        socket.email = email;
+        
+        // อัปเดตให้ทุก client
+        io.emit("update-users", {
+          onlineUsers: Array.from(onlineUsers.keys()),
+          lastSeenTimes: Object.fromEntries(lastSeenTimes)
+        });
+      }
+    }
+  });
+  
+  socket.on("user-offline", (userData) => {
+    if (userData && userData.email) {
+      const { email } = userData;
+      if (email && onlineUsers.has(email)) {
+        onlineUsers.get(email).delete(socket.id);
+        if (onlineUsers.get(email).size === 0) {
+          onlineUsers.delete(email);
+          // บันทึกเวลาล่าสุดที่ออฟไลน์
+          lastSeenTimes.set(email, new Date().toISOString());
+        }
+      }
+      
+      // ส่ง user list ไปให้ทุก client
+      io.emit("update-users", {
+        onlineUsers: Array.from(onlineUsers.keys()),
+        lastSeenTimes: Object.fromEntries(lastSeenTimes)
+      });
+    }
   });
 
   socket.on("disconnect", () => {
-    console.log("🔴 Client disconnected", socket.id);
     console.log("🔴 Client disconnected", socket.id);
     const email = socket.email;
     if (email && onlineUsers.has(email)) {
       onlineUsers.get(email).delete(socket.id);
       if (onlineUsers.get(email).size === 0) {
         onlineUsers.delete(email); // ไม่มี socket เหลือแล้ว
+        // บันทึกเวลาล่าสุดที่ออฟไลน์
+        lastSeenTimes.set(email, new Date().toISOString());
       }
     }
 
     // ส่ง user list ไปให้ทุก client
-    io.emit("update-users", Array.from(onlineUsers.keys()));
+    io.emit("update-users", {
+      onlineUsers: Array.from(onlineUsers.keys()),
+      lastSeenTimes: Object.fromEntries(lastSeenTimes)
+    });
     console.log("🔴 Client disconnected", socket.id);
   });
 });

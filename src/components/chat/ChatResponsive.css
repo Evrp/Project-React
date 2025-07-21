@@ -86,9 +86,9 @@
   }
   
   .search-input-friend {
-    padding: 8px 30px;
+    /* padding: 8px 30px; */
     font-size: 14px;
-    margin: 10px 0;
+    /* margin: 10px 0; */
   }
   
   .chat-profile {

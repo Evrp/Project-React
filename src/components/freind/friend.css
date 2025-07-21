@@ -67,12 +67,12 @@
   margin-bottom: 20px;
   width: 80%;
   max-width: 500px;
-  border-radius: 25px;
-  border: 1px solid #ddd;
+  /* border-radius: 25px; */
+  /* border: 1px solid #ddd; */
   font-size: 1rem;
   font-weight: bold;
   outline: none;
-  transition: border-color 0.3s ease;
+  /* transition: border-color 0.3s ease; */
 }
 
 .dark-mode .search-input-friend {

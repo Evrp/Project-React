@@ -26,6 +26,9 @@ import {
 } from "firebase/firestore";
 import "../chat/Chat.css";
 import "../chat/ChatResponsive.css";
+import "../chat/ListItems.css";
+import "../chat/DropdownMenu.css";
+import "../chat/OnlineStatus.css";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
@@ -242,6 +245,8 @@ const Chat = () => {
     setInput("");
   };
   const formatRelativeTime = (timestamp) => {
+    if (!timestamp) return "";
+    
     const now = new Date();
     const diffMs = now - timestamp;
     const diffSec = Math.floor(diffMs / 1000);
@@ -258,6 +263,20 @@ const Chat = () => {
       month: "short",
       year: "numeric",
     });
+  };
+  
+  // ฟังก์ชันสำหรับแสดงสถานะออนไลน์หรือเวลาออฟไลน์ล่าสุด
+  const formatOnlineStatus = (user) => {
+    if (!user) return "";
+    
+    if (user.isOnline) {
+      return "ออนไลน์";
+    } else if (user.lastSeen) {
+      const lastSeenDate = new Date(user.lastSeen);
+      return `ออฟไลน์ - ${formatRelativeTime(lastSeenDate)}`;
+    } else {
+      return "ออฟไลน์";
+    }
   };
   const formatChatDate = (date) => {
     const now = new Date();
@@ -308,27 +327,55 @@ const Chat = () => {
     if (!userEmail) return;
 
     fetchCurrentUserAndFriends();
+    
+    // เมื่อเข้าสู่หน้า chat ส่งข้อมูลว่าผู้ใช้ออนไลน์
     socket.emit("user-online", { displayName, photoURL, email: userEmail });
+    
+    // ตั้งค่า ping เพื่อบอกเซิร์ฟเวอร์ว่าผู้ใช้ยังออนไลน์อยู่ ทุก 30 วินาที
+    const pingInterval = setInterval(() => {
+      if (socket.connected) {
+        socket.emit("user-ping", { email: userEmail });
+      }
+    }, 30000);
 
-    socket.on("update-users", (onlineUsers) => {
+    // รับข้อมูลการอัปเดตสถานะผู้ใช้จากเซิร์ฟเวอร์
+    socket.on("update-users", (data) => {
+      const { onlineUsers, lastSeenTimes } = data;
+      
+      // อัปเดตสถานะของผู้ใช้ทั้งหมด
       setUsers((prevUsers) =>
         prevUsers.map((user) => ({
           ...user,
           isOnline: onlineUsers.includes(user.email),
+          lastSeen: lastSeenTimes[user.email] || null
         }))
       );
+      
+      // อัปเดตสถานะของเพื่อน
       setFriends((prevFriends) =>
         prevFriends.map((friend) => ({
           ...friend,
           isOnline: onlineUsers.includes(friend.email),
+          lastSeen: lastSeenTimes[friend.email] || null
         }))
       );
     });
+    
+    // เมื่อเชื่อมต่อกับเซิร์ฟเวอร์ใหม่ (reconnect)
+    socket.on("connect", () => {
+      // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้กลับมาออนไลน์
+      socket.emit("user-online", { displayName, photoURL, email: userEmail });
+    });
 
+    // Cleanup function
     return () => {
+      // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้ออฟไลน์เมื่อออกจากหน้า chat
+      socket.emit("user-offline", { email: userEmail });
       socket.off("update-users");
+      socket.off("connect");
+      clearInterval(pingInterval);
     };
-  }, [userEmail]);
+  }, [userEmail, displayName, photoURL]);
   useEffect(() => {
     fetchGmailUser();
   }, []);
@@ -519,6 +566,7 @@ const Chat = () => {
               dropdownRefs={dropdownRefs}
               getnickName={getnickName}
               setFriends={setFriends}
+              formatOnlineStatus={formatOnlineStatus}
             />
 
             <CommunityList
