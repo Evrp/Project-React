@@ -10,7 +10,8 @@ import axios from "axios";
 import io from "socket.io-client";
 import { useTheme } from "../../context/themecontext";
 import RoomMatch from "./roommatch";
-
+import NotificationBell from "../ui/NotificationBell";
+import HeaderProfile from "../ui/HeaderProfile";
 const socket = io(import.meta.env.VITE_APP_API_BASE_URL);
 
 const Newcommu = () => {
@@ -161,8 +162,7 @@ const Newcommu = () => {
     const getGenres = async () => {
       try {
         const res = await axios.get(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
+          `${import.meta.env.VITE_APP_API_BASE_URL
           }/api/filters/${loggedInEmail}`
         );
         setGenres(res.data);
@@ -185,11 +185,9 @@ const Newcommu = () => {
     }
 
     const isFollowing = currentUserfollow.following.includes(friendEmail);
-    const url = `${
-      import.meta.env.VITE_APP_API_BASE_URL
-    }/api/users/${userEmail}/${
-      isFollowing ? "unfollow" : "follow"
-    }/${friendEmail}`;
+    const url = `${import.meta.env.VITE_APP_API_BASE_URL
+      }/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
+      }/${friendEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
 
     try {
@@ -272,9 +270,9 @@ const Newcommu = () => {
 
     socket.on("update-users", (data) => {
       // ตรวจสอบโครงสร้างข้อมูล
-      const onlineUsersList = Array.isArray(data) ? data : 
-                           (data && Array.isArray(data.onlineUsers)) ? data.onlineUsers : [];
-      
+      const onlineUsersList = Array.isArray(data) ? data :
+        (data && Array.isArray(data.onlineUsers)) ? data.onlineUsers : [];
+
       setUsers((prevUsers) =>
         prevUsers.map((user) => ({
           ...user,
@@ -303,8 +301,7 @@ const Newcommu = () => {
   const fetchFollowInfo = async (targetEmail) => {
     try {
       const res = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
+        `${import.meta.env.VITE_APP_API_BASE_URL
         }/api/user/${targetEmail}/follow-info`
       );
 
@@ -331,11 +328,9 @@ const Newcommu = () => {
   return (
     <RequireLogin>
       <div className={`main-content-com ${isDarkMode ? "dark-mode" : ""}`}>
-        <div className="profile-section">
-          <span className="bell-icon">&#128276;</span>
-          <span className="divider">|</span>
-          <img src={userPhoto} alt="Profile" className="profile-image-com" />
-        </div>
+        <header className="header-home">
+          <HeaderProfile userPhoto={photoURL} />
+        </header>
         <div className="filter-container">
           <CreateRoom onRoomCreated={handleNewRoom} />
           <button
@@ -346,9 +341,8 @@ const Newcommu = () => {
           </button>
           {(showOnlyMyRooms || selectedRooms.length > 0) && (
             <button
-              className={`delete-button-all-room ${
-                isDeleteMode ? "active" : ""
-              }`}
+              className={`delete-button-all-room ${isDeleteMode ? "active" : ""
+                }`}
               onClick={() => {
                 if (showOnlyMyRooms) {
                   setIsDeleteMode(!isDeleteMode);
@@ -363,8 +357,8 @@ const Newcommu = () => {
               {isDeleteMode
                 ? `ยกเลิก (${selectedRooms.length})`
                 : selectedRooms.length > 0
-                ? `ลบห้อง (${selectedRooms.length})`
-                : "ลบห้อง"}
+                  ? `ลบห้อง (${selectedRooms.length})`
+                  : "ลบห้อง"}
             </button>
           )}
           {isDeleteMode && selectedRooms.length > 0 && (

@@ -6,6 +6,7 @@ import RoomMatch from "../community/roommatch";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import AccordionList from "./cardmatch/AccordionList";
+import HeaderProfile from "../ui/HeaderProfile";
 
 const Newcommu = () => {
   const userPhoto = localStorage.getItem("userPhoto");
@@ -34,15 +35,10 @@ const Newcommu = () => {
     <RequireLogin>
       <div className={`main-con-home ${isDarkMode ? "dark-mode" : ""}`}>
         <header className="header-home">
-          <div className="profile-section-home">
-            <button className="bell-btn-home" aria-label="Notifications">
-              <span className="bell-icon-home">&#128276;</span>
-            </button>
-            <span className="divider-home">|</span>
-            <div className="profile-img-wrapper-home">
-              <img src={userPhoto} alt="Profile" className="profile-image-home" />
-            </div>
-          </div>
+          <HeaderProfile 
+            userPhoto={userPhoto} 
+            className="profile-section-home" 
+          />
         </header>
         <div className="event-list-co">
           {/* <h2 className="event-title">Community Recommand</h2> */}

@@ -4,13 +4,13 @@ import io from "socket.io-client";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./friend.css";
+import { FaSearch } from "react-icons/fa";
 import "./OnlineStatus.css";
 import { IoMdPersonAdd } from "react-icons/io";
 import RequireLogin from "../ui/RequireLogin";
 import { BsThreeDots } from "react-icons/bs";
 import { useTheme } from "../../context/themecontext";
 import { useParams } from "react-router-dom";
-import "./NotificationStyles.css";
 
 // สร้าง socket instance พร้อม options เพื่อแก้ปัญหาการเชื่อมต่อ
 const socket = io(import.meta.env.VITE_APP_API_BASE_URL, {
@@ -1007,7 +1007,7 @@ const Friend = () => {
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         <div className="text-xl-font-semibold">
           <div className="friend-header-container">
-            <h1>Friend</h1>
+           
 
             <div className="profile-section-home">
               <div className="notification-container">
@@ -1144,12 +1144,13 @@ const Friend = () => {
         {error && <div className="error-message">{error}</div>}
 
         <div className="search-friend-con">
+           <FaSearch className="search-icon-friend" />
           <input
             type="text"
-            placeholder="🔍 Search Friend"
+            placeholder="Search Friend"
             value={searchTerm}
             onChange={handleSearch}
-            className="search-input-friend"
+            className="search-input-chat"
             aria-label="ค้นหาเพื่อน"
           />
         </div>

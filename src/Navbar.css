@@ -1,5 +1,4 @@
 .navbar-container {
-
   background: rgb(255, 255, 255);
   display: flex;
   width: 20vh;
@@ -9,6 +8,14 @@
   align-items: center;
   border-right: 1px solid #ccc;
   top: 0;
+  position: relative;
+}
+
+.navbar-notification {
+  position: absolute;
+  top: 15px;
+  right: -50px;
+  z-index: 1000;
 }
 
 /* .dark-mode .navbar-con  {
