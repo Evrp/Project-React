@@ -39,7 +39,7 @@ router.post('/friend-request', async (req, res) => {
     }
 
     // ตรวจสอบว่ามีคำขอเพื่อนระหว่างกันอยู่แล้วหรือไม่
-    const existingRequest = await FriendRequest.findOne({ 
+    const existingRequest = await FriendRequest.findOne({
       'from.email': from.email,
       'to': to,
       'status': 'pending'
@@ -70,16 +70,16 @@ router.post('/friend-request', async (req, res) => {
       const io = req.app.get('io');
       const userSockets = req.app.get('userSockets') || {};
       const recipientSocket = userSockets[to];
-      
+
       if (recipientSocket) {
         io.to(recipientSocket).emit('notify-friend-request', { from: from.email });
       }
     }
 
-    res.status(201).json({ 
-      success: true, 
-      message: 'ส่งคำขอเพื่อนสำเร็จ', 
-      requestId: newFriendRequest.requestId 
+    res.status(201).json({
+      success: true,
+      message: 'ส่งคำขอเพื่อนสำเร็จ',
+      requestId: newFriendRequest.requestId
     });
 
   } catch (error) {
@@ -94,13 +94,13 @@ router.get('/friend-requests/:userEmail', async (req, res) => {
     const { userEmail } = req.params;
 
     // ดึงคำขอเพื่อนที่ถูกส่งมาถึงผู้ใช้
-    const requests = await FriendRequest.find({ 
+    const requests = await FriendRequest.find({
       to: userEmail,
       status: 'pending'
     }).sort({ timestamp: -1 });
 
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       requests: requests.map(req => ({
         requestId: req.requestId,
         from: req.from,
@@ -128,7 +128,7 @@ router.post('/friend-request-response', async (req, res) => {
 
     // ดึงคำขอเพื่อนจากฐานข้อมูล
     const friendRequest = await FriendRequest.findOne({ requestId });
-    
+    console.log("กำลังตอบรับคำขอเพื่อน:", friendRequest);
     if (!friendRequest) {
       return res.status(404).json({ success: false, message: 'ไม่พบคำขอเพื่อนนี้' });
     }
@@ -145,8 +145,8 @@ router.post('/friend-request-response', async (req, res) => {
     // ถ้าตอบรับ ให้เพิ่มเป็นเพื่อนในฐานข้อมูล
     if (response === 'accept') {
       // ดึงข้อมูลผู้ใช้ทั้งสองคน
-      const user = await User.findOne({ email: userEmail });
-      const friend = await User.findOne({ email: friendEmail });
+      const user = await Friend.findOne({ email: userEmail });
+      const friend = await Friend.findOne({ email: friendEmail });
 
       if (!user || !friend) {
         return res.status(404).json({ success: false, message: 'ไม่พบข้อมูลผู้ใช้' });
@@ -163,7 +163,7 @@ router.post('/friend-request-response', async (req, res) => {
 
       // เพิ่มเพื่อนให้กับผู้ใช้ถ้ายังไม่เป็นเพื่อนกัน
       if (!userAlreadyFriend) {
-        user.friends.push({ 
+        user.friends.push({
           email: friendEmail,
           roomId: roomId || friendRequest.roomId
         });
@@ -186,14 +186,14 @@ router.post('/friend-request-response', async (req, res) => {
         const io = req.app.get('io');
         const userSockets = req.app.get('userSockets') || {};
         const recipientSocket = userSockets[friendEmail];
-        
+
         if (recipientSocket) {
           io.to(recipientSocket).emit('notify-friend-accept', { from: userEmail });
         }
       }
 
-      res.status(200).json({ 
-        success: true, 
+      res.status(200).json({
+        success: true,
         message: 'ตอบรับคำขอเพื่อนสำเร็จ',
         user: {
           email: user.email,
@@ -233,8 +233,8 @@ router.get('/friend-accepts/:userEmail', async (req, res) => {
       return res.status(200).json({ success: true, latestAccept: null });
     }
 
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       latestAccept: {
         email: acceptedUser.email,
         displayName: acceptedUser.displayName,
@@ -246,6 +246,56 @@ router.get('/friend-accepts/:userEmail', async (req, res) => {
   } catch (error) {
     console.error('เกิดข้อผิดพลาดในการดึงข้อมูลการยอมรับคำขอเพื่อน:', error);
     res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการดึงข้อมูลการยอมรับคำขอเพื่อน', error: error.message });
+  }
+});
+// API สำหรับลบคำขอเพื่อน
+router.delete('/friend-request/:requestId', async (req, res) => {
+  try {
+    const { requestId } = req.params;
+
+    // ลบคำขอเพื่อนจากฐานข้อมูล
+    const result = await FriendRequest.deleteOne({ requestId });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ success: false, message: 'ไม่พบคำขอเพื่อนนี้' });
+    }
+
+    res.status(200).json({ success: true, message: 'ลบคำขอเพื่อนสำเร็จ' });
+
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการลบคำขอเพื่อน:', error);
+    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการลบคำขอเพื่อน', error: error.message });
+  }
+});
+router.delete('/friend-request-email/:userEmail/:friendEmail', async (req, res) => {
+  const { userEmail, friendEmail } = req.params;
+
+  try {
+    // ค้นหาคำขอเพื่อนระหว่างผู้ใช้ทั้งสองก่อน
+    const friendRequest = await FriendRequest.findOne({
+      $or: [
+        { 'from.email': userEmail, 'to': friendEmail },
+        { 'from.email': friendEmail, 'to': userEmail }
+      ]
+
+
+    });
+
+    if (!friendRequest) {
+      return res.status(404).json({ success: false, message: 'ไม่พบคำขอเพื่อนนี้' });
+    }
+
+    // ลบคำขอเพื่อน
+    const result = await FriendRequest.deleteOne({ _id: friendRequest._id });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ success: false, message: 'ไม่สามารถลบคำขอเพื่อนได้' });
+    }
+
+    res.status(200).json({ success: true, message: 'ลบคำขอเพื่อนสำเร็จ' });
+  } catch (error) {
+    console.error('เกิดข้อผิดพลาดในการลบคำขอเพื่อน:', error);
+    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการลบคำขอเพื่อน', error: error.message });
   }
 });
 
