@@ -22,19 +22,6 @@ router.post("/join-community", async (req, res) => {
   }
 });
 
-// Get user rooms
-router.get("/user-rooms/:email", async (req, res) => {
-  const encodedEmail = req.params.email.toLowerCase();
-  try {
-    const user = await Info.findOne({ email: encodedEmail });
-    if (!user) return res.status(404).json({ error: "User not found" });
-    const roomIds = user.joinedRooms.map((room) => room.roomId);
-    const roomNames = user.joinedRooms.map((room) => room.roomName);
-    res.status(200).json({ roomNames, roomIds });
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error." });
-  }
-});
 
 // Create room
 router.post("/createroom", async (req, res) => {

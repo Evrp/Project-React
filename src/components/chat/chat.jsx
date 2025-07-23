@@ -24,11 +24,16 @@ import {
   doc,
   where,
 } from "firebase/firestore";
-import "../chat/Chat.css";
+import "../chat/ChatMerged.css";
+import "../chat/ChatAI.css";
+import "../chat/ListItems.css";
+import "../chat/DropdownMenu.css";
+import "../chat/OnlineStatus.css";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
 import { ImSpinner2 } from "react-icons/im";
+import ChatContainerAI from "./ChatContainerAI";
 
 const socket = io(import.meta.env.VITE_APP_API_BASE_URL);
 import { useTheme } from "../../context/themecontext";
@@ -85,23 +90,27 @@ const Chat = () => {
       );
       const allUsers = response.data;
       setUsers(allUsers);
-
       const currentUser = allUsers.find((u) => u.email === userEmail);
-      if (currentUser && Array.isArray(currentUser.friends)) {
-        const friendEmails = currentUser.friends.map((f) =>
+      console.log("Current user:", currentUser);
+      if (currentUser && Array.isArray(currentUser)) {
+        // กรณี friends เป็น array ของ object หรือ string
+        const friendEmails = currentUser.map((f) =>
           typeof f === "string" ? f : f.email
         );
+        console.log("Friend emails:", friendEmails);
+
+        // ดึงข้อมูล user ของแต่ละ friend จาก allUsers
         const filteredFriends = allUsers
           .filter((user) => friendEmails.includes(user.email))
           .map((user) => ({
-            photoURL: user.photoURL,
-            email: user.email,
-            displayName: user.displayName,
-            _id: user._id, 
-            isOnline: user.isOnline || false,
+        photoURL: user.photoURL,
+        email: user.email,
+        displayName: user.displayName,
+        _id: user._id,
+        isOnline: user.isOnline || false,
           }))
           .sort((a, b) => a.displayName.localeCompare(b.displayName));
-
+        console.log("Filtered friends:", filteredFriends);
         setFriends(filteredFriends);
       } else {
         setFriends([]);
@@ -119,17 +128,15 @@ const Chat = () => {
       const userRes = await axios.get(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${encodedEmail}`
       );
-      const currentUser = userRes.data;
-
+      const currentUser = userRes.data; 
       if (Array.isArray(currentUser.friends)) {
-        const friendEmails = currentUser.friends;
-
+        const friendArray = currentUser.friends;
+        const friendEmails = friendArray.map((f) => f.email);
         // ดึง users ทั้งหมดมาเพื่อจับคู่กับ friend emails
         const allUsersRes = await axios.get(
           `${import.meta.env.VITE_APP_API_BASE_URL}/api/users`
         );
         const allUsers = allUsersRes.data;
-
         const filteredFriends = allUsers
           .filter((user) => friendEmails.includes(user.email))
           .map((user) => ({
@@ -139,6 +146,7 @@ const Chat = () => {
             isOnline: user.isOnline || false,
           }))
           .sort((a, b) => a.displayName.localeCompare(b.displayName));
+        console.log("Filtered friends:", filteredFriends);
         setFriends(filteredFriends);
         setUsers(allUsers);
       } else {
@@ -162,36 +170,14 @@ const Chat = () => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
-  const handleFollow = async (targetEmail) => {
-    await fetchGmailUser();
-    if (!currentUserfollow || !Array.isArray(currentUserfollow.following)) {
-      console.warn("currentUser ยังไม่พร้อม หรือ following ไม่มี");
-      return;
-    }
 
-    const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `${
-      import.meta.env.VITE_APP_API_BASE_URL
-    }/api/users/${userEmail}/${
-      isFollowing ? "unfollow" : "follow"
-    }/${targetEmail}`;
-    const method = isFollowing ? "DELETE" : "POST";
-
-    try {
-      await axios({ method, url });
-      await fetchGmailUser();
-    } catch (err) {
-      console.error("Follow/unfollow error:", err);
-    }
-  };
 
   const fetchJoinedRooms = async () => {
     setLoadingRooms(true);
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const res = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
+        `${import.meta.env.VITE_APP_API_BASE_URL
         }/api/user-rooms/${encodedEmail}`
       );
       setJoinedRooms(res.data);
@@ -227,30 +213,63 @@ const Chat = () => {
     }
   };
   const handleSend = async () => {
-    if (input.trim() === "" || (!isGroupChat && !selectedUser)) return;
+    // ตรวจสอบว่ามีข้อความที่จะส่งหรือไม่
+    if (input.trim() === "") return;
+    
+    // ตรวจสอบว่าเป็นแชทส่วนตัวและมีผู้รับหรือไม่
+    if (!isGroupChat && !selectedUser && !activeUser) {
+      console.warn("ไม่สามารถส่งข้อความได้: ไม่มีผู้รับที่ระบุ");
+      return;
+    }
+    
+    console.log(
+      "Sending message:",
+      input,
+      "to roomId:",
+      roomId,
+      "activeUser:",
+      activeUser
+    );
+    
+    // สร้างข้อมูลข้อความพื้นฐาน
     const messageData = {
       sender: userEmail,
       content: input,
       timestamp: serverTimestamp(),
-      roomId: roomId,
-      // receiver: activeUser, 
+      roomId: roomId || "direct", // ใช้ "direct" เป็นค่าเริ่มต้นถ้าไม่มี roomId
       isSeen: false,
     };
 
-    // เพิ่ม receiver สำหรับแชทส่วนตัว (เก็บ selectedUser)
-    if (!isGroupChat && selectedUser) {
-      messageData.receiver = selectedUser.email;
-    }
+    // กำหนดผู้รับตามลำดับความสำคัญ
     if (isGroupChat === true) {
       // สำหรับแชทกลุ่ม
       messageData.type = "group";
-      messageData.receiver = null;
+      messageData.receiver = null; // ในกลุ่มไม่มีผู้รับเฉพาะ
+    } 
+    else if (selectedUser && selectedUser.email) {
+      // กรณีมี selectedUser ให้ใช้ email จาก selectedUser
+      messageData.receiver = selectedUser.email;
+    }
+    else if (activeUser) {
+      // ถ้าไม่มี selectedUser แต่มี activeUser ใช้ activeUser แทน
+      messageData.receiver = typeof activeUser === 'string' ? activeUser : activeUser.email;
+    }
+    else {
+      console.error("ไม่สามารถส่งข้อความได้: ไม่มีผู้รับ");
+      return; // ถ้าไม่มีผู้รับเลย ไม่ส่งข้อความ
     }
 
-    await addDoc(messagesRef, messageData);
-    setInput("");
+    try {
+      await addDoc(messagesRef, messageData);
+      setInput("");
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง");
+    }
   };
   const formatRelativeTime = (timestamp) => {
+    if (!timestamp) return "";
+    
     const now = new Date();
     const diffMs = now - timestamp;
     const diffSec = Math.floor(diffMs / 1000);
@@ -267,6 +286,20 @@ const Chat = () => {
       month: "short",
       year: "numeric",
     });
+  };
+  
+  // ฟังก์ชันสำหรับแสดงสถานะออนไลน์หรือเวลาออฟไลน์ล่าสุด
+  const formatOnlineStatus = (user) => {
+    if (!user) return "";
+    
+    if (user.isOnline) {
+      return "ออนไลน์";
+    } else if (user.lastSeen) {
+      const lastSeenDate = new Date(user.lastSeen);
+      return `ออฟไลน์ - ${formatRelativeTime(lastSeenDate)}`;
+    } else {
+      return "ออฟไลน์";
+    }
   };
   const formatChatDate = (date) => {
     const now = new Date();
@@ -317,27 +350,128 @@ const Chat = () => {
     if (!userEmail) return;
 
     fetchCurrentUserAndFriends();
+    
+    // เมื่อเข้าสู่หน้า chat ส่งข้อมูลว่าผู้ใช้ออนไลน์
     socket.emit("user-online", { displayName, photoURL, email: userEmail });
+    
+    // ตั้งค่า ping เพื่อบอกเซิร์ฟเวอร์ว่าผู้ใช้ยังออนไลน์อยู่ ทุก 30 วินาที
+    const pingInterval = setInterval(() => {
+      if (socket.connected) {
+        socket.emit("user-ping", { email: userEmail });
+      }
+    }, 30000);
 
-    socket.on("update-users", (onlineUsers) => {
+    // รับข้อมูลการอัปเดตสถานะผู้ใช้จากเซิร์ฟเวอร์
+    socket.on("update-users", (data) => {
+      // เช็คว่า data เป็น array หรือ object
+      console.log("ข้อมูลที่ได้จาก update-users:", data);
+      
+      // ถ้าข้อมูลเป็น array ใช้ตามเดิม
+      if (Array.isArray(data)) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => ({
+            ...user,
+            isOnline: data.some(onlineUser => onlineUser.email === user.email),
+            lastSeen: data.find(onlineUser => onlineUser.email === user.email)?.lastSeen || user.lastSeen
+          }))
+        );
+        setFriends((prevFriends) =>
+          prevFriends.map((friend) => ({
+            ...friend,
+            isOnline: data.some(onlineUser => onlineUser.email === friend.email),
+            lastSeen: data.find(onlineUser => onlineUser.email === friend.email)?.lastSeen || friend.lastSeen
+          }))
+        );
+      } 
+      // ถ้าข้อมูลเป็น object มี onlineUsers เป็น array
+      else if (data && Array.isArray(data.onlineUsers)) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => ({
+            ...user,
+            isOnline: user.email ? data.onlineUsers.includes(user.email) : false,
+            lastSeen: data.lastSeenTimes && data.lastSeenTimes[user.email] || user.lastSeen
+          }))
+        );
+        setFriends((prevFriends) =>
+          prevFriends.map((friend) => ({
+            ...friend,
+            isOnline: friend.email ? data.onlineUsers.includes(friend.email) : false,
+            lastSeen: data.lastSeenTimes && data.lastSeenTimes[friend.email] || friend.lastSeen
+          }))
+        );
+      }
+      // ถ้าข้อมูลเป็น string array (แบบเก่า)
+      else if (Array.isArray(data)) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => ({
+            ...user,
+            isOnline: data.includes(user.email),
+            lastSeen: user.lastSeen
+          }))
+        );
+        setFriends((prevFriends) =>
+          prevFriends.map((friend) => ({
+            ...friend,
+            isOnline: data.includes(friend.email),
+            lastSeen: friend.lastSeen
+          }))
+        );
+      }
+    });
+    
+    // ฟังเมื่อมีผู้ใช้ออฟไลน์
+    socket.on("user-offline", (userData) => {
       setUsers((prevUsers) =>
-        prevUsers.map((user) => ({
-          ...user,
-          isOnline: onlineUsers.includes(user.email),
-        }))
+        prevUsers.map((user) => 
+          user.email === userData.email 
+            ? { ...user, isOnline: false, lastSeen: userData.lastSeen } 
+            : user
+        )
       );
       setFriends((prevFriends) =>
-        prevFriends.map((friend) => ({
-          ...friend,
-          isOnline: onlineUsers.includes(friend.email),
-        }))
+        prevFriends.map((friend) => 
+          friend.email === userData.email 
+            ? { ...friend, isOnline: false, lastSeen: userData.lastSeen } 
+            : friend
+        )
       );
     });
+    
+    // ฟังเมื่อมีผู้ใช้ออนไลน์
+    socket.on("user-online", (userData) => {
+      setUsers((prevUsers) =>
+        prevUsers.map((user) => 
+          user.email === userData.email 
+            ? { ...user, isOnline: true, lastSeen: null } 
+            : user
+        )
+      );
+      setFriends((prevFriends) =>
+        prevFriends.map((friend) => 
+          friend.email === userData.email 
+            ? { ...friend, isOnline: true, lastSeen: null } 
+            : friend
+        )
+      );
+    });
+    
+    // เมื่อเชื่อมต่อกับเซิร์ฟเวอร์ใหม่ (reconnect)
+    socket.on("connect", () => {
+      // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้กลับมาออนไลน์
+      socket.emit("user-online", { displayName, photoURL, email: userEmail });
+    });
 
+    // Cleanup function
     return () => {
+      // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้ออฟไลน์เมื่อออกจากหน้า chat
+      socket.emit("user-offline", { email: userEmail });
       socket.off("update-users");
+      socket.off("user-offline");
+      socket.off("user-online");
+      socket.off("connect");
+      clearInterval(pingInterval);
     };
-  }, [userEmail]);
+  }, [userEmail, displayName, photoURL]);
   useEffect(() => {
     fetchGmailUser();
   }, []);
@@ -371,15 +505,17 @@ const Chat = () => {
         .filter((msg) => msg.roomId === roomId); // กรองเฉพาะข้อความในห้องนี้
 
       const filteredMessages = isGroupChat
-        ? allMessages.filter((msg) => msg.type === "group" && msg.roomId === roomId)
+        ? allMessages.filter(
+          (msg) => msg.type === "group" && msg.roomId === roomId
+        )
         : allMessages.filter((msg) => {
-            const isMyMsg =
-              msg.sender === userEmail && msg.receiver === activeUser;
-            const isTheirMsg =
-              msg.sender === activeUser &&
-              (msg.receiver === userEmail || !msg.receiver);
-            return isMyMsg || isTheirMsg;
-          });
+          const isMyMsg =
+            msg.sender === userEmail && msg.receiver === activeUser;
+          const isTheirMsg =
+            msg.sender === activeUser &&
+            (msg.receiver === userEmail || !msg.receiver);
+          return isMyMsg || isTheirMsg;
+        });
 
       setMessages(filteredMessages);
       scrollToBottom();
@@ -499,7 +635,6 @@ const Chat = () => {
     const timeB = lastMessages[b.email]?.timestamp?.toDate()?.getTime() || 0;
     return timeB - timeA; // เรียงจากใหม่ -> เก่า
   });
-
   return (
     <RequireLogin>
       <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
@@ -514,28 +649,21 @@ const Chat = () => {
               placeholder="Search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
-              className="search-input-friend"
+              className="search-input-chat"
               autoFocus
             />
           </div>
           <div className="slide-chat">
-            {loadingFriends ? (
-              <div className="loading-spinner">
-                <ImSpinner2 className="spin" /> กำลังโหลดเพื่อน...
-              </div>
-            ) : friends.length === 0 ? (
-              <div className="empty-list">ไม่พบเพื่อน</div>
-            ) : (
-              <ListUser
-                sortedFriends={sortedFriends}
-                lastMessages={lastMessages}
-                setActiveUser={setActiveUser}
-                setIsGroupChat={setIsGroupChat}
-                dropdownRefs={dropdownRefs}
-                getnickName={getnickName}
-                setFriends={setFriends}
-              />
-            )}
+            <ListUser
+              sortedFriends={sortedFriends}
+              lastMessages={lastMessages}
+              setActiveUser={setActiveUser}
+              setIsGroupChat={setIsGroupChat}
+              dropdownRefs={dropdownRefs}
+              getnickName={getnickName}
+              setFriends={setFriends}
+              formatOnlineStatus={formatOnlineStatus}
+            />
 
             <CommunityList
               joinedRooms={joinedRooms}
@@ -593,109 +721,19 @@ const Chat = () => {
             defaultProfileImage={defaultProfileImage}
             formatChatDate={formatChatDate}
           />
-          <div className="chat-container-ai">
-            <div className="header-chat-ai">
-              <h1>Ai Chat</h1>
-              <div className="chat-box">
-                {loadingMessages ? (
-                  <div className="loading-spinner">
-                    <ImSpinner2 className="spin" /> กำลังโหลดข้อความ...
-                  </div>
-                ) : messages.length === 0 ? (
-                  <div className="empty-list">ยังไม่มีข้อความ</div>
-                ) : (
-                  messages.map((msg, index) => {
-                    const isCurrentUser = msg.sender === userEmail;
-                    const senderInfo = users.find(
-                      (user) =>
-                        user.email?.toLowerCase() === msg.sender?.toLowerCase()
-                    );
-                    const messageDate = msg.timestamp?.toDate();
-                    const previousMessageDate =
-                      index > 0
-                        ? messages[index - 1].timestamp?.toDate()
-                        : null;
-                    const isNewDay =
-                      !previousMessageDate ||
-                      messageDate?.toDateString() !==
-                        previousMessageDate?.toDateString();
 
-                    return (
-                      <React.Fragment key={msg.id}>
-                        {isNewDay && (
-                          <div className="chat-date-divider">
-                            {messageDate && formatChatDate(messageDate)}
-                          </div>
-                        )}
-
-                        <div
-                          className={`chat-message ${
-                            isCurrentUser ? "my-message" : "other-message"
-                          }`}
-                        >
-                          {!isCurrentUser && (
-                            <img
-                              src={senderInfo?.photoURL || defaultProfileImage}
-                              alt="Sender"
-                              className="message-avatar"
-                            />
-                          )}
-
-                          <div
-                            className={`message-content ${
-                              isCurrentUser ? "current" : "other"
-                            }`}
-                          >
-                            <div className="colum-message">
-                              <div
-                                className={`message-bubble ${
-                                  isCurrentUser ? "current" : "other"
-                                }`}
-                              >
-                                {msg.content || msg.text}
-                              </div>
-                              {isCurrentUser &&
-                                index === messages.length - 1 && (
-                                  <div className="seen-status">
-                                    {msg.isSeen ? "Seen" : ""}
-                                  </div>
-                                )}
-                            </div>
-                          </div>
-                        </div>
-                      </React.Fragment>
-                    );
-                  })
-                )}
-
-                <div ref={endOfMessagesRef} />
-              </div>
-              <div className="chat-input-container">
-                <div className="chat-border">
-                  <div className="emoji-right">
-                    <TiMicrophoneOutline />
-                  </div>
-                  <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                    placeholder={"Writing something..."}
-                    className="chat-input"
-                    autoFocus
-                  />
-                  <div className="emoji">
-                    <MdAttachFile />
-                    <IoCameraOutline />
-                    <BsEmojiSmile />
-                  </div>
-                  <button onClick={handleSend} className="chat-send-button">
-                    Send
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ChatContainerAI
+            loadingMessages={loadingMessages}
+            messages={messages}
+            users={users}
+            userEmail={userEmail}
+            defaultProfileImage={defaultProfileImage}
+            formatChatDate={formatChatDate}
+            endOfMessagesRef={endOfMessagesRef}
+            input={input}
+            setInput={setInput}
+            handleSend={handleSend}
+          />
         </div>
       </div>
     </RequireLogin>

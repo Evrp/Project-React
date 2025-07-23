@@ -15,6 +15,14 @@
   justify-content: center;
 }
 
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 2rem;
+}
+
 .sidebar {
   width: 200px;
   background: #f5f5f5;

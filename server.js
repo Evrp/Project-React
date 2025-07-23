@@ -16,6 +16,16 @@ import mongoose from "mongoose";
 import { Filter } from "./src/model/filter.js";
 import axios from "axios";
 
+// Import new routes (ES Modules style)
+import friendRequestRoutes from "./routes/friendRequest.js";
+import friendApiRoutes from "./routes/friendApi.js";
+
+// Debug routes
+console.log("Registered routes:");
+console.log("- friendRequestRoutes:", Object.keys(friendRequestRoutes).length > 0 ? "Loaded" : "Empty");
+
+
+
 
 dotenv.config();
 const allowedOrigins = [
@@ -52,41 +62,140 @@ db.once("open", () => console.log("🔥 MongoDB Connected"));
 db.on("error", (err) => console.error("❌ MongoDB Error:", err));
 
 const onlineUsers = new Map(); // email => Set of socket IDs
+const userDetails = new Map(); // email => {displayName, photoURL, email}
+const lastSeenTimes = new Map(); // email => timestamp ล่าสุดที่เห็นผู้ใช้
+const userSockets = {}; // email => socket.id (เก็บ socket ID ล่าสุดของแต่ละ user)
+
+// ฟังก์ชันส่งสถานะปัจจุบันให้ทุก client
+const broadcastUserStatus = () => {
+  // ส่งข้อมูลแบบมีโครงสร้างชัดเจน
+  const onlineUsersEmails = Array.from(onlineUsers.keys());
+  const lastSeenObj = {};
+  
+  // แปลง Map เป็น object ธรรมดา
+  lastSeenTimes.forEach((timestamp, email) => {
+    lastSeenObj[email] = timestamp;
+  });
+  
+  io.emit("update-users", {
+    onlineUsers: onlineUsersEmails,
+    lastSeenTimes: lastSeenObj
+  });
+};
 
 io.on("connection", (socket) => {
   console.log("🟢 New client connected", socket.id);
 
   socket.on("user-online", (user) => {
-    console.log("🧑‍💻 Online user", user); // <<< เพิ่ม log นี้
-    console.log("🟢 User online", user.email);
-    const { email } = user;
+    console.log("🧑‍💻 User online", user);
+    const { email, displayName, photoURL } = user;
+    if (!email) return;
+    
     socket.email = email;
-
+    
+    // เก็บข้อมูลผู้ใช้
+    userDetails.set(email, { displayName, photoURL, email });
+    
     // เพิ่ม socket.id เข้าไปใน Set
     if (!onlineUsers.has(email)) {
       onlineUsers.set(email, new Set());
     }
     onlineUsers.get(email).add(socket.id);
+    
+    // เก็บ socket ID ล่าสุดของผู้ใช้สำหรับการส่งการแจ้งเตือนส่วนตัว
+    userSockets[email] = socket.id;
+    
+    // ลบเวลาออฟไลน์ล่าสุด (เพราะตอนนี้ออนไลน์แล้ว)
+    lastSeenTimes.delete(email);
+    
+    // แจ้งเตือนทุกคนว่ามีคนออนไลน์
+    broadcastUserStatus();
+    
+    // ส่งเฉพาะข้อมูลผู้ใช้นี้ว่าออนไลน์
+    io.emit("user-online", {
+      email,
+      displayName,
+      photoURL,
+      isOnline: true
+    });
+  });
 
-    // อัปเดตให้ทุก client
-    console.log("🧑‍💻 Online user", user);
-    io.emit("update-users", Array.from(onlineUsers.keys()));
+  socket.on("user-ping", (userData) => {
+    // อัปเดตเวลาล่าสุดที่เห็นผู้ใช้
+    if (userData && userData.email) {
+      const { email, displayName, photoURL } = userData;
+      if (onlineUsers.has(email)) {
+        // ผู้ใช้ยังออนไลน์อยู่ ไม่ต้องทำอะไร
+      } else {
+        // ถ้าไม่มี socket id ของผู้ใช้ ให้เพิ่มเข้ามาใหม่
+        onlineUsers.set(email, new Set([socket.id]));
+        socket.email = email;
+        
+        // เก็บข้อมูลผู้ใช้
+        if (displayName && photoURL) {
+          userDetails.set(email, { displayName, photoURL, email });
+        }
+        
+        // ลบเวลาออฟไลน์ล่าสุด (เพราะตอนนี้ออนไลน์แล้ว)
+        lastSeenTimes.delete(email);
+        
+        // แจ้งเตือนทุกคน
+        broadcastUserStatus();
+      }
+    }
+  });
+  
+  socket.on("user-offline", (userData) => {
+    if (userData && userData.email) {
+      const { email } = userData;
+      if (email && onlineUsers.has(email)) {
+        onlineUsers.get(email).delete(socket.id);
+        if (onlineUsers.get(email).size === 0) {
+          onlineUsers.delete(email);
+          // บันทึกเวลาล่าสุดที่ออฟไลน์
+          const timestamp = new Date().toISOString();
+          lastSeenTimes.set(email, timestamp);
+          
+          // ส่งข้อมูลว่าผู้ใช้ออฟไลน์พร้อมเวลาล่าสุด
+          io.emit("user-offline", {
+            email,
+            isOnline: false,
+            lastSeen: timestamp,
+            displayName: userDetails.get(email)?.displayName,
+            photoURL: userDetails.get(email)?.photoURL
+          });
+        }
+      }
+      
+      // ส่ง user list ไปให้ทุก client
+      broadcastUserStatus();
+    }
   });
 
   socket.on("disconnect", () => {
-    console.log("🔴 Client disconnected", socket.id);
     console.log("🔴 Client disconnected", socket.id);
     const email = socket.email;
     if (email && onlineUsers.has(email)) {
       onlineUsers.get(email).delete(socket.id);
       if (onlineUsers.get(email).size === 0) {
         onlineUsers.delete(email); // ไม่มี socket เหลือแล้ว
+        // บันทึกเวลาล่าสุดที่ออฟไลน์
+        const timestamp = new Date().toISOString();
+        lastSeenTimes.set(email, timestamp);
+        
+        // ส่งข้อมูลว่าผู้ใช้ออฟไลน์พร้อมเวลาล่าสุด
+        io.emit("user-offline", {
+          email,
+          isOnline: false,
+          lastSeen: timestamp,
+          displayName: userDetails.get(email)?.displayName,
+          photoURL: userDetails.get(email)?.photoURL
+        });
       }
     }
 
     // ส่ง user list ไปให้ทุก client
-    io.emit("update-users", Array.from(onlineUsers.keys()));
-    console.log("🔴 Client disconnected", socket.id);
+    broadcastUserStatus();
   });
 });
 // 📌 API บันทึกหมวดหมู่เพลงที่ผู้ใช้เลือก
@@ -129,6 +238,35 @@ app.post("/api/update-genres", async (req, res) => {
   }
 });
 
+// เก็บ socket instance ไว้ใช้ใน middleware
+app.set('io', io);
+app.set('userSockets', userSockets);
+
+// ใช้งานเส้นทาง debug เพื่อตรวจสอบ API routes ทั้งหมด
+app.get('/api/debug/routes', (req, res) => {
+  const routes = [];
+  app._router.stack.forEach(middleware => {
+    if (middleware.route) {
+      // Routes registered directly on the app
+      routes.push({
+        path: middleware.route.path,
+        methods: Object.keys(middleware.route.methods)
+      });
+    } else if (middleware.name === 'router') {
+      // Router middleware
+      middleware.handle.stack.forEach(handler => {
+        if (handler.route) {
+          routes.push({
+            path: '/api' + handler.route.path,
+            methods: Object.keys(handler.route.methods)
+          });
+        }
+      });
+    }
+  });
+  res.json(routes);
+});
+
 // ใช้งาน routes ที่แยกไว้
 app.use("/api", userRoutes);
 app.use("/api", friendRoutes);
@@ -137,6 +275,11 @@ app.use("/api", eventRoutes);
 app.use("/api", infoRoutes);
 app.use("/api", roommatchRoutes);
 app.use("/api", likeRoutes);
+
+// ลงทะเบียน friendRequest routes โดยตรงเพื่อแก้ปัญหาเรื่อง 404
+app.use("/api", friendRequestRoutes);
+app.use("/api", friendApiRoutes);
+
 
 // เริ่มต้นเซิร์ฟเวอร์
 server.listen(port, () =>

@@ -67,20 +67,39 @@ const MatchList = ({
               // ใช้ index เป็น fallback ถ้าไม่มี id จริง
               const roomId = joinedRooms.roomIds?.[index] || `${name}-${index}`;
               if (!name || !roomId) return null;
+              // สร้าง key ที่ unique จริง ๆ
+              const divKey = `${roomId}-${index}`;
               return (
-                <div key={roomId}>
+                <div key={divKey}>
                   <ul>
-                    {allEvents.map((room, i) =>
-                      room.title === name ? (
+                    {allEvents.map((room, i) => {
+                      // สร้าง key ที่ unique สำหรับแต่ละ li
+                      const liKey = `${
+                        room._id || room.roomId || room.title
+                      }-${i}`;
+                      return room.title === name ? (
                         <li
-                          key={room._id || `${room.title}-${i}`}
+                          key={liKey}
                           className="chat-friend-item"
                           onClick={() => {
                             handleEnterRoom(room.roomId);
-                            setActiveUser(room.usermatch); // ส่ง email ของ usermatch ไปเป็น activeUser (receiver)
+                            // ตรวจสอบให้แน่ใจว่า room.usermatch เป็น email (string) เสมอ
+                            const userEmail = typeof room.usermatch === 'object' ? 
+                                                room.usermatch.email || null : 
+                                                room.usermatch;
+                            
+                            if (!userEmail) {
+                              console.error('usermatch email not found!', room);
+                              return;
+                            }
+                            
+                            setActiveUser(userEmail); // ส่ง email ของ usermatch ไปเป็น activeUser (receiver)
                             setRoombar(room.image, room.title);
                             setIsGroupChat(false);
-                            handleProfileClick(room.usermatch);
+                            
+                            // หา user object จาก users array เพื่อส่งให้ handleProfileClick
+                            const userObject = users.find(u => u.email === userEmail) || { email: userEmail };
+                            handleProfileClick(userObject);
                           }}
                         >
                           <img
@@ -122,7 +141,7 @@ const MatchList = ({
                                   prev === room.title ? null : room.title
                                 );
                               }}
-                              className="dropdown-toggle"
+                              className={`chat-dropdown-toggle ${openMenuFor === room.title ? 'active' : ''}`}
                             >
                               <BsThreeDots size={20} />
                             </button>
@@ -145,8 +164,8 @@ const MatchList = ({
                             )}
                           </div> */}
                         </li>
-                      ) : null
-                    )}
+                      ) : null;
+                    })}
                   </ul>
                 </div>
               );

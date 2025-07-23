@@ -4,15 +4,15 @@ const router = express.Router();
 
 // เพิ่มเพื่อน
 router.post("/add-friend", async (req, res) => {
-    const { userEmail, friendEmail } = req.body;
-    if (!userEmail || !friendEmail) {
+    const { userEmail, friendEmail, roomId } = req.body;
+    if (!userEmail || !friendEmail || !roomId) {
         return res.status(400).json({ error: "Both userEmail and friendEmail are required." });
     }
     if (userEmail === friendEmail) {
         return res.status(400).json({ error: "You cannot add yourself as a friend." });
     }
     try {
-        const user = await Friend.addFriend(userEmail, friendEmail);
+        const user = await Friend.addFriend(userEmail, friendEmail, roomId);
         return res.status(200).json({ message: "Friend added successfully.", user });
     } catch (error) {
         console.error("Error while adding friend:", error);
@@ -50,7 +50,8 @@ router.delete("/users/:userEmail/friends/:friendEmail", async (req, res) => {
     try {
         const user = await Friend.findOne({ email: userEmail });
         if (!user) return res.status(404).json({ message: "User not found" });
-        user.friends = user.friends.filter((email) => email !== friendEmail);
+        // Remove friend object from friends array by email
+        user.friends = user.friends.filter(f => f.email !== friendEmail);
         await user.save();
         res.json({ message: "Friend removed successfully", friends: user.friends });
     } catch (err) {

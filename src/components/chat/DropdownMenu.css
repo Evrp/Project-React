@@ -1,0 +1,71 @@
+/* DropdownMenu.css - เพิ่มสไตล์เฉพาะสำหรับ dropdown menus */
+
+.chat-dropdown-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Make dropdown toggle button more visible and easier to tap */
+.chat-dropdown-toggle {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+/* Highlight toggle when menu is open */
+.chat-dropdown-toggle.active {
+  background-color: rgba(99, 102, 241, 0.15);
+}
+
+.dark-mode .chat-dropdown-toggle.active {
+  background-color: rgba(129, 140, 248, 0.25);
+}
+
+/* Adjust dropdown position for mobile */
+@media (max-width: 768px) {
+  .chat-dropdown-menu {
+    width: 160px;
+    right: 0;
+  }
+  
+  .chat-dropdown-menu button {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+}
+
+/* Animation for dropdown menu */
+@keyframes scaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.chat-dropdown-menu {
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+/* Add divider between menu items */
+.chat-dropdown-divider {
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.08);
+  margin: 6px 0;
+}
+
+.dark-mode .chat-dropdown-divider {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Remove z-index issues */
+.chat-friend-item {
+  position: relative;
+}

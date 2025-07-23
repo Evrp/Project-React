@@ -7,6 +7,7 @@ const eventSchema = new mongoose.Schema(
     title: String,
     email: String,
     roomId: String,
+    chance: Number,
     usermatch: String, // Assuming this is a string field for user match
   },
   { timestamps: true }

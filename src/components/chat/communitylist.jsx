@@ -105,7 +105,7 @@ const CommunityList = ({
                                   prev === room.name ? null : room.name
                                 );
                               }}
-                              className="dropdown-toggle"
+                              className={`chat-dropdown-toggle ${openMenuFor === room.name ? 'active' : ''}`}
                             >
                               <BsThreeDots size={20} />
                             </button>

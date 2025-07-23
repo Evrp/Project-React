@@ -8,14 +8,16 @@ import Community from "./components/community/community";
 import Setup from "./components/setting/setup";
 import Home from "./components/Home/Home";
 import Chat from "./components/chat/chat";
+import ChatContainerAI from "./components/chat/ChatContainerAI";
 import { Route, Routes, useLocation } from "react-router-dom";
+import { NotificationProvider } from "./context/notificationContext";
 // import ForgotPassword from "./Log/ForgotForm";
 
 function App() {
   const location = useLocation(); // ใช้เพื่อดึงข้อมูล path ปัจจุบัน
 
   return (
-    <>
+    <NotificationProvider>
       {/* หากไม่ใช่หน้า login, จะแสดง Navbar */}
       {location.pathname !== "/login" && <Navbar />}
 
@@ -29,8 +31,9 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/community" element={<Community />} />
         <Route path="/chat/:roomId" element={<Chat />} />
+        <Route path="/ai-chat" element={<ChatContainerAI />} />
       </Routes>
-    </>
+    </NotificationProvider>
   );
 }
 

@@ -5,6 +5,7 @@ import "./Navbar.css";
 import { useAuth } from "./firebase/Authcontext";
 import { FaUsers, FaUser, FaUserFriends, FaCog } from "react-icons/fa";
 import { BsFillChatLeftDotsFill } from "react-icons/bs";
+import { BsRobot } from "react-icons/bs";
 import { useTheme } from "./context/themecontext";
 
 
@@ -89,6 +90,16 @@ const Navbar = () => {
           <li>
             <BsFillChatLeftDotsFill className="icon-nav" />
             <span className="text-nav">Chat</span>
+          </li>
+        </Link>
+        <Link
+          to="/ai-chat"
+          onClick={closeMobileMenu}
+          className={`menu-link ${isActive("/ai-chat")}`}
+        >
+          <li>
+            <BsRobot className="icon-nav" />
+            <span className="text-nav">AI Chat</span>
           </li>
         </Link>
         <Link

@@ -7,6 +7,7 @@ import { useTheme } from "../../context/themecontext";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import HeaderProfile from "../ui/HeaderProfile";
 
 const genreOptions = [
   "Music",
@@ -253,7 +254,7 @@ const Profile = () => {
         setFollowing(followRes.data.following);
         setNickName(nickRes.data.nickname || "");
       } catch (err) {
-        setError("โหลดข้อมูลผู้ใช้ล้มเหลว");
+        setError("คุณสามารถตั้งค่าโปรไฟล์ได้ที่นี่");
       }
       setLoading(false);
     };
@@ -277,7 +278,10 @@ const Profile = () => {
     <div className={`container-profile ${isDarkMode ? "dark-mode" : ""}`}>
       <ToastContainer />
       <div className="text-xl-font-semibold">
-        <h1>Profile</h1>
+        <div className="profile-header">
+          <h1>Profile</h1>
+          <HeaderProfile userPhoto={userPhoto} />
+        </div>
       </div>
       <div className="profile-container">
         <img src={userPhoto} alt="Profile" className="profile-image" />
