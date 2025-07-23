@@ -145,7 +145,7 @@ const ChatContainerAI = ({
             <span className="ai-status">Online</span>
           </h1>
         </div>
-        <div className="chat-box">
+        <div className="chat-box-ai">
           {messages.length === 0 && !loading && (
             <div className="empty-list">
               <RiRobot2Fill size={36} />

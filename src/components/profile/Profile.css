@@ -4,7 +4,7 @@
   align-items: center;
   display: flex;
   height: 10vh;
-  justify-content: center;
+  justify-content: end;
 }
 .dark-mode .text-xl-font-semibold {
   border-bottom: 1px solid #444;
@@ -12,7 +12,7 @@
   align-items: center;
   display: flex;
   height: 10vh;
-  justify-content: center;
+  justify-content: end;
 }
 
 .profile-header {

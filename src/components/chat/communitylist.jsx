@@ -4,6 +4,7 @@ import { BsThreeDots } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { v4 as uuidv4 } from 'uuid';
 
 const CommunityList = ({
   joinedRooms,
@@ -22,8 +23,9 @@ const CommunityList = ({
   const navigate = useNavigate();
   const userEmail = localStorage.getItem("userEmail");
 
-  const handleDeleteRoom = async (roomName) => {
+  const handleDeleteRoom = async (roomName, roomId) => {
     try {
+      console.log(`Deleting room: ${roomName}, ID: ${roomId}`);
       await axios.delete(
         `${
           import.meta.env.VITE_APP_API_BASE_URL
@@ -34,7 +36,7 @@ const CommunityList = ({
       setJoinedRooms((prev) => ({
         ...prev,
         roomNames: prev.roomNames.filter((name) => name !== roomName),
-        roomIds: prev.roomIds.filter((id) => id !== roomName), // ใช้ roomName ถ้าเก็บเป็นชื่อ
+        roomIds: prev.roomIds.filter((id) => id !== roomId && id !== roomName),
       }));
 
       toast.success("ลบห้องสําเร็จ!");
@@ -67,12 +69,12 @@ const CommunityList = ({
               const roomId = joinedRooms.roomIds?.[index] || `${name}-${index}`;
               if (!name || !roomId) return null;
               return (
-                <div key={roomId}>
+                <div key={`container-${roomId}-${index}`}>
                   <ul>
                     {allRooms.map((room, i) =>
                       room.name === name ? (
                         <li
-                          key={room._id || `${room.name}-${i}`}
+                          key={`room-${room._id || room.name}-${i}-${index}`}
                           className="chat-friend-item"
                           onClick={() => {
                             setActiveUser(room.name),
@@ -116,7 +118,7 @@ const CommunityList = ({
                                   className="dropdown-item"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleDeleteRoom(room.name);
+                                    handleDeleteRoom(room.name, room._id);
                                     setOpenMenuFor(null);
                                   }}
                                   disabled={loadingFriendRooms === room.name}

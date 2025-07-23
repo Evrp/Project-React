@@ -24,7 +24,6 @@ import {
   doc,
   where,
 } from "firebase/firestore";
-import "../chat/ChatMerged.css";
 import "../chat/ChatAI.css";
 import "../chat/ListItems.css";
 import "../chat/DropdownMenu.css";
@@ -41,6 +40,7 @@ import ListUser from "./userlist";
 import CommunityList from "./communitylist";
 import ChatPanel from "./ChatPanel";
 import MatchList from "./matchlist";
+import ShowTitle from "./titlepage/showtitle";
 
 const Chat = () => {
   const { isDarkMode, setIsDarkMode } = useTheme();
@@ -79,6 +79,7 @@ const Chat = () => {
   const [loadingRooms, setLoadingRooms] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [isOpenMatch, setIsOpenMatch] = useState(false);
+  const [userimage, setUserImage] = useState({});
 
   const defaultProfileImage = userPhoto;
 
@@ -103,11 +104,11 @@ const Chat = () => {
         const filteredFriends = allUsers
           .filter((user) => friendEmails.includes(user.email))
           .map((user) => ({
-        photoURL: user.photoURL,
-        email: user.email,
-        displayName: user.displayName,
-        _id: user._id,
-        isOnline: user.isOnline || false,
+            photoURL: user.photoURL,
+            email: user.email,
+            displayName: user.displayName,
+            _id: user._id,
+            isOnline: user.isOnline || false,
           }))
           .sort((a, b) => a.displayName.localeCompare(b.displayName));
         console.log("Filtered friends:", filteredFriends);
@@ -128,7 +129,7 @@ const Chat = () => {
       const userRes = await axios.get(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${encodedEmail}`
       );
-      const currentUser = userRes.data; 
+      const currentUser = userRes.data;
       if (Array.isArray(currentUser.friends)) {
         const friendArray = currentUser.friends;
         const friendEmails = friendArray.map((f) => f.email);
@@ -215,13 +216,13 @@ const Chat = () => {
   const handleSend = async () => {
     // ตรวจสอบว่ามีข้อความที่จะส่งหรือไม่
     if (input.trim() === "") return;
-    
+
     // ตรวจสอบว่าเป็นแชทส่วนตัวและมีผู้รับหรือไม่
     if (!isGroupChat && !selectedUser && !activeUser) {
       console.warn("ไม่สามารถส่งข้อความได้: ไม่มีผู้รับที่ระบุ");
       return;
     }
-    
+
     console.log(
       "Sending message:",
       input,
@@ -230,7 +231,7 @@ const Chat = () => {
       "activeUser:",
       activeUser
     );
-    
+
     // สร้างข้อมูลข้อความพื้นฐาน
     const messageData = {
       sender: userEmail,
@@ -245,7 +246,7 @@ const Chat = () => {
       // สำหรับแชทกลุ่ม
       messageData.type = "group";
       messageData.receiver = null; // ในกลุ่มไม่มีผู้รับเฉพาะ
-    } 
+    }
     else if (selectedUser && selectedUser.email) {
       // กรณีมี selectedUser ให้ใช้ email จาก selectedUser
       messageData.receiver = selectedUser.email;
@@ -269,7 +270,7 @@ const Chat = () => {
   };
   const formatRelativeTime = (timestamp) => {
     if (!timestamp) return "";
-    
+
     const now = new Date();
     const diffMs = now - timestamp;
     const diffSec = Math.floor(diffMs / 1000);
@@ -287,11 +288,11 @@ const Chat = () => {
       year: "numeric",
     });
   };
-  
+
   // ฟังก์ชันสำหรับแสดงสถานะออนไลน์หรือเวลาออฟไลน์ล่าสุด
   const formatOnlineStatus = (user) => {
     if (!user) return "";
-    
+
     if (user.isOnline) {
       return "ออนไลน์";
     } else if (user.lastSeen) {
@@ -350,10 +351,10 @@ const Chat = () => {
     if (!userEmail) return;
 
     fetchCurrentUserAndFriends();
-    
+
     // เมื่อเข้าสู่หน้า chat ส่งข้อมูลว่าผู้ใช้ออนไลน์
     socket.emit("user-online", { displayName, photoURL, email: userEmail });
-    
+
     // ตั้งค่า ping เพื่อบอกเซิร์ฟเวอร์ว่าผู้ใช้ยังออนไลน์อยู่ ทุก 30 วินาที
     const pingInterval = setInterval(() => {
       if (socket.connected) {
@@ -365,7 +366,7 @@ const Chat = () => {
     socket.on("update-users", (data) => {
       // เช็คว่า data เป็น array หรือ object
       console.log("ข้อมูลที่ได้จาก update-users:", data);
-      
+
       // ถ้าข้อมูลเป็น array ใช้ตามเดิม
       if (Array.isArray(data)) {
         setUsers((prevUsers) =>
@@ -382,7 +383,7 @@ const Chat = () => {
             lastSeen: data.find(onlineUser => onlineUser.email === friend.email)?.lastSeen || friend.lastSeen
           }))
         );
-      } 
+      }
       // ถ้าข้อมูลเป็น object มี onlineUsers เป็น array
       else if (data && Array.isArray(data.onlineUsers)) {
         setUsers((prevUsers) =>
@@ -418,43 +419,43 @@ const Chat = () => {
         );
       }
     });
-    
+
     // ฟังเมื่อมีผู้ใช้ออฟไลน์
     socket.on("user-offline", (userData) => {
       setUsers((prevUsers) =>
-        prevUsers.map((user) => 
-          user.email === userData.email 
-            ? { ...user, isOnline: false, lastSeen: userData.lastSeen } 
+        prevUsers.map((user) =>
+          user.email === userData.email
+            ? { ...user, isOnline: false, lastSeen: userData.lastSeen }
             : user
         )
       );
       setFriends((prevFriends) =>
-        prevFriends.map((friend) => 
-          friend.email === userData.email 
-            ? { ...friend, isOnline: false, lastSeen: userData.lastSeen } 
+        prevFriends.map((friend) =>
+          friend.email === userData.email
+            ? { ...friend, isOnline: false, lastSeen: userData.lastSeen }
             : friend
         )
       );
     });
-    
+
     // ฟังเมื่อมีผู้ใช้ออนไลน์
     socket.on("user-online", (userData) => {
       setUsers((prevUsers) =>
-        prevUsers.map((user) => 
-          user.email === userData.email 
-            ? { ...user, isOnline: true, lastSeen: null } 
+        prevUsers.map((user) =>
+          user.email === userData.email
+            ? { ...user, isOnline: true, lastSeen: null }
             : user
         )
       );
       setFriends((prevFriends) =>
-        prevFriends.map((friend) => 
-          friend.email === userData.email 
-            ? { ...friend, isOnline: true, lastSeen: null } 
+        prevFriends.map((friend) =>
+          friend.email === userData.email
+            ? { ...friend, isOnline: true, lastSeen: null }
             : friend
         )
       );
     });
-    
+
     // เมื่อเชื่อมต่อกับเซิร์ฟเวอร์ใหม่ (reconnect)
     socket.on("connect", () => {
       // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้กลับมาออนไลน์
@@ -690,6 +691,7 @@ const Chat = () => {
               allEvents={allEvents}
               users={users}
               isOpenMatch={isOpenMatch}
+              setUserImage={setUserImage}
               setIsOpenMatch={setIsOpenMatch}
               setActiveUser={setActiveUser}
               handleProfileClick={handleProfileClick}
@@ -710,6 +712,7 @@ const Chat = () => {
             messages={messages}
             users={users}
             userEmail={userEmail}
+            userimage={userimage}
             userPhoto={userPhoto}
             userName={userName}
             RoomsBar={RoomsBar}
@@ -721,19 +724,23 @@ const Chat = () => {
             defaultProfileImage={defaultProfileImage}
             formatChatDate={formatChatDate}
           />
-
-          <ChatContainerAI
-            loadingMessages={loadingMessages}
-            messages={messages}
-            users={users}
-            userEmail={userEmail}
-            defaultProfileImage={defaultProfileImage}
-            formatChatDate={formatChatDate}
-            endOfMessagesRef={endOfMessagesRef}
-            input={input}
-            setInput={setInput}
-            handleSend={handleSend}
-          />
+          <div className="tabright">
+            <div className="tabright-column">
+              <ShowTitle userimage={userimage} />
+              <ChatContainerAI
+                loadingMessages={loadingMessages}
+                messages={messages}
+                users={users}
+                userEmail={userEmail}
+                defaultProfileImage={defaultProfileImage}
+                formatChatDate={formatChatDate}
+                endOfMessagesRef={endOfMessagesRef}
+                input={input}
+                setInput={setInput}
+                handleSend={handleSend}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </RequireLogin>

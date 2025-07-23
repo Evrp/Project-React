@@ -1009,7 +1009,7 @@ const Friend = () => {
           <div className="friend-header-container">
            
 
-            <div className="profile-section-home">
+            <div className="profile-section">
               <div className="notification-container">
                 <button
                   ref={bellButtonRef}

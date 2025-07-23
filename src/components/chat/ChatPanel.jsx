@@ -1,8 +1,9 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { TiMicrophoneOutline } from "react-icons/ti";
 import { MdAttachFile } from "react-icons/md";
 import { IoCameraOutline } from "react-icons/io5";
 import { BsEmojiSmile } from "react-icons/bs";
+import ProfileModal from "./ProfileModal";
 
 const ChatPanel = ({
   messages,
@@ -15,26 +16,42 @@ const ChatPanel = ({
   input,
   setInput,
   handleSend,
+  userimage,
   endOfMessagesRef,
   defaultProfileImage,
   formatChatDate,
 }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const handleProfileClick = (userObject) => {
+    setSelectedUser(userObject);
+    setModalVisible(true);
+  };
+  useEffect(() => {
+    console.log("ChatPanel userimage:", userimage);
+  }, [userimage]);
   return (
     <div className="chat-container">
       <div className="show-info">
         <img
           src={
-            users.find((u) => u.email === userEmail)?.photoURL ||
+            users.find((u) => u.email === userimage.usermatch)?.photoURL ||
             RoomsBar.roomImage ||
             userPhoto
           }
           alt="Profile"
           className="chat-profile"
+          onClick={() => {
+            const userObject = users.find((u) => u.email === userimage.usermatch) || { email: userEmail };
+            handleProfileClick(userObject);
+          }}
+          style={{ cursor: 'pointer' }}
         />
         <h2>
           {Array.isArray(getnickName) &&
-            (getnickName.find((u) => u.email === userEmail)?.nickname ||
-              users.find((u) => u.email === userEmail)?.displayName ||
+            (getnickName.find((u) => u.email === userimage.usermatch)?.nickname ||
+              users.find((u) => u.email === userimage.usermatch)?.displayName ||
               RoomsBar.roomName ||
               userName)}
         </h2>
@@ -74,6 +91,8 @@ const ChatPanel = ({
                       src={senderInfo?.photoURL || defaultProfileImage}
                       alt="Sender"
                       className="message-avatar"
+                      onClick={() => handleProfileClick(senderInfo)}
+                      style={{ cursor: 'pointer' }}
                     />
                   )}
                   <div
@@ -123,6 +142,14 @@ const ChatPanel = ({
           </div>
         </div>
       </div>
+
+      {/* Profile Modal */}
+      <ProfileModal 
+        isOpen={modalVisible}
+        onClose={() => setModalVisible(false)}
+        user={selectedUser}
+        userimage={userimage}
+      />
     </div>
   );
 };
