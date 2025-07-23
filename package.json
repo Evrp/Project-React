@@ -9,10 +9,10 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "server": "node server.js",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
-    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
-    "test:ci": "node --experimental-vm-modules node_modules/jest/bin/jest.js --ci --coverage",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config=jest.config.cjs",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch --config=jest.config.cjs",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage --config=jest.config.cjs",
+    "test:ci": "node --experimental-vm-modules node_modules/jest/bin/jest.js --ci --coverage --config=jest.config.cjs",
     "ci": "npm run lint && npm run test:ci && npm run build"
   },
   "dependencies": {

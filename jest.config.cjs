@@ -1,7 +1,8 @@
-export default {
+/** @type {import('jest').Config} */
+const config = {
   testEnvironment: 'jsdom',
   transform: {
-    '^.+\\.(js|jsx)$': 'babel-jest',
+    '^.+\\.(js|jsx)$': ['babel-jest', { configFile: './babel.config.cjs' }],
     '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2|svg)$': 'jest-transform-stub'
   },
   moduleNameMapper: {
@@ -31,3 +32,5 @@ export default {
     customExportConditions: ['node', 'node-addons'],
   }
 };
+
+module.exports = config;
