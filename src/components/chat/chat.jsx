@@ -584,31 +584,6 @@ const Chat = () => {
     getNickNameF();
   }, []);
 
-  // useEffect(() => {
-  //   setLoadingMessages(true);
-  //   const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
-  //   const unsubscribe = onSnapshot(q, (snapshot) => {
-  //     const newMessages = snapshot.docs.map((doc) => ({
-  //       id: doc.id,
-  //       ...doc.data(),
-  //     }));
-
-  //     setMessages(newMessages); // ให้ UI ทุกส่วนอัปเดตตามนี้
-
-  //     // อัปเดตข้อความล่าสุดของแต่ละ friend
-  //     const latest = {};
-  //     newMessages.forEach((msg) => {
-  //       const friendEmail =
-  //         msg.sender === userEmail ? msg.receiver : msg.sender;
-  //       if (!latest[friendEmail]) latest[friendEmail] = msg;
-  //     });
-
-  //     setLastMessages(latest);
-  //     setLoadingMessages(false);
-  //   });
-
-  //   return () => unsubscribe();
-  // }, [userEmail]);
   /////////////เรียงข้อความตามเวลา///////////////
   useEffect(() => {
     const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
@@ -681,6 +656,7 @@ const Chat = () => {
               joinedRooms={joinedRooms}
               allRooms={allRooms}
               isOpencom={isOpencom}
+              setUserImage={setUserImage}
               setIsOpencom={setIsOpencom}
               setActiveUser={(roomId) => {
                 setActiveUser(roomId);
@@ -724,12 +700,16 @@ const Chat = () => {
             users={users}
             userEmail={userEmail}
             userPhoto={userPhoto}
+            setJoinedRooms={setJoinedRooms}
             userName={userName}
             RoomsBar={RoomsBar}
             getnickName={getnickName}
             input={input}
+            isOpencom={isOpencom}
+            isOpenMatch={isOpenMatch}
             setFriends={setFriends}
             userImage={userImage}
+            sortedFriends={sortedFriends}
             setInput={setInput}
             handleSend={handleSend}
             endOfMessagesRef={endOfMessagesRef}

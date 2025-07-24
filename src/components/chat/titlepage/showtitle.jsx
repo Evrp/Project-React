@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./showtitle.css"; // ใช้ชื่อไฟล์ที่ถูกต้องเป็นตัวพิมพ์เล็ก
+import { useNavigate } from "react-router-dom";
 
 const ShowTitle = ({ userimage }) => {
   const [userEvents, setUserEvents] = useState([]);
   const [matchedEvent, setMatchedEvent] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     try {
@@ -36,6 +38,9 @@ const ShowTitle = ({ userimage }) => {
       console.log(err);
     }
   }, [userimage]);
+  const handleBackToMatching = () => {
+    navigate("/home");
+  };
 
   return (
     <div>
@@ -65,9 +70,8 @@ const ShowTitle = ({ userimage }) => {
             </div>
           </div>
         ) : (
-          <div className="user-image">
-            <h2 className="usertitle">กิจกรรมที่แมช</h2>
-            <div className="event-title">{userimage.title}</div>
+          <div className="bg-no-title">
+            <button className="back-button" onClick={handleBackToMatching}>Back to Matching</button>
           </div>
         )}
       </div>

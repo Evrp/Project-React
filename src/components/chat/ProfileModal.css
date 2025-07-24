@@ -18,7 +18,7 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     width: 90%;
     max-width: 400px;
-    max-height: 80vh;
+    max-height: 100vh;
     right: 0;
     left: 0;
     bottom: 0;
@@ -35,11 +35,42 @@
     padding: 15px 20px;
     border-bottom: 1px solid #eee;
 }
+.Created{
+    font-weight: bold;
+    font-size: 20px;
+    color: #333;
+}
+.Created-detail{
+    font-weight: normal;
+    font-size: 16px;
+    color: #555;
+}
 
 .profile-modal-header h2 {
     margin: 0;
     font-size: 20px;
     color: #333;
+}
+.profile-modal-follow-info{
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    border-top: 1px solid #eee;
+}
+
+.profile-modal-follow-info ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+.profile-modal-follow-info-details{
+    width: 100%;
+}
+.profile-modal-follow-info-header{
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+    margin-bottom: 10px;
 }
 
 .profile-modal-close {
@@ -58,7 +89,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 /* ปุ่มลบเพื่อนแบบมีลูกเล่น */
 .modal-profile {
@@ -119,7 +150,64 @@
 .dark-mode .modal-profile:hover {
     background: linear-gradient(90deg, #3e2729 0%, #e41e3f 100%);
 }
+.chat-dropdown-item {
+    width: 100% ;
+    margin-bottom: 1rem;
+    height: 50px;
+    border-radius: 8px;
+    cursor: pointer;
+    background: linear-gradient(90deg, #3d8116 0%, #9acd7c 100%);
+    color: #fff;
+    border: none;
+    box-shadow: 0 2px 8px rgba(255, 92, 92, 0.15);
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s, transform 0.1s, box-shadow 0.2s;
+}
 
+.chat-dropdown-item::before {
+    content: "";
+    position: absolute;
+    left: -50%;
+    top: 0;
+    width: 200%;
+    height: 100%;
+    background: rgba(255,255,255,0.15);
+    transform: skewX(-20deg);
+    transition: left 0.4s cubic-bezier(.4,0,.2,1);
+    z-index: 0;
+}
+
+.chat-dropdown-item:hover {
+    background: linear-gradient(90deg, #88c78e 0%, #99de8c 100%);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 4px 16px rgba(255, 92, 92, 0.25);
+}
+
+.chat-dropdown-item:hover::before {
+    left: 100%;
+}
+
+.chat-dropdown-item:active {
+    transform: scale(0.98);
+}
+
+.chat-dropdown-item svg,
+.chat-dropdown-item span.emoji {
+    margin-right: 10px;
+    font-size: 18px;
+    z-index: 1;
+}
+
+.dark-mode .chat-dropdown-item {
+    background: linear-gradient(90deg, #4c2d30 0%, #ff5c5c 100%);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(255, 92, 92, 0.10);
+}
+
+.dark-mode .chat-dropdown-item:hover {
+    background: linear-gradient(90deg, #3e2729 0%, #e41e3f 100%);
+}
 
 .profile-modal-avatar {
     width: 300px;

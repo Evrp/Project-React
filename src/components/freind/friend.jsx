@@ -26,17 +26,13 @@ const socket = io(import.meta.env.VITE_APP_API_BASE_URL, {
 });
 
 // แสดงข้อมูลสถานะการเชื่อมต่อ socket อย่างละเอียด
-socket.on("connect", () => {
-  console.log("😀 Socket connected successfully:", socket.id);
-  console.log(
-    "Socket status:",
-    socket.connected ? "Connected" : "Disconnected"
-  );
-  console.log("Socket connected to URL:", import.meta.env.VITE_APP_API_BASE_URL);
+// socket.on("connect", () => {
+ 
+//   console.log("Socket connected to URL:", import.meta.env.VITE_APP_API_BASE_URL);
 
-  // แสดงข้อมูลเพิ่มเติมเพื่อการตรวจสอบ
-  console.log("Socket transport used:", socket.io.engine.transport.name);
-});
+//   // แสดงข้อมูลเพิ่มเติมเพื่อการตรวจสอบ
+//   console.log("Socket transport used:", socket.io.engine.transport.name);
+// });
 
 socket.on("connect_error", (err) => {
   console.error("😡 Socket connection error:", err);

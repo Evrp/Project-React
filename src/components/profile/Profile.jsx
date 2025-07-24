@@ -355,9 +355,7 @@ const Profile = () => {
     };
     if (userEmail) fetchAll();
   }, [userEmail]);
-  useEffect(() => {
-    console.log("user Photo:", userPhoto);
-  }, []);
+
   
   // ดึงข้อมูลรูปภาพส่วนตัวของผู้ใช้
   useEffect(() => {
