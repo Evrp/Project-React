@@ -14,6 +14,7 @@ const ListUser = ({
   setIsGroupChat,
   dropdownRefs,
   getnickName,
+  setUserImage,
   setFriends,
   setActiveRoomId, // เพิ่ม prop
   formatOnlineStatus, // เพิ่ม prop สำหรับแสดงสถานะออนไลน์
@@ -39,8 +40,8 @@ const ListUser = ({
     setActiveUser,
     setIsGroupChat,
     dropdownRefs,
+    setUserImage,
     getnickName,
-    setFriends,
   ]);
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -200,6 +201,7 @@ const ListUser = ({
                   key={index}
                   className="chat-friend-item"
                   onClick={() => {
+                    setUserImage(friend);
                     handleEnterRoom(friend.roomId);
                     setActiveUser(friend.email);
                     setIsGroupChat(false);

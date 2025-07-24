@@ -18,7 +18,6 @@ const MatchList = ({
   openMenuFor,
   setUserImage,
   setOpenMenuFor,
-  dropdownRefs: externalDropdownRefs,
   setJoinedRooms,
 }) => {
   const navigate = useNavigate();

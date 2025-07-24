@@ -16,9 +16,10 @@ const ChatPanel = ({
   input,
   setInput,
   handleSend,
-  userimage,
+  userImage,
   endOfMessagesRef,
   defaultProfileImage,
+  setFriends,
   formatChatDate,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -29,37 +30,52 @@ const ChatPanel = ({
     setModalVisible(true);
   };
   useEffect(() => {
-    console.log("ChatPanel userimage:", userimage);
-  }, [userimage]);
+    console.log("ChatPanel userImage:", userImage);
+  }, [userImage]);
   return (
     <div className="chat-container">
       <div className="show-info">
         <img
           src={
-            users.find((u) => u.email === userimage.usermatch)?.photoURL ||
-            RoomsBar.roomImage ||
+            users.find((u) => u.email === userImage.usermatch)?.photoURL ||
+            users.find((u) => u.email === userImage.email)?.photoURL ||
             userPhoto
           }
           alt="Profile"
           className="chat-profile"
           onClick={() => {
-            const userObject = users.find((u) => u.email === userimage.usermatch) || { email: userEmail };
+            const userObject =
+              users.find((u) => u.email === userImage.usermatch) ||
+              users.find((u) => u.email === userImage.email);
             handleProfileClick(userObject);
           }}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: "pointer" }}
         />
         <h2>
           {Array.isArray(getnickName) &&
-            (getnickName.find((u) => u.email === userimage.usermatch)?.nickname ||
-              users.find((u) => u.email === userimage.usermatch)?.displayName ||
+            (getnickName.find((u) => u.email === userImage.usermatch)
+              ?.nickname ||
+              getnickName.find((u) => u.email === userImage.email)
+                ?.nickname ||
+              users.find((u) => u.email === userImage.usermatch)?.displayName ||
+              users.find((u) => u.email === userImage.email)?.displayName ||
               RoomsBar.roomName ||
               userName)}
         </h2>
       </div>
       <div className="chat-box">
         {messages.length === 0 ? (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <span style={{ color: '#888', fontSize: '1.1rem' }}>ยังไม่มีข้อความ</span>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <span style={{ color: "#888", fontSize: "1.1rem" }}>
+              ยังไม่มีข้อความ
+            </span>
           </div>
         ) : (
           messages.map((msg, index) => {
@@ -72,7 +88,8 @@ const ChatPanel = ({
               index > 0 ? messages[index - 1].timestamp?.toDate() : null;
             const isNewDay =
               !previousMessageDate ||
-              messageDate?.toDateString() !== previousMessageDate?.toDateString();
+              messageDate?.toDateString() !==
+                previousMessageDate?.toDateString();
 
             return (
               <React.Fragment key={msg.id}>
@@ -92,7 +109,7 @@ const ChatPanel = ({
                       alt="Sender"
                       className="message-avatar"
                       onClick={() => handleProfileClick(senderInfo)}
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: "pointer" }}
                     />
                   )}
                   <div
@@ -144,11 +161,12 @@ const ChatPanel = ({
       </div>
 
       {/* Profile Modal */}
-      <ProfileModal 
+      <ProfileModal
         isOpen={modalVisible}
         onClose={() => setModalVisible(false)}
         user={selectedUser}
-        userimage={userimage}
+        userImage={userImage}
+        setFriends={setFriends}
       />
     </div>
   );

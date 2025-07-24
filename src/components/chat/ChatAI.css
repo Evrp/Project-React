@@ -1,9 +1,10 @@
 /* AI Chat Container Styles - Modern & Responsive */
-.bg-chat-con .chat-container-ai {
+.chat-container-ai {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 80px) !important; 
-  width: 40% !important;
+  /* height: 100%; */
+  height: calc(100vh - 261px) !important; 
+  /* width: 40% !important; */
   max-width: 1000px;
   margin: 0;
   background-color: #ffffff;
@@ -51,7 +52,7 @@
   font-weight: normal;
 }
 .chat-box-ai {
-  height: calc(100vh - 200px); /* Adjusted for the new height of show-info */
+  height: calc(100vh - 400px); /* Adjusted for the new height of show-info */
   width: 100%;
   margin: 0;
   display: flex;

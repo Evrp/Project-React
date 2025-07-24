@@ -92,7 +92,7 @@ const Navbar = () => {
             <span className="text-nav">Chat</span>
           </li>
         </Link>
-        <Link
+        {/* <Link
           to="/ai-chat"
           onClick={closeMobileMenu}
           className={`menu-link ${isActive("/ai-chat")}`}
@@ -101,7 +101,7 @@ const Navbar = () => {
             <BsRobot className="icon-nav" />
             <span className="text-nav">AI Chat</span>
           </li>
-        </Link>
+        </Link> */}
         <Link
           to="/setup"
           onClick={closeMobileMenu}

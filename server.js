@@ -19,10 +19,12 @@ import axios from "axios";
 // Import new routes (ES Modules style)
 import friendRequestRoutes from "./routes/friendRequest.js";
 import friendApiRoutes from "./routes/friendApi.js";
+import userPhotoRoutes from "./routes/userPhoto.js";
 
 // Debug routes
 console.log("Registered routes:");
 console.log("- friendRequestRoutes:", Object.keys(friendRequestRoutes).length > 0 ? "Loaded" : "Empty");
+console.log("- userPhotoRoutes:", Object.keys(userPhotoRoutes).length > 0 ? "Loaded" : "Empty");
 
 
 
@@ -54,6 +56,9 @@ app.use(
   })
 );
 app.use(bodyParser.json());
+
+// Serve static files from the uploads directory
+app.use('/uploads', express.static('uploads'));
 
 // ✅ Connect MongoDB
 mongoose.connect(MONGO_URI);
@@ -277,8 +282,26 @@ app.use("/api", roommatchRoutes);
 app.use("/api", likeRoutes);
 
 // ลงทะเบียน friendRequest routes โดยตรงเพื่อแก้ปัญหาเรื่อง 404
+// Log API requests for debugging
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
 app.use("/api", friendRequestRoutes);
 app.use("/api", friendApiRoutes);
+app.use("/api", userPhotoRoutes);
+
+// Fallback route to check if API is working
+app.get("/api-status", (req, res) => {
+  res.json({
+    status: "API is running",
+    routes: {
+      userPhoto: "/api/test-photo-route",
+      uploadPhoto: "/api/upload-user-photo"
+    }
+  });
+});
 
 
 // เริ่มต้นเซิร์ฟเวอร์

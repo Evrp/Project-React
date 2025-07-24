@@ -24,6 +24,7 @@ import {
   doc,
   where,
 } from "firebase/firestore";
+import "../chat/ChatMerged.css";
 import "../chat/ChatAI.css";
 import "../chat/ListItems.css";
 import "../chat/DropdownMenu.css";
@@ -79,7 +80,7 @@ const Chat = () => {
   const [loadingRooms, setLoadingRooms] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(true);
   const [isOpenMatch, setIsOpenMatch] = useState(false);
-  const [userimage, setUserImage] = useState({});
+  const [userImage, setUserImage] = useState({});
 
   const defaultProfileImage = userPhoto;
 
@@ -92,7 +93,6 @@ const Chat = () => {
       const allUsers = response.data;
       setUsers(allUsers);
       const currentUser = allUsers.find((u) => u.email === userEmail);
-      console.log("Current user:", currentUser);
       if (currentUser && Array.isArray(currentUser)) {
         // กรณี friends เป็น array ของ object หรือ string
         const friendEmails = currentUser.map((f) =>
@@ -147,7 +147,6 @@ const Chat = () => {
             isOnline: user.isOnline || false,
           }))
           .sort((a, b) => a.displayName.localeCompare(b.displayName));
-        console.log("Filtered friends:", filteredFriends);
         setFriends(filteredFriends);
         setUsers(allUsers);
       } else {
@@ -172,13 +171,13 @@ const Chat = () => {
     setIsModalOpen(true);
   };
 
-
   const fetchJoinedRooms = async () => {
     setLoadingRooms(true);
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
         }/api/user-rooms/${encodedEmail}`
       );
       setJoinedRooms(res.data);
@@ -246,16 +245,14 @@ const Chat = () => {
       // สำหรับแชทกลุ่ม
       messageData.type = "group";
       messageData.receiver = null; // ในกลุ่มไม่มีผู้รับเฉพาะ
-    }
-    else if (selectedUser && selectedUser.email) {
+    } else if (selectedUser && selectedUser.email) {
       // กรณีมี selectedUser ให้ใช้ email จาก selectedUser
       messageData.receiver = selectedUser.email;
-    }
-    else if (activeUser) {
+    } else if (activeUser) {
       // ถ้าไม่มี selectedUser แต่มี activeUser ใช้ activeUser แทน
-      messageData.receiver = typeof activeUser === 'string' ? activeUser : activeUser.email;
-    }
-    else {
+      messageData.receiver =
+        typeof activeUser === "string" ? activeUser : activeUser.email;
+    } else {
       console.error("ไม่สามารถส่งข้อความได้: ไม่มีผู้รับ");
       return; // ถ้าไม่มีผู้รับเลย ไม่ส่งข้อความ
     }
@@ -365,22 +362,27 @@ const Chat = () => {
     // รับข้อมูลการอัปเดตสถานะผู้ใช้จากเซิร์ฟเวอร์
     socket.on("update-users", (data) => {
       // เช็คว่า data เป็น array หรือ object
-      console.log("ข้อมูลที่ได้จาก update-users:", data);
-
-      // ถ้าข้อมูลเป็น array ใช้ตามเดิม
       if (Array.isArray(data)) {
         setUsers((prevUsers) =>
           prevUsers.map((user) => ({
             ...user,
-            isOnline: data.some(onlineUser => onlineUser.email === user.email),
-            lastSeen: data.find(onlineUser => onlineUser.email === user.email)?.lastSeen || user.lastSeen
+            isOnline: data.some(
+              (onlineUser) => onlineUser.email === user.email
+            ),
+            lastSeen:
+              data.find((onlineUser) => onlineUser.email === user.email)
+                ?.lastSeen || user.lastSeen,
           }))
         );
         setFriends((prevFriends) =>
           prevFriends.map((friend) => ({
             ...friend,
-            isOnline: data.some(onlineUser => onlineUser.email === friend.email),
-            lastSeen: data.find(onlineUser => onlineUser.email === friend.email)?.lastSeen || friend.lastSeen
+            isOnline: data.some(
+              (onlineUser) => onlineUser.email === friend.email
+            ),
+            lastSeen:
+              data.find((onlineUser) => onlineUser.email === friend.email)
+                ?.lastSeen || friend.lastSeen,
           }))
         );
       }
@@ -389,15 +391,23 @@ const Chat = () => {
         setUsers((prevUsers) =>
           prevUsers.map((user) => ({
             ...user,
-            isOnline: user.email ? data.onlineUsers.includes(user.email) : false,
-            lastSeen: data.lastSeenTimes && data.lastSeenTimes[user.email] || user.lastSeen
+            isOnline: user.email
+              ? data.onlineUsers.includes(user.email)
+              : false,
+            lastSeen:
+              (data.lastSeenTimes && data.lastSeenTimes[user.email]) ||
+              user.lastSeen,
           }))
         );
         setFriends((prevFriends) =>
           prevFriends.map((friend) => ({
             ...friend,
-            isOnline: friend.email ? data.onlineUsers.includes(friend.email) : false,
-            lastSeen: data.lastSeenTimes && data.lastSeenTimes[friend.email] || friend.lastSeen
+            isOnline: friend.email
+              ? data.onlineUsers.includes(friend.email)
+              : false,
+            lastSeen:
+              (data.lastSeenTimes && data.lastSeenTimes[friend.email]) ||
+              friend.lastSeen,
           }))
         );
       }
@@ -407,14 +417,14 @@ const Chat = () => {
           prevUsers.map((user) => ({
             ...user,
             isOnline: data.includes(user.email),
-            lastSeen: user.lastSeen
+            lastSeen: user.lastSeen,
           }))
         );
         setFriends((prevFriends) =>
           prevFriends.map((friend) => ({
             ...friend,
             isOnline: data.includes(friend.email),
-            lastSeen: friend.lastSeen
+            lastSeen: friend.lastSeen,
           }))
         );
       }
@@ -507,16 +517,16 @@ const Chat = () => {
 
       const filteredMessages = isGroupChat
         ? allMessages.filter(
-          (msg) => msg.type === "group" && msg.roomId === roomId
-        )
+            (msg) => msg.type === "group" && msg.roomId === roomId
+          )
         : allMessages.filter((msg) => {
-          const isMyMsg =
-            msg.sender === userEmail && msg.receiver === activeUser;
-          const isTheirMsg =
-            msg.sender === activeUser &&
-            (msg.receiver === userEmail || !msg.receiver);
-          return isMyMsg || isTheirMsg;
-        });
+            const isMyMsg =
+              msg.sender === userEmail && msg.receiver === activeUser;
+            const isTheirMsg =
+              msg.sender === activeUser &&
+              (msg.receiver === userEmail || !msg.receiver);
+            return isMyMsg || isTheirMsg;
+          });
 
       setMessages(filteredMessages);
       scrollToBottom();
@@ -662,6 +672,7 @@ const Chat = () => {
               setIsGroupChat={setIsGroupChat}
               dropdownRefs={dropdownRefs}
               getnickName={getnickName}
+              setUserImage={setUserImage}
               setFriends={setFriends}
               formatOnlineStatus={formatOnlineStatus}
             />
@@ -691,7 +702,6 @@ const Chat = () => {
               allEvents={allEvents}
               users={users}
               isOpenMatch={isOpenMatch}
-              setUserImage={setUserImage}
               setIsOpenMatch={setIsOpenMatch}
               setActiveUser={setActiveUser}
               handleProfileClick={handleProfileClick}
@@ -704,6 +714,7 @@ const Chat = () => {
               setJoinedRooms={setJoinedRooms}
               getnickName={getnickName}
               setFriends={setFriends}
+              setUserImage={setUserImage}
             />
           </div>
         </div>
@@ -712,12 +723,13 @@ const Chat = () => {
             messages={messages}
             users={users}
             userEmail={userEmail}
-            userimage={userimage}
             userPhoto={userPhoto}
             userName={userName}
             RoomsBar={RoomsBar}
             getnickName={getnickName}
             input={input}
+            setFriends={setFriends}
+            userImage={userImage}
             setInput={setInput}
             handleSend={handleSend}
             endOfMessagesRef={endOfMessagesRef}
@@ -725,21 +737,19 @@ const Chat = () => {
             formatChatDate={formatChatDate}
           />
           <div className="tabright">
-            <div className="tabright-column">
-              <ShowTitle userimage={userimage} />
-              <ChatContainerAI
-                loadingMessages={loadingMessages}
-                messages={messages}
-                users={users}
-                userEmail={userEmail}
-                defaultProfileImage={defaultProfileImage}
-                formatChatDate={formatChatDate}
-                endOfMessagesRef={endOfMessagesRef}
-                input={input}
-                setInput={setInput}
-                handleSend={handleSend}
-              />
-            </div>
+            <ShowTitle userimage={userImage} />
+            <ChatContainerAI
+              loadingMessages={loadingMessages}
+              messages={messages}
+              users={users}
+              userEmail={userEmail}
+              defaultProfileImage={defaultProfileImage}
+              formatChatDate={formatChatDate}
+              endOfMessagesRef={endOfMessagesRef}
+              input={input}
+              setInput={setInput}
+              handleSend={handleSend}
+            />
           </div>
         </div>
       </div>
