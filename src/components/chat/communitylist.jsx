@@ -4,7 +4,7 @@ import { BsThreeDots } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 const CommunityList = ({
   joinedRooms,
@@ -13,38 +13,12 @@ const CommunityList = ({
   setRoombar,
   isOpencom,
   setIsOpencom,
+  selectedTab,
+  setSelectedTab,
+  setUserImage,
   setIsGroupChat,
-  loadingFriendRooms,
-  openMenuFor,
-  setOpenMenuFor,
-  dropdownRefs,
-  setJoinedRooms
 }) => {
   const navigate = useNavigate();
-  const userEmail = localStorage.getItem("userEmail");
-
-  const handleDeleteRoom = async (roomName, roomId) => {
-    try {
-      console.log(`Deleting room: ${roomName}, ID: ${roomId}`);
-      await axios.delete(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
-        }/api/delete-joined-rooms/${roomName}/${userEmail}`
-      );
-
-      // อัปเดต state ทันที
-      setJoinedRooms((prev) => ({
-        ...prev,
-        roomNames: prev.roomNames.filter((name) => name !== roomName),
-        roomIds: prev.roomIds.filter((id) => id !== roomId && id !== roomName),
-      }));
-
-      toast.success("ลบห้องสําเร็จ!");
-    } catch (error) {
-      console.error("ลบห้องล้มเหลว:", error);
-      toast.error("ลบห้องล้มเหลว!");
-    }
-  };
   const handleEnterRoom = (roomId) => {
     navigate(`/chat/${roomId}`);
   };
@@ -75,11 +49,15 @@ const CommunityList = ({
                       room.name === name ? (
                         <li
                           key={`room-${room._id || room.name}-${i}-${index}`}
-                          className="chat-friend-item"
+                          className={`chat-friend-item ${
+                            selectedTab === room.name ? "selected" : ""
+                          }`}
                           onClick={() => {
-                            setActiveUser(room.name),
-                              setRoombar(room.image, room.name);
+                            setSelectedTab(room.name);
+                            setActiveUser(room.name);
+                            setRoombar(room.image, room.name);
                             setIsGroupChat(true);
+                            setUserImage(room);
                             handleEnterRoom(room._id);
                           }}
                         >
@@ -90,45 +68,6 @@ const CommunityList = ({
                           />
                           <div className="friend-detailss">
                             <span className="friend-name">{room.name}</span>
-                            <span className="friend-email">
-                              Host:
-                              {room.createdBy}
-                            </span>
-                          </div>
-                          <div
-                            className="dropdown-wrapper"
-                            ref={(el) => (dropdownRefs.current[room.name] = el)}
-                            onClick={(e) => e.stopPropagation()} // ป้องกันการเปิดแชทตอนกด dropdown
-                          >
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenMenuFor((prev) =>
-                                  prev === room.name ? null : room.name
-                                );
-                              }}
-                              className={`chat-dropdown-toggle ${openMenuFor === room.name ? 'active' : ''}`}
-                            >
-                              <BsThreeDots size={20} />
-                            </button>
-
-                            {openMenuFor === room.name && (
-                              <div className="chat-dropdown-menu">
-                                <button
-                                  className="dropdown-item"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteRoom(room.name, room._id);
-                                    setOpenMenuFor(null);
-                                  }}
-                                  disabled={loadingFriendRooms === room.name}
-                                >
-                                  {loadingFriendRooms === room.name
-                                    ? "กำลังลบ..."
-                                    : "🗑️ ลบห้อง"}
-                                </button>
-                              </div>
-                            )}
                           </div>
                         </li>
                       ) : null

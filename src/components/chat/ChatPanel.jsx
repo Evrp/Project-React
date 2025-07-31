@@ -4,6 +4,7 @@ import { MdAttachFile } from "react-icons/md";
 import { IoCameraOutline } from "react-icons/io5";
 import { BsEmojiSmile } from "react-icons/bs";
 import ProfileModal from "./ProfileModal";
+import axios from "axios";
 
 const ChatPanel = ({
   messages,
@@ -11,55 +12,104 @@ const ChatPanel = ({
   userEmail,
   userPhoto,
   userName,
+  sortedFriends,
   RoomsBar,
   getnickName,
   input,
   setInput,
   handleSend,
-  userimage,
+  userImage,
   endOfMessagesRef,
   defaultProfileImage,
+  setFriends,
+  setJoinedRooms,
   formatChatDate,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const [isCom, setIscom] = useState(false);
 
   const handleProfileClick = (userObject) => {
+    if (!userObject) return; // ป้องกันกรณี userObject เป็น null หรือ undefined
     setSelectedUser(userObject);
     setModalVisible(true);
   };
+  const fetchFollowInfo = async (targetEmail) => {
+    if (!targetEmail) return;
+    try {
+      const res = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL
+        }/api/user/${targetEmail}/follow-info`
+      );
+      setFollowers(res.data.followers);
+      setFollowing(res.data.following);
+    } catch (error) {
+      console.error("Error fetching follow info:", error);
+    }
+  };
   useEffect(() => {
-    console.log("ChatPanel userimage:", userimage);
-  }, [userimage]);
+    if (!userImage) return;
+    if (userImage.name) {setIscom(true); return;}
+    if (userImage.usermatch) {setIscom(true); return;}
+    if (userImage.email) setIscom(false);
+    try {
+      fetchFollowInfo(userImage.email);
+    } catch (error) {
+      console.error("Error fetching follow info:", error);
+    }
+  }, [userImage]);
+
   return (
     <div className="chat-container">
       <div className="show-info">
         <img
           src={
-            users.find((u) => u.email === userimage.usermatch)?.photoURL ||
-            RoomsBar.roomImage ||
-            userPhoto
+            userImage && users && (
+              users.find((u) => u.email === userImage?.usermatch)?.photoURL ||
+              users.find((u) => u.email === userImage?.email)?.photoURL ||
+              userImage?.image ||
+              defaultProfileImage
+            )
           }
           alt="Profile"
           className="chat-profile"
           onClick={() => {
-            const userObject = users.find((u) => u.email === userimage.usermatch) || { email: userEmail };
+            if (!userImage || !users) return;
+            const userObject =
+              users.find((u) => u.email === userImage?.usermatch) ||
+              users.find((u) => u.email === userImage?.email) || userImage;
             handleProfileClick(userObject);
           }}
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: "pointer" }}
         />
         <h2>
-          {Array.isArray(getnickName) &&
-            (getnickName.find((u) => u.email === userimage.usermatch)?.nickname ||
-              users.find((u) => u.email === userimage.usermatch)?.displayName ||
-              RoomsBar.roomName ||
-              userName)}
+          {userImage && Array.isArray(getnickName) && users && (
+            getnickName.find((u) => u.email === userImage?.usermatch)
+              ?.nickname ||
+            getnickName.find((u) => u.email === userImage?.email)
+              ?.nickname ||
+            users.find((u) => u.email === userImage?.usermatch)?.displayName ||
+            users.find((u) => u.email === userImage?.email)?.displayName ||
+            (RoomsBar && RoomsBar.roomName) ||
+            userName || "Chat"
+          )}
         </h2>
       </div>
       <div className="chat-box">
         {messages.length === 0 ? (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <span style={{ color: '#888', fontSize: '1.1rem' }}>ยังไม่มีข้อความ</span>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100%",
+            }}
+          >
+            <span style={{ color: "#888", fontSize: "1.1rem" }}>
+              ยังไม่มีข้อความ
+            </span>
           </div>
         ) : (
           messages.map((msg, index) => {
@@ -72,7 +122,8 @@ const ChatPanel = ({
               index > 0 ? messages[index - 1].timestamp?.toDate() : null;
             const isNewDay =
               !previousMessageDate ||
-              messageDate?.toDateString() !== previousMessageDate?.toDateString();
+              messageDate?.toDateString() !==
+              previousMessageDate?.toDateString();
 
             return (
               <React.Fragment key={msg.id}>
@@ -82,9 +133,8 @@ const ChatPanel = ({
                   </div>
                 )}
                 <div
-                  className={`chat-message ${
-                    isCurrentUser ? "my-message" : "other-message"
-                  }`}
+                  className={`chat-message ${isCurrentUser ? "my-message" : "other-message"
+                    }`}
                 >
                   {!isCurrentUser && (
                     <img
@@ -92,19 +142,17 @@ const ChatPanel = ({
                       alt="Sender"
                       className="message-avatar"
                       onClick={() => handleProfileClick(senderInfo)}
-                      style={{ cursor: 'pointer' }}
+                      style={{ cursor: "pointer" }}
                     />
                   )}
                   <div
-                    className={`message-content ${
-                      isCurrentUser ? "current" : "other"
-                    }`}
+                    className={`message-content ${isCurrentUser ? "current" : "other"
+                      }`}
                   >
                     <div className="colum-message">
                       <div
-                        className={`message-bubble ${
-                          isCurrentUser ? "current" : "other"
-                        }`}
+                        className={`message-bubble ${isCurrentUser ? "current" : "other"
+                          }`}
                       >
                         {msg.content || msg.text}
                       </div>
@@ -144,11 +192,17 @@ const ChatPanel = ({
       </div>
 
       {/* Profile Modal */}
-      <ProfileModal 
+      <ProfileModal
         isOpen={modalVisible}
         onClose={() => setModalVisible(false)}
         user={selectedUser}
-        userimage={userimage}
+        isCom={isCom}
+        userImage={userImage}
+        setFriends={setFriends}
+        sortedFriends={sortedFriends}
+        followers={followers}
+        setJoinedRooms={setJoinedRooms}
+        following={following}
       />
     </div>
   );

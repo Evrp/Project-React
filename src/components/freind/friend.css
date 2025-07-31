@@ -149,8 +149,9 @@
 }
 
 .friend-email {
-  margin-left: 12px;
+  /* margin-left: 12px */
   width: 70%;
+  font-size: 14px;
 }
 
 /* รูปโปรไฟล์ของเพื่อน */
@@ -265,11 +266,6 @@
   background-color: #d32f2f;
 }
 
-.friend-details {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-}
 
 .friend-detailss {
   width: 70%;
@@ -500,11 +496,11 @@
   }
 }
 
-.con-right {
+/* .con-right {
   display: flex;
   justify-content: end;
   width: 100%;
-}
+} */
 
 .con-friend-list {
   /* height: calc(100vh - 0px); */

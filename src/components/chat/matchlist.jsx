@@ -13,12 +13,13 @@ const MatchList = ({
   setIsGroupChat,
   isOpenMatch,
   setIsOpenMatch,
+  setSelectedTab,
   handleProfileClick,
   loadingFriendRooms,
+  selectedTab,
   openMenuFor,
   setUserImage,
   setOpenMenuFor,
-  dropdownRefs: externalDropdownRefs,
   setJoinedRooms,
 }) => {
   const navigate = useNavigate();
@@ -106,10 +107,11 @@ const MatchList = ({
                       return room.title === name ? (
                         <li
                           key={liKey}
-                          className="chat-friend-item"
+                          className={`chat-friend-item ${selectedTab === room.roomId ? 'selected' : ''}`}
                           onClick={() => {
                             handleEnterRoom(room.roomId);
                             setUserImage(room);
+                            setSelectedTab(room.roomId);
                             // ตรวจสอบให้แน่ใจว่า room.usermatch เป็น email (string) เสมอ
                             const userEmail = typeof room.usermatch === 'object' ?
                               room.usermatch.email || null :

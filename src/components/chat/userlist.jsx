@@ -1,9 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
-import { BsThreeDots } from "react-icons/bs";
 import "react-toastify/dist/ReactToastify.css";
-import { toast, ToastContainer } from "react-toastify";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "../chat/Chat.css";
 
@@ -12,62 +9,18 @@ const ListUser = ({
   lastMessages,
   setActiveUser,
   setIsGroupChat,
+  selectedTab,
+  setSelectedTab,
   dropdownRefs,
-  getnickName,
-  setFriends,
+  setUserImage,
   setActiveRoomId, // เพิ่ม prop
   formatOnlineStatus, // เพิ่ม prop สำหรับแสดงสถานะออนไลน์
 }) => {
+  console.log("sortedFriends:", sortedFriends);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [openMenuFor, setOpenMenuFor] = useState(null);
-  const [currentUserfollow, setCurrentUserfollow] = useState(null);
-  const [followers, setFollowers] = useState([]); /// เพิ่ม followers
-  const [following, setFollowing] = useState([]); /// เพิ่ม following
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loadingFriendEmail, setLoadingFriendEmail] = useState(null);
-  const modalRef = useRef(null);
-  //   const [dropdownRefs, setDropdownRefs] = useState({});
   const userEmail = localStorage.getItem("userEmail");
 
-  useEffect(() => {
-    fetchGmailUser();
-  }, [
-    sortedFriends,
-    lastMessages,
-    setActiveUser,
-    setIsGroupChat,
-    dropdownRefs,
-    getnickName,
-    setFriends,
-  ]);
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      const isClickInsideAny = Object.values(dropdownRefs.current).some((ref) =>
-        ref?.contains(event.target)
-      );
-      if (!isClickInsideAny) {
-        setOpenMenuFor(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-  const handleClickOutside = (e) => {
-    if (modalRef.current && !modalRef.current.contains(e.target)) {
-      handleCloseModal();
-    }
-  };
   const formatRelativeTime = (timestamp) => {
     const now = new Date();
     const diffMs = now - timestamp;
@@ -87,94 +40,10 @@ const ListUser = ({
     });
   };
 
-  const handleRemoveFriend = async (friendEmail) => {
-    try {
-      setLoadingFriendEmail(friendEmail);
-
-      await axios.delete(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
-        }/api/users/${userEmail}/friends/${friendEmail}`
-      );
-
-      // อัปเดตรายชื่อเพื่อนหลังจากลบ
-      setFriends((prevFriends) =>
-        prevFriends.filter((friend) => friend.email !== friendEmail)
-      );
-      toast.success("ลบเพื่อนสําเร็จ!");
-    } catch (err) {
-      console.error("Failed to remove friend:", err);
-      alert("เกิดข้อผิดพลาดในการลบเพื่อน");
-    } finally {
-      setLoadingFriendEmail(null);
-    }
-  };
-
-  const fetchGmailUser = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}`
-      );
-      setCurrentUserfollow(res.data);
-    } catch (err) {
-      console.error("โหลด Gmail currentUser ไม่ได้:", err);
-    }
-  };
-
-  const handleFollow = async (targetEmail) => {
-    await fetchGmailUser();
-    if (!currentUserfollow || !Array.isArray(currentUserfollow.following)) {
-      console.warn("currentUser ยังไม่พร้อม หรือ following ไม่มี");
-      return;
-    }
-
-    const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `${
-      import.meta.env.VITE_APP_API_BASE_URL
-    }/api/users/${userEmail}/${
-      isFollowing ? "unfollow" : "follow"
-    }/${targetEmail}`;
-    const method = isFollowing ? "DELETE" : "POST";
-
-    try {
-      await axios({ method, url });
-      await fetchGmailUser();
-      toast.success("ติดตามสำเร็จ!");
-    } catch (err) {
-      console.error("Follow/unfollow error:", err);
-      toast.error("ติดตามล้มเหลว!");
-    }
-  };
-
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
   };
 
-  const handleMenuClick = (friend) => {
-    setOpenMenuFor((prev) => (prev === friend.email ? null : friend.email));
-  };
-  const fetchFollowInfo = async (targetEmail) => {
-    try {
-      const res = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
-        }/api/user/${targetEmail}/follow-info`
-      );
-
-      setFollowers(res.data.followers);
-      setFollowing(res.data.following);
-    } catch (error) {
-      console.error("Error fetching follow info:", error);
-    }
-  };
-  const handleProfileClick = (user) => {
-    setSelectedUser(user);
-    setIsModalOpen(true);
-  };
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedUser(null);
-  };
 
   // ฟังก์ชันสร้าง roomId สำหรับ one-to-one chat (เรียง email เพื่อ unique)
   const getRoomIdForFriend = (friendEmail) => {
@@ -183,7 +52,6 @@ const ListUser = ({
   };
   const handleEnterRoom = (roomId) => {
     navigate(`/chat/${roomId}`);
-    // handleAddCommunity(roomId, roomName);
   };
   return (
     <div className="favorite-container">
@@ -198,11 +66,13 @@ const ListUser = ({
               sortedFriends.map((friend, index) => (
                 <li
                   key={index}
-                  className="chat-friend-item"
+                  className={`chat-friend-item ${selectedTab === friend.email ? 'selected' : ''}`}
                   onClick={() => {
+                    setUserImage(friend);
                     handleEnterRoom(friend.roomId);
                     setActiveUser(friend.email);
                     setIsGroupChat(false);
+                    setSelectedTab(friend.email);
                     if (setActiveRoomId)
                       setActiveRoomId(getRoomIdForFriend(friend.email));
                   }}
@@ -228,67 +98,15 @@ const ListUser = ({
                     </div>
                   </div>
                   <div className="con-right">
-                    <div 
-                      className={`online-status ${
-                        friend.isOnline ? "status-online" : "status-offline"
-                      }`}
+                    <div
+                      className={`online-status ${friend.isOnline ? "status-online" : "status-offline"
+                        }`}
                     >
                       <span className="online-indicator"></span>
-                      {formatOnlineStatus ? formatOnlineStatus(friend) : 
+                      {formatOnlineStatus ? formatOnlineStatus(friend) :
                         (friend.isOnline ? "ออนไลน์" : "ออฟไลน์")}
                     </div>
-                    <div
-                      className="chat-dropdown-wrapper"
-                      ref={(el) => (dropdownRefs.current[friend.email] = el)}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <button
-                        onClick={(e) => handleMenuClick(friend)}
-                        className={`chat-dropdown-toggle ${openMenuFor === friend.email ? 'active' : ''}`}
-                      >
-                        <BsThreeDots size={20} />
-                      </button>
-                      {openMenuFor === friend.email && (
-                        <div className="chat-dropdown-menu">
-                          <button
-                            className="chat-dropdown-item"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleProfileClick(friend);
-                              fetchFollowInfo(friend.email);
-                              setOpenMenuFor(null);
-                            }}
-                          >
-                            👤 ดูโปรไฟล์
-                          </button>
-                          <button
-                            className="chat-dropdown-item"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleFollow(friend.email);
-                            }}
-                          >
-                            {Array.isArray(currentUserfollow?.following) &&
-                            currentUserfollow.following.includes(friend.email)
-                              ? "🔔 กำลังติดตาม"
-                              : "➕ ติดตาม"}
-                          </button>
-                          <button
-                            className="chat-dropdown-item chat-danger"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveFriend(friend.email);
-                              setOpenMenuFor(null);
-                            }}
-                            disabled={loadingFriendEmail === friend.email}
-                          >
-                            {loadingFriendEmail === friend.email
-                              ? "กำลังลบ..."
-                              : "🗑️ ลบเพื่อน"}
-                          </button>
-                        </div>
-                      )}
-                    </div>
+
                   </div>
                 </li>
               ))
@@ -298,50 +116,6 @@ const ListUser = ({
           </ul>
         </div>
       )}
-      {isModalOpen && selectedUser && (
-        <div className="profile-modal">
-          <div className="modal-content" ref={modalRef}>
-            <div className="profile-info">
-              <img
-                src={
-                  Array.isArray(getnickName)
-                    ? getnickName.find((n) => n.email === selectedUser.email)
-                        ?.nickname || selectedUser.photoURL
-                    : selectedUser.photoURL
-                }
-                alt={
-                  Array.isArray(getnickName)
-                    ? getnickName.find((n) => n.email === selectedUser.email)
-                        ?.nickname || selectedUser.displayName
-                    : selectedUser.displayName
-                }
-                className="profile-photo"
-              />
-              <h2>
-                {Array.isArray(getnickName)
-                  ? getnickName.find((n) => n.email === selectedUser.email)
-                      ?.nickname || selectedUser.displayName
-                  : selectedUser.displayName}
-              </h2>
-              <div className="tabs">
-                <ul className="followers">
-                  <li>{followers.length} followers</li>
-                </ul>
-                <ul className="following">
-                  <li>{following.length} following</li>
-                </ul>
-              </div>
-              <p>Email: {selectedUser.email}</p>
-              <div className={`online-status ${selectedUser.isOnline ? "status-online" : "status-offline"}`}>
-                <span className="online-indicator"></span>
-                <span>สถานะ: {formatOnlineStatus ? formatOnlineStatus(selectedUser) : 
-                  (selectedUser.isOnline ? "ออนไลน์" : "ออฟไลน์")}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
     </div>
   );
 };

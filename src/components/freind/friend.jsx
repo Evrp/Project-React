@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import io from "socket.io-client";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./friend.css";
@@ -11,57 +10,14 @@ import RequireLogin from "../ui/RequireLogin";
 import { BsThreeDots } from "react-icons/bs";
 import { useTheme } from "../../context/themecontext";
 import { useParams } from "react-router-dom";
-
-// สร้าง socket instance พร้อม options เพื่อแก้ปัญหาการเชื่อมต่อ
-const socket = io(import.meta.env.VITE_APP_API_BASE_URL, {
-  reconnection: true,
-  reconnectionAttempts: 10,
-  reconnectionDelay: 1000,
-  reconnectionDelayMax: 5000,
-  timeout: 20000,
-  transports: ["websocket", "polling"], // ระบุ transport ที่จะใช้
-  autoConnect: true, // เชื่อมต่ออัตโนมัติเมื่อสร้าง instance
-  forceNew: false,
-  query: { clientId: 'friend-component-' + Date.now() } // เพิ่ม query parameter เพื่อระบุตัวตน
-});
+import { useSocket } from "../../context/socketcontext";
 
 // แสดงข้อมูลสถานะการเชื่อมต่อ socket อย่างละเอียด
-socket.on("connect", () => {
-  console.log("😀 Socket connected successfully:", socket.id);
-  console.log(
-    "Socket status:",
-    socket.connected ? "Connected" : "Disconnected"
-  );
-  console.log("Socket connected to URL:", import.meta.env.VITE_APP_API_BASE_URL);
+// socket.on("connect", () => {
+ 
+//   console.log("Socket connected to URL:", import.meta.env.VITE_APP_API_BASE_URL);
 
-  // แสดงข้อมูลเพิ่มเติมเพื่อการตรวจสอบ
-  console.log("Socket transport used:", socket.io.engine.transport.name);
-});
-
-socket.on("connect_error", (err) => {
-  console.error("😡 Socket connection error:", err);
-  console.error("Error connecting to:", import.meta.env.VITE_APP_API_BASE_URL);
-  // ลองเชื่อมต่อใหม่อัตโนมัติ
-  setTimeout(() => {
-    console.log("🔄 Attempting to reconnect socket...");
-    socket.connect();
-  }, 2000);
-});
-
-socket.on("disconnect", (reason) => {
-  console.log("😥 Socket disconnected:", reason);
-  if (reason === "io server disconnect") {
-    // ถ้าเซิร์ฟเวอร์ตัดการเชื่อมต่อ ลองเชื่อมต่อใหม่
-    console.log("🔄 Server disconnected, attempting to reconnect...");
-    socket.connect();
-  }
-});
-
-// ตรวจสอบว่า socket เชื่อมต่ออยู่หรือไม่
-if (!socket.connected) {
-  console.log("Socket not connected, attempting to connect...");
-  socket.connect();
-}
+// การจัดการสถานะการเชื่อมต่อของ socket ทั้งหมดถูกย้ายไปที่ socketcontext.jsx แล้ว
 
 // ฟังก์ชันเพื่อจัดการกับเวลาที่แสดง last seen
 const formatLastSeen = (timestamp) => {
@@ -81,6 +37,8 @@ const formatLastSeen = (timestamp) => {
 };
 
 const Friend = () => {
+  const { socket, onlineUsers } = useSocket(); // ใช้ socket และ onlineUsers จาก context
+  
   // รับ roomId จาก URL ถ้ามี เช่น /friend/:roomId
   const { roomId } = useParams();
 

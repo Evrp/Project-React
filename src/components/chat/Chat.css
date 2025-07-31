@@ -138,34 +138,8 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-.chat-dropdown-item {
-  display: block;
-  width: 100%;
-  text-align: left;
-  padding: 10px 15px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  font-size: 0.9rem;
-}
+/* ปุ่มติดตาม (Follow Button) สไตล์เรียบหรู */
 
-.chat-dropdown-item:hover {
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.chat-dropdown-item.chat-danger {
-  color: #e74c3c;
-}
-
-.chat-dropdown-item.chat-danger:hover {
-  background-color: #fde9e7;
-}
-
-.chat-dropdown-item[disabled] {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
 .dark-mode .show-info h2 {
   color: #e4e6eb;
 }
@@ -365,7 +339,8 @@
 .user-container {
   display: flex;
   flex-direction: column;
-  width: 320px;
+  min-width: 320px;
+  max-width: fit-content;
   height: 100%;
   background-color: #f8f9fa;
   border-right: 1px solid rgba(0, 0, 0, 0.08);
@@ -385,12 +360,7 @@
   border-radius: 8px 0 0 8px;
   overflow: hidden;
 }
-.tabright{
-  display: flex;
-  justify-content: column;
-  width: fit-content;
-  height: 100%;
-}
+
 
 .chat {
   width: 100%;
@@ -571,11 +541,12 @@
   flex-grow: 1;
   /* inline-size: fit-content; */
   display: flex;
+  max-width: 140px;
   flex-direction: column;
 }
-.friend-email {
+/* .friend-email {
   font-size: 12px;
-}
+} */
 .friend-name {
   font-size: 15px;
   color: #555;
@@ -732,17 +703,34 @@
   transition: all 0.25s ease;
   position: relative;
   overflow: visible; /* Changed from hidden to visible for dropdown */
+  cursor: pointer;
 }
 
-.chat-friend-item:hover {
+.chat-friend-item:hover,
+.chat-friend-item:focus,
+.chat-friend-item:focus-visible,
+.chat-friend-item.active {
   background-color: rgba(0, 0, 0, 0.03);
   transform: translateX(2px);
   border-inline-start: 4px solid #6366f1;
 }
 
+.chat-friend-item.selected {
+  background-color: rgba(99, 102, 241, 0.08);
+  transform: translateX(2px);
+  border-inline-start: 4px solid #6366f1;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.15);
+}
+
 .dark-mode .chat-friend-item:hover {
   background-color: rgba(255, 255, 255, 0.05);
   border-inline-start: 4px solid #6366f1;
+}
+
+.dark-mode .chat-friend-item.selected {
+  background-color: rgba(99, 102, 241, 0.15);
+  border-inline-start: 4px solid #818cf8;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
 }
 
 .favorite-container-open {
@@ -961,12 +949,11 @@
 .last-message {
   font-size: 12px;
   color: #555;
-  margin-block-start: 4px;
   max-inline-size: 200px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  margin-inline-start: 12px;
+
 }
 .dark-mode .last-message {
   font-size: 12px;
@@ -987,6 +974,8 @@
 .row-last-time {
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
 }
 .dark-mode .message-time {
   font-size: 10px;

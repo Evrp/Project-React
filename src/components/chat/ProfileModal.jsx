@@ -1,125 +1,175 @@
-import React, { useEffect } from 'react';
-import { toast } from "react-toastify";
-import './ProfileModal.css';
+import React, { useEffect, useState } from "react";
+import "./ProfileModal.css";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
-/**
- * ProfileModal - แสดงข้อมูลผู้ใช้ในรูปแบบ modal
- * @param {Object} props - Props ของ component
- * @param {boolean} props.isOpen - สถานะเปิด/ปิด modal
- * @param {function} props.onClose - ฟังก์ชันเมื่อปิด modal
- * @param {Object} props.user - ข้อมูลผู้ใช้
- * @returns {React.Component} ProfileModal component
- */
-const ProfileModal = ({ isOpen, onClose, user, userimage }) => {
+
+const ProfileModal = ({ isOpen, onClose, user, userImage, setFriends, followers, setJoinedRooms,following, isCom }) => {
+    const userEmail = localStorage.getItem("userEmail");
+    const [currentUserfollow, setCurrentUserfollow] = useState(null);
     if (!isOpen || !user) return null;
 
-    // Log ค่า user เพื่อ debug
-    useEffect(() => {
-        if (isOpen && user) {
-            console.log("ProfileModal user:", user);
-            console.log("PhotoURL:", user.photoURL);
-            console.log("Userimage:", userimage);
-        }
-    }, [isOpen, user]);
+
 
     const getHighResPhoto = (url) => {
         if (!url) return "/default-profile.png";
 
         try {
             // ตรวจสอบว่า URL มีรูปแบบที่ต้องการหรือไม่
-            if (typeof url === 'string' && url.includes('=s')) {
+            if (typeof url === "string" && url.includes("=s")) {
                 // รองรับทั้ง ...=s96-c และ ...=s96-c&... หรือ ...=s96-c?... (กรณีมี query string ต่อท้าย)
                 return url.replace(/=s\d+-c(?=[&?]|$)/, "=s400-c");
             }
             return url;
         } catch (error) {
-            console.error('Error processing photo URL:', error);
+            console.error("Error processing photo URL:", error);
             return url || "/default-profile.png";
         }
     };
-    const deleteUser = async (roomId, roomName) => {
+    const deleteUser = async (roomId, user, roomName, roomid) => {
         if (!window.confirm("คุณต้องการลบเพื่อนคนนี้หรือไม่?")) return;
+        console.log("Deleting user:", user, "from room:", roomId, "with name:", roomName, "and id:", roomid);
         try {
             // ลบผู้ใช้จากเซิร์ฟเวอร์
-            await fetch(`${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-event-match/${roomId}`, {
-                method: "DELETE",
-            });
-            
-            // ลบจาก joined rooms เพื่ออัพเดต UI
-            if (userimage?.updateJoinedRooms && roomName) {
-                userimage.updateJoinedRooms(roomId, roomName);
+            if (roomId) {
+                await fetch(
+                    `${import.meta.env.VITE_APP_API_BASE_URL
+                    }/api/delete-event-match/${roomId}`,
+                    {
+                        method: "DELETE",
+                    }
+                );
             }
-            
+            if (user) {
+                await axios.delete(
+                    `${import.meta.env.VITE_APP_API_BASE_URL
+                    }/api/users/${userEmail}/friends/${user}`
+                );
+            }
+            if (roomid && roomName) {
+                console.log("Deleting joined room:", roomName, "for user:", userEmail);
+                await axios.delete(
+                    `${import.meta.env.VITE_APP_API_BASE_URL
+                    }/api/delete-joined-rooms/${roomid}/${userEmail}`
+                );
+                setJoinedRooms((prev) => ({
+                    ...prev,
+                    roomNames: prev.roomNames.filter((name) => name !== roomName),
+                    roomIds: prev.roomIds.filter((id) => id !== roomid && id !== roomName),
+                }));
+            }
+            setFriends((prevFriends) =>
+                prevFriends.filter((friend) => friend.email !== user)
+            );
+
+
+
             // แสดงแจ้งเตือนสำเร็จ
             toast.success("ลบผู้ใช้สำเร็จ");
-            
+
             // ปิด modal
             onClose();
         } catch (error) {
-            console.error('Error deleting user:', error);
+            console.error("Error deleting user:", error);
             toast.error("เกิดข้อผิดพลาดในการลบผู้ใช้");
         }
     };
+    const fetchGmailUser = async () => {
+        try {
+            const res = await axios.get(
+                `${import.meta.env.VITE_APP_API_BASE_URL}/api/users/${userEmail}`
+            );
+            setCurrentUserfollow(res.data);
+        } catch (err) {
+            console.error("โหลด Gmail currentUser ไม่ได้:", err);
+        }
+    };
+    const handleFollow = async (targetEmail) => {
+        await fetchGmailUser();
+        if (!currentUserfollow || !Array.isArray(currentUserfollow.following)) {
+            console.warn("currentUser ยังไม่พร้อม หรือ following ไม่มี");
+            return;
+        }
 
+        const isFollowing = currentUserfollow.following.includes(targetEmail);
+        const url = `${import.meta.env.VITE_APP_API_BASE_URL
+            }/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
+            }/${targetEmail}`;
+        const method = isFollowing ? "DELETE" : "POST";
+
+        try {
+            await axios({ method, url });
+            await fetchGmailUser();
+            toast.success("ติดตามสำเร็จ!");
+        } catch (err) {
+            console.error("Follow/unfollow error:", err);
+            toast.error("ติดตามล้มเหลว!");
+        }
+    };
     return (
         <div className="profile-modal-overlay" onClick={onClose}>
             <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
-
                 <div className="profile-modal-body">
                     <div className="profile-modal-user">
                         <img
-                            src={getHighResPhoto(user.photoURL || userimage?.photoURL || "/default-profile.png")}
-                            alt={user?.displayName || "ผู้ใช้"}
+                            src={getHighResPhoto(
+                                user.photoURL || userImage?.photoURL || userImage.image
+                            )}
+                            alt={userImage?.displayName || "ผู้ใช้" || userImage.name || "ไม่มีชื่อ"}
                             className="profile-modal-avatar"
                         />
-                        <div className="profile-modal-name">{user?.displayName || "ไม่มีชื่อ"}</div>
-                        <div className="profile-modal-email">{user?.email || ""}</div>
-                    </div>
-                    {userimage?.roomId && (
-                        <button className='modal-profile' onClick={() => deleteUser(userimage.roomId, userimage.title)}>ลบเพื่อน</button>
-                    )}
-
-                    {/* ข้อมูลเพิ่มเติม (ถ้ามี) */}
-                    {(user?.bio || user?.location || user?.education || user?.work) && (
-                        <div className="profile-modal-info">
-                            {user?.bio && (
-                                <div className="profile-modal-info-item">
-                                    <div className="profile-modal-info-label">เกี่ยวกับ</div>
-                                    <div className="profile-modal-info-value">{user.bio}</div>
-                                </div>
-                            )}
-
-                            {user?.location && (
-                                <div className="profile-modal-info-item">
-                                    <div className="profile-modal-info-label">ที่อยู่</div>
-                                    <div className="profile-modal-info-value">{user.location}</div>
-                                </div>
-                            )}
-
-                            {user?.education && (
-                                <div className="profile-modal-info-item">
-                                    <div className="profile-modal-info-label">การศึกษา</div>
-                                    <div className="profile-modal-info-value">{user.education}</div>
-                                </div>
-                            )}
-
-                            {user?.work && (
-                                <div className="profile-modal-info-item">
-                                    <div className="profile-modal-info-label">อาชีพ</div>
-                                    <div className="profile-modal-info-value">{user.work}</div>
-                                </div>
-                            )}
+                        <div className="profile-modal-name">
+                            {userImage?.displayName || userImage?.name || "ไม่มีชื่อ"}
                         </div>
-                    )}
-
-                    <div className="profile-modal-actions">
-                        <button className="profile-modal-button primary">
-                            <span className="emoji">💬</span>
-                            ส่งข้อความ
-                        </button>
+                        <div className="profile-modal-email">{userImage?.email || ""}</div>
                     </div>
+                    <div className="profile-modal-follow-info">
+                        {isCom ? (
+                            <ul className="show-com">
+                                <li>
+                                    <span className="Created">Created By : </span>
+                                    <span className="Created-detail">{userImage.createdBy}</span>
+                                </li>
+                                <li>
+                                    <span className="Created">Description : </span>
+                                    <span className="Created-detail">{userImage.description}</span>
+                                </li>
+                            </ul>
+                        ) : (
+                            <div className="profile-modal-follow-info-details">
+                                <div className="profile-modal-follow-info-header">
+                                    <ul className="followers">
+                                        <li>{followers.length} followers</li>
+                                    </ul>
+                                    <ul className="following">
+                                        <li>{following.length} following</li>
+                                    </ul>
+                                </div>
+                                <button
+                                    className="chat-dropdown-item"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleFollow(userImage.email);
+                                    }}
+                                >
+                                    {Array.isArray(currentUserfollow?.following) &&
+                                        currentUserfollow.following.includes(userImage.email)
+                                        ? "กำลังติดตาม"
+                                        : "ติดตาม"}
+                                </button></div>
+                        )}
+                    </div>
+
+
+                    <button
+                        className="modal-profile"
+                        onClick={() => deleteUser(userImage.roomId, userImage.email, userImage.name, userImage._id)}
+                    >
+                        ลบเพื่อน
+                    </button>
                 </div>
             </div>
+            <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         </div>
     );
 };

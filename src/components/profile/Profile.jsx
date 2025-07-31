@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import "./Profile.css";
+import "./profile-photos.css";
 import { Button } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaCamera } from "react-icons/fa";
 import { useTheme } from "../../context/themecontext";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -66,6 +67,9 @@ const Profile = () => {
   const [following, setFollowing] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [userPhotos, setUserPhotos] = useState([]);
+  const [isEditingPhotos, setIsEditingPhotos] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   // Validation
   const validateNickname = (name) => {
@@ -236,6 +240,97 @@ const Profile = () => {
   const handleClick = () => {
     setIsEditing(true);
   };
+  
+  // ฟังก์ชันสำหรับจัดการรูปภาพ
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // ตรวจสอบประเภทไฟล์
+    if (!file.type.match('image.*')) {
+      toast.error("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น");
+      return;
+    }
+    
+    // ตรวจสอบขนาดไฟล์ (ไม่เกิน 5MB)
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error("ขนาดไฟล์ต้องไม่เกิน 5MB");
+      return;
+    }
+    
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('photo', file);
+    formData.append('email', userEmail);
+    console.log("Uploading photo with formData:", formData);
+    
+    
+    try {
+      console.log("Uploading photo with formData:", formData);  
+      const response = await axios.post(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/upload-user-photo`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+      
+      if (response.data.success) {
+        // อัปเดตรายการรูปภาพ
+        fetchUserPhotos();
+        toast.success("อัปโหลดรูปภาพสำเร็จ");
+      } else {
+        throw new Error(response.data.message || "อัปโหลดรูปภาพไม่สำเร็จ");
+      }
+    } catch (err) {
+      console.error("อัปโหลดรูปภาพล้มเหลว:", err);
+      toast.error(err.message || "อัปโหลดรูปภาพล้มเหลว");
+    } finally {
+      setUploading(false);
+    }
+  };
+  
+  const handleRemovePhoto = async (photoId) => {
+    if (!window.confirm("คุณต้องการลบรูปภาพนี้หรือไม่?")) return;
+    
+    try {
+      const response = await axios.delete(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user-photo/${photoId}`,
+        {
+          data: { email: userEmail }
+        }
+      );
+      
+      if (response.data.success) {
+        // อัปเดตรายการรูปภาพ
+        setUserPhotos(userPhotos.filter(photo => photo.id !== photoId));
+        toast.success("ลบรูปภาพสำเร็จ");
+      } else {
+        throw new Error(response.data.message || "ลบรูปภาพไม่สำเร็จ");
+      }
+    } catch (err) {
+      console.error("ลบรูปภาพล้มเหลว:", err);
+      toast.error(err.message || "ลบรูปภาพล้มเหลว");
+    }
+  };
+  
+  const fetchUserPhotos = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/user-photos/${encodeURIComponent(userEmail)}`
+      );
+      
+      if (response.data.success) {
+        setUserPhotos(response.data.photos);
+      } else {
+        console.error("ไม่สามารถดึงข้อมูลรูปภาพ:", response.data.message);
+      }
+    } catch (err) {
+      console.error("ดึงข้อมูลรูปภาพล้มเหลว:", err);
+    }
+  };
 
   // Fetchers
   useEffect(() => {
@@ -260,9 +355,14 @@ const Profile = () => {
     };
     if (userEmail) fetchAll();
   }, [userEmail]);
+
+  
+  // ดึงข้อมูลรูปภาพส่วนตัวของผู้ใช้
   useEffect(() => {
-    console.log("user Photo:", userPhoto);
-  }, []);
+    if (userEmail) {
+      fetchUserPhotos();
+    }
+  }, [userEmail]);
 
   // UI
   if (!userEmail || !userPhoto) {
@@ -372,7 +472,7 @@ const Profile = () => {
             )}
           </div>
           {/* Activities */}
-          <div className="info-box">
+          {/* <div className="info-box">
             <h3>Activities</h3>
             {editingGenres ? (
               <>
@@ -436,34 +536,70 @@ const Profile = () => {
                 </Button>
               )}
             </div>
-          </div>
-          {editingGenres && (
-            <div className="info-box">
-              {/* Subgenre Filters */}
-              {selectedGenres.map(
-                (genre) =>
-                  genreSubOptions[genre] && (
-                    <div key={`sub-${genre}`} className="subgenre-container">
-                      <button className="genreshow-button" tabIndex={-1}>
-                        <h4>{genre} :</h4>
-                      </button>
-                      <div className="filter-subgenres">
-                        {genreSubOptions[genre].map((sub) => (
-                          <button
-                            key={sub}
-                            onClick={() => toggleSubGenre(genre, sub)}
-                            className={`subgenre-button ${selectedSubGenres[genre]?.includes(sub) ? "selected" : ""}`}
-                            aria-pressed={selectedSubGenres[genre]?.includes(sub)}
-                          >
-                            {sub}
-                          </button>
-                        ))}
-                      </div>
+          </div> */}
+          
+          {/* รูปภาพส่วนตัว */}
+          <div className="info-box">
+            <h3>รูปภาพส่วนตัว</h3>
+            <div className="user-photos">
+              {userPhotos && userPhotos.length > 0 ? (
+                <div className="photos-grid">
+                  {userPhotos.map((photo, index) => (
+                    <div key={index} className="photo-item">
+                      <img src={photo.url} alt={`รูปภาพส่วนตัว ${index + 1}`} />
+                      {isEditingPhotos && (
+                        <button 
+                          className="remove-photo-btn" 
+                          onClick={() => handleRemovePhoto(photo.id)}
+                          aria-label="ลบรูปภาพ"
+                        >
+                          ✖
+                        </button>
+                      )}
                     </div>
-                  )
+                  ))}
+                </div>
+              ) : (
+                <p className="no-photos-message">ยังไม่มีรูปภาพส่วนตัว</p>
               )}
             </div>
-          )}
+            
+            <div className="center-wrapper photo-actions">
+              {isEditingPhotos ? (
+                <>
+                  <Button onClick={() => setIsEditingPhotos(false)} className="edit-button-cancel-button" disabled={loading}>
+                    เสร็จสิ้น
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <div className="upload-container">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoChange}
+                      id="photo-upload"
+                      className="hidden-input"
+                      disabled={loading || uploading}
+                    />
+                    <label htmlFor="photo-upload" className="upload-button">
+                      {uploading ? "กำลังอัปโหลด..." : "อัปโหลดรูปภาพ"}
+                    </label>
+                  </div>
+                  {userPhotos && userPhotos.length > 0 && (
+                    <Button 
+                      onClick={() => setIsEditingPhotos(true)} 
+                      className="edit-button" 
+                      disabled={loading}
+                    >
+                      จัดการรูปภาพ
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+      
         </div>
       </div>
     </div>
