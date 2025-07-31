@@ -1,17 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { db } from "../../firebase/firebase";
-// import { ref, getDownloadURL } from "firebase/storage";
 import RequireLogin from "../ui/RequireLogin";
 import { FaSearch } from "react-icons/fa";
-import { toast, ToastContainer } from "react-toastify";
-import { TiMicrophoneOutline } from "react-icons/ti";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { BsThreeDots } from "react-icons/bs";
-import { MdAttachFile } from "react-icons/md";
-import { IoCameraOutline } from "react-icons/io5";
-import { BsEmojiSmile } from "react-icons/bs";
 import { useParams } from "react-router-dom";
-import io from "socket.io-client";
 import {
   collection,
   addDoc,
@@ -31,11 +24,8 @@ import "../chat/DropdownMenu.css";
 import "../chat/OnlineStatus.css";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
-import { FaChevronDown, FaChevronRight } from "react-icons/fa";
-import { ImSpinner2 } from "react-icons/im";
 import ChatContainerAI from "./ChatContainerAI";
-
-const socket = io(import.meta.env.VITE_APP_API_BASE_URL);
+import { useSocket } from "../../context/socketcontext";
 import { useTheme } from "../../context/themecontext";
 import ListUser from "./userlist";
 import CommunityList from "./communitylist";
@@ -44,11 +34,9 @@ import MatchList from "./matchlist";
 import ShowTitle from "./titlepage/showtitle";
 
 const Chat = () => {
+  const { socket, onlineUsers } = useSocket(); // ใช้ socket และ onlineUsers จาก context
   const { isDarkMode, setIsDarkMode } = useTheme();
-  const [isOpen, setIsOpen] = useState(true);
   const [isOpencom, setIsOpencom] = useState(false);
-  const [isOpenevent, setIsOpenevent] = useState(true);
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
   const { roomId } = useParams();
   const [users, setUsers] = useState([]);
   const userPhoto = localStorage.getItem("userPhoto");
@@ -69,10 +57,7 @@ const Chat = () => {
   const [allRooms, setRooms] = useState([]); /// เพิ่ม joinedRooms
   const [allEvents, setEvents] = useState([]); /// เพิ่ม joinedRooms
   const [friends, setFriends] = useState([]);
-  const [friendsBar, setFriendsBar] = useState([]);
   const [RoomsBar, setRoomBar] = useState([]);
-  const displayName = localStorage.getItem("userName");
-  const photoURL = localStorage.getItem("userPhoto");
   const [openMenuFor, setOpenMenuFor] = useState(null);
   const [isGroupChat, setIsGroupChat] = useState(false);
   const [getnickName, getNickName] = useState("");
@@ -82,7 +67,7 @@ const Chat = () => {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [isOpenMatch, setIsOpenMatch] = useState(false);
   const [userImage, setUserImage] = useState({});
-  const [initialLoad, setInitialLoad] = useState(true);
+  const [selectedTab, setSelectedTab] = useState(null);
 
   const defaultProfileImage = userPhoto;
 
@@ -304,19 +289,7 @@ const Chat = () => {
     });
   };
 
-  // ฟังก์ชันสำหรับแสดงสถานะออนไลน์หรือเวลาออฟไลน์ล่าสุด
-  const formatOnlineStatus = (user) => {
-    if (!user) return "";
-
-    if (user.isOnline) {
-      return "ออนไลน์";
-    } else if (user.lastSeen) {
-      const lastSeenDate = new Date(user.lastSeen);
-      return `ออฟไลน์ - ${formatRelativeTime(lastSeenDate)}`;
-    } else {
-      return "ออฟไลน์";
-    }
-  };
+  // ฟังก์ชันสำหรับแสดงสถานะออนไลน์หรือเวลาออฟไลน์ล่าสุด (ถูกแทนที่โดยฟังก์ชันใหม่ที่ใช้ onlineUsers จาก context)
   const formatChatDate = (date) => {
     const now = new Date();
     const diffInMs = now - date;
@@ -342,20 +315,7 @@ const Chat = () => {
       });
     }
   };
-  const getLastMessage = (email) => {
-    const friendMessages = messages
-      .filter(
-        (msg) =>
-          (msg.sender === email && msg.receiver === userEmail) ||
-          (msg.sender === userEmail && msg.receiver === email)
-      )
-      .sort((a, b) => b.timestamp?.seconds - a.timestamp?.seconds); // ใหม่สุดก่อน
 
-    return friendMessages[0];
-  };
-  const setProfilebar = (displayName) => {
-    setFriendsBar({ displayName });
-  };
   const setRoombar = (roomImage, roomName) => {
     setRoomBar({ roomImage, roomName });
   };
@@ -376,152 +336,8 @@ const Chat = () => {
   }, [userEmail, initialLoad]);
   useEffect(() => {
     if (!userEmail) return;
-
-    // Debounce การเรียก fetchCurrentUserAndFriends - increased delay for better performance
-    const timeoutId = setTimeout(() => {
-      fetchCurrentUserAndFriends();
-    }, 300);
-
-    // เมื่อเข้าสู่หน้า chat ส่งข้อมูลว่าผู้ใช้ออนไลน์ - delay socket connection
-    const socketTimeoutId = setTimeout(() => {
-      socket.emit("user-online", { displayName, photoURL, email: userEmail });
-    }, 100);
-
-    // ตั้งค่า ping เพื่อบอกเซิร์ฟเวอร์ว่าผู้ใช้ยังออนไลน์อยู่ ทุก 30 วินาที
-    const pingInterval = setInterval(() => {
-      if (socket.connected) {
-        socket.emit("user-ping", { email: userEmail });
-      }
-    }, 30000);
-
-    // รับข้อมูลการอัปเดตสถานะผู้ใช้จากเซิร์ฟเวอร์
-    socket.on("update-users", (data) => {
-      // เช็คว่า data เป็น array หรือ object
-      if (Array.isArray(data)) {
-        setUsers((prevUsers) =>
-          prevUsers.map((user) => ({
-            ...user,
-            isOnline: data.some(
-              (onlineUser) => onlineUser.email === user.email
-            ),
-            lastSeen:
-              data.find((onlineUser) => onlineUser.email === user.email)
-                ?.lastSeen || user.lastSeen,
-          }))
-        );
-        setFriends((prevFriends) =>
-          prevFriends.map((friend) => ({
-            ...friend,
-            isOnline: data.some(
-              (onlineUser) => onlineUser.email === friend.email
-            ),
-            lastSeen:
-              data.find((onlineUser) => onlineUser.email === friend.email)
-                ?.lastSeen || friend.lastSeen,
-          }))
-        );
-      }
-      // ถ้าข้อมูลเป็น object มี onlineUsers เป็น array
-      else if (data && Array.isArray(data.onlineUsers)) {
-        setUsers((prevUsers) =>
-          prevUsers.map((user) => ({
-            ...user,
-            isOnline: user.email
-              ? data.onlineUsers.includes(user.email)
-              : false,
-            lastSeen:
-              (data.lastSeenTimes && data.lastSeenTimes[user.email]) ||
-              user.lastSeen,
-          }))
-        );
-        setFriends((prevFriends) =>
-          prevFriends.map((friend) => ({
-            ...friend,
-            isOnline: friend.email
-              ? data.onlineUsers.includes(friend.email)
-              : false,
-            lastSeen:
-              (data.lastSeenTimes && data.lastSeenTimes[friend.email]) ||
-              friend.lastSeen,
-          }))
-        );
-      }
-      // ถ้าข้อมูลเป็น string array (แบบเก่า)
-      else if (Array.isArray(data)) {
-        setUsers((prevUsers) =>
-          prevUsers.map((user) => ({
-            ...user,
-            isOnline: data.includes(user.email),
-            lastSeen: user.lastSeen,
-          }))
-        );
-        setFriends((prevFriends) =>
-          prevFriends.map((friend) => ({
-            ...friend,
-            isOnline: data.includes(friend.email),
-            lastSeen: friend.lastSeen,
-          }))
-        );
-      }
-    });
-
-    // ฟังเมื่อมีผู้ใช้ออฟไลน์
-    socket.on("user-offline", (userData) => {
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.email === userData.email
-            ? { ...user, isOnline: false, lastSeen: userData.lastSeen }
-            : user
-        )
-      );
-      setFriends((prevFriends) =>
-        prevFriends.map((friend) =>
-          friend.email === userData.email
-            ? { ...friend, isOnline: false, lastSeen: userData.lastSeen }
-            : friend
-        )
-      );
-    });
-
-    // ฟังเมื่อมีผู้ใช้ออนไลน์
-    socket.on("user-online", (userData) => {
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.email === userData.email
-            ? { ...user, isOnline: true, lastSeen: null }
-            : user
-        )
-      );
-      setFriends((prevFriends) =>
-        prevFriends.map((friend) =>
-          friend.email === userData.email
-            ? { ...friend, isOnline: true, lastSeen: null }
-            : friend
-        )
-      );
-    });
-
-    // เมื่อเชื่อมต่อกับเซิร์ฟเวอร์ใหม่ (reconnect)
-    socket.on("connect", () => {
-      // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้กลับมาออนไลน์
-      socket.emit("user-online", { displayName, photoURL, email: userEmail });
-    });
-
-    // Cleanup function
-    return () => {
-      clearTimeout(timeoutId);
-      clearTimeout(socketTimeoutId);
-      // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้ออฟไลน์เมื่อออกจากหน้า chat
-      socket.emit("user-offline", { email: userEmail });
-      socket.off("update-users");
-      socket.off("user-offline");
-      socket.off("user-online");
-      socket.off("connect");
-      clearInterval(pingInterval);
-    };
-  }, [userEmail, displayName, photoURL]);
-
-  // Lazy load Gmail user data - only when chat is actually used
+    fetchCurrentUserAndFriends();
+  }, [userEmail]);
   useEffect(() => {
     if (userEmail && (activeUser || isOpencom || isOpenMatch)) {
       const timeoutId = setTimeout(() => {
@@ -679,55 +495,90 @@ const Chat = () => {
 
     return () => unsubscribe();
   }, [userEmail]);
-  const sortedFriends = [...friends].sort((a, b) => {
-    const timeA = lastMessages[a.email]?.timestamp?.toDate()?.getTime() || 0;
-    const timeB = lastMessages[b.email]?.timestamp?.toDate()?.getTime() || 0;
-    return timeB - timeA; // เรียงจากใหม่ -> เก่า
+  // เช็คสถานะออนไลน์ของเพื่อนจาก context.onlineUsers
+  const isOnline = (email) => {
+    return email && onlineUsers && onlineUsers[email]?.online;
+  };
+
+  // ฟังก์ชันสำหรับแสดงสถานะออนไลน์หรือเวลาออฟไลน์ล่าสุด
+  const formatOnlineStatus = (user) => {
+    if (!user || !user.email) return "";
+
+    if (isOnline(user.email)) {
+      return "ออนไลน์";
+    } else if (onlineUsers[user.email]?.lastActive) {
+      const lastActiveDate = new Date(onlineUsers[user.email].lastActive);
+      return `ออฟไลน์ - ${formatRelativeTime(lastActiveDate)}`;
+    } else {
+      return "ออฟไลน์";
+    }
+  };
+
+  // อัปเดต friends ด้วยข้อมูลสถานะออนไลน์จาก context
+  const friendsWithOnlineStatus = friends.map(friend => {
+    if (!friend || !friend.email) return friend;
+    
+    return {
+      ...friend,
+      isOnline: isOnline(friend.email),
+      lastSeen: onlineUsers[friend.email]?.lastActive
+    };
+  });
+
+  // เรียงตามเวลาข้อความล่าสุดและสถานะออนไลน์
+  const sortedFriends = [...friendsWithOnlineStatus].sort((a, b) => {
+    // เรียงตามสถานะออนไลน์ก่อน
+    if (a?.email && b?.email) {
+      if (isOnline(a.email) && !isOnline(b.email)) return -1;
+      if (!isOnline(a.email) && isOnline(b.email)) return 1;
+      
+      // ถ้าสถานะออนไลน์เหมือนกัน ให้เรียงตามเวลาข้อความล่าสุด
+      const timeA = lastMessages[a.email]?.timestamp?.toDate()?.getTime() || 0;
+      const timeB = lastMessages[b.email]?.timestamp?.toDate()?.getTime() || 0;
+      return timeB - timeA; // เรียงจากใหม่ -> เก่า
+    }
+    return 0;
   });
   return (
     <RequireLogin>
-      {isLoading ? (
-        <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-          <div style={{ textAlign: 'center' }}>
-            <ImSpinner2 className="spinner" style={{ fontSize: '2rem', animation: 'spin 1s linear infinite' }} />
-            <p style={{ marginTop: '1rem', color: isDarkMode ? '#fff' : '#333' }}>กำลังโหลด...</p>
+      <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
+        <div className="user-container">
+          <div className="chat">
+            <h2>Chat</h2>
           </div>
-        </div>
-      ) : (
-        <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
-          <div className="user-container">
-            <div className="chat">
-              <h2>Chat</h2>
-            </div>
-            <div className="search-con">
-              <FaSearch className="search-icon" />
-              <input
-                type="text"
-                placeholder="Search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
-                className="search-input-chat"
-                autoFocus
-              />
-            </div>
-            <div className="slide-chat">
-              <ListUser
-                sortedFriends={sortedFriends}
-                lastMessages={lastMessages}
-                setActiveUser={setActiveUser}
-                setIsGroupChat={setIsGroupChat}
-                dropdownRefs={dropdownRefs}
-                getnickName={getnickName}
-                setUserImage={setUserImage}
-                setFriends={setFriends}
-                formatOnlineStatus={formatOnlineStatus}
-              />
+          <div className="search-con">
+            <FaSearch className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+              className="search-input-chat"
+              autoFocus
+            />
+          </div>
+          <div className="slide-chat">
+            <ListUser
+              sortedFriends={sortedFriends}
+              lastMessages={lastMessages}
+              setActiveUser={setActiveUser}
+              setIsGroupChat={setIsGroupChat}
+              dropdownRefs={dropdownRefs}
+              getnickName={getnickName}
+              setSelectedTab={setSelectedTab}
+              selectedTab={selectedTab}
+              setUserImage={setUserImage}
+              setFriends={setFriends}
+              formatOnlineStatus={formatOnlineStatus}
+            />
 
             <CommunityList
               joinedRooms={joinedRooms}
               allRooms={allRooms}
               isOpencom={isOpencom}
               setUserImage={setUserImage}
+              setSelectedTab={setSelectedTab}
+              selectedTab={selectedTab}
               setIsOpencom={setIsOpencom}
               setActiveUser={(roomId) => {
                 setActiveUser(roomId);
@@ -749,6 +600,8 @@ const Chat = () => {
               allEvents={allEvents}
               users={users}
               isOpenMatch={isOpenMatch}
+              setSelectedTab={setSelectedTab}
+              selectedTab={selectedTab}
               setIsOpenMatch={setIsOpenMatch}
               setActiveUser={setActiveUser}
               handleProfileClick={handleProfileClick}
