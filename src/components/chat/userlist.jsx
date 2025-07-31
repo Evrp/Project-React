@@ -9,11 +9,14 @@ const ListUser = ({
   lastMessages,
   setActiveUser,
   setIsGroupChat,
+  selectedTab,
+  setSelectedTab,
   dropdownRefs,
   setUserImage,
   setActiveRoomId, // เพิ่ม prop
   formatOnlineStatus, // เพิ่ม prop สำหรับแสดงสถานะออนไลน์
 }) => {
+  console.log("sortedFriends:", sortedFriends);
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const userEmail = localStorage.getItem("userEmail");
@@ -63,12 +66,13 @@ const ListUser = ({
               sortedFriends.map((friend, index) => (
                 <li
                   key={index}
-                  className="chat-friend-item"
+                  className={`chat-friend-item ${selectedTab === friend.email ? 'selected' : ''}`}
                   onClick={() => {
                     setUserImage(friend);
                     handleEnterRoom(friend.roomId);
                     setActiveUser(friend.email);
                     setIsGroupChat(false);
+                    setSelectedTab(friend.email);
                     if (setActiveRoomId)
                       setActiveRoomId(getRoomIdForFriend(friend.email));
                   }}

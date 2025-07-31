@@ -4,7 +4,7 @@ import { BsThreeDots } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 const CommunityList = ({
   joinedRooms,
@@ -13,17 +13,12 @@ const CommunityList = ({
   setRoombar,
   isOpencom,
   setIsOpencom,
+  selectedTab,
+  setSelectedTab,
   setUserImage,
   setIsGroupChat,
-  loadingFriendRooms,
-  openMenuFor,
-  setOpenMenuFor,
-  dropdownRefs,
-  setJoinedRooms
 }) => {
   const navigate = useNavigate();
-  const userEmail = localStorage.getItem("userEmail");
-
   const handleEnterRoom = (roomId) => {
     navigate(`/chat/${roomId}`);
   };
@@ -54,13 +49,16 @@ const CommunityList = ({
                       room.name === name ? (
                         <li
                           key={`room-${room._id || room.name}-${i}-${index}`}
-                          className="chat-friend-item"
+                          className={`chat-friend-item ${
+                            selectedTab === room.name ? "selected" : ""
+                          }`}
                           onClick={() => {
-                            setActiveUser(room.name),
-                              setRoombar(room.image, room.name);
+                            setSelectedTab(room.name);
+                            setActiveUser(room.name);
+                            setRoombar(room.image, room.name);
                             setIsGroupChat(true);
                             setUserImage(room);
-                            handleEnterRoom(room._id); 
+                            handleEnterRoom(room._id);
                           }}
                         >
                           <img
@@ -70,12 +68,7 @@ const CommunityList = ({
                           />
                           <div className="friend-detailss">
                             <span className="friend-name">{room.name}</span>
-                            {/* <span className="friend-email">
-                              Host:
-                              {room.createdBy}
-                            </span> */}
                           </div>
-                          
                         </li>
                       ) : null
                     )}
