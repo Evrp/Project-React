@@ -103,6 +103,17 @@ router.get("/user-info/:email", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+// ดึงข้อมูลผู้ใช้ทุกคน ยกเว้นอีเมลที่รับมาจาก params
+router.get("/user-info-except/:email", async (req, res) => {
+  const { email } = req.params;
+  try {
+    const users = await Info.find({ email: { $ne: email } });
+    res.status(200).json({ users: users.map(user => ({ email: user.email, ...user.userInfo })) });
+  } catch (error) {
+    console.error("❌ Error fetching users:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 // Change Nickname
 router.post("/save-user-name", async (req, res) => {
   const { userEmail, nickName } = req.body;

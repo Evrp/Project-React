@@ -32,26 +32,47 @@ const RoomMatch = () => {
         const filterjoinedRooms = await axios.get(
           `${import.meta.env.VITE_APP_API_BASE_URL}/api/user-rooms/${userEmail}`
         );
+        const matchInfo = await axios.get(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/${userEmail}`
+        );
+
         // แปลง roomIds เป็น string ทั้งหมด
         const joinedIds = Array.isArray(filterjoinedRooms.data.roomIds)
           ? filterjoinedRooms.data.roomIds.filter((id) => !!id).map(String)
           : [];
+
         setJoinedRooms(joinedIds);
-        setRooms(res.data);
-        setCurrentIndex(res.data.length - 1);
-        childRefs.current = Array(res.data.length)
+        setRooms(matchInfo.data.data);
+        setCurrentIndex((matchInfo.data.data || []).length - 1);
+        childRefs.current = Array((matchInfo.data.data || []).length)
           .fill(0)
           .map((_, i) => childRefs.current[i] || createRef());
       } catch (error) {
         console.error("โหลดห้องไม่สำเร็จ:", error);
+        setRooms([]);
       }
       setLoading(false);
     };
     fetchRooms();
+
   }, [userEmail]);
-  const filteredRooms = rooms.filter(
-    (room) => !joinedRooms.includes(String(room._id))
-  );
+  const filteredRooms = Array.isArray(rooms) ? rooms.filter((room) => {
+    // เช็คว่า email ของเราอยู่ใน usermatch หรือ email
+    const isUserInRoom = room.usermatch === userEmail || room.email === userEmail;
+    if (!isUserInRoom) return false;
+
+    // ถ้าเราอยู่ใน usermatch ให้เช็ค usermatchjoined ต้องเป็น false
+    if (room.usermatch === userEmail && room.usermatchjoined === true) {
+      return false;
+    }
+
+    // ถ้าเราอยู่ใน email ให้เช็ค emailjoined ต้องเป็น false
+    if (room.email === userEmail && room.emailjoined === true) {
+      return false;
+    }
+
+    return true;
+  }) : [];
 
   useEffect(() => {
     const fetchGmails = async () => {
@@ -68,28 +89,74 @@ const RoomMatch = () => {
   }, []);
 
   const handleEnterRoom = (roomId, roomName) => {
-    navigate(`/chat/${roomId}`);
+    // navigate(`/chat/${roomId}`);
     handleAddCommunity(roomId, roomName);
   };
   const handleAddCommunity = async (roomId, roomName) => {
     try {
-      await axios.post(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/join-community`,
-        {
-          userEmail,
-          roomId,
-          roomName,
+      if (userEmail && roomId && roomName) {
+        await axios.post(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/join-community`,
+          {
+            userEmail,
+            roomId,
+            roomName,
+          }
+        );
+      }
+      // อัปเดท InfoMatch status
+      const currentRoom = filteredRooms[currentIndex];
+      if (currentRoom && currentRoom._id) {
+        let updateData = {};
+
+        // เช็คว่าเราอยู่ใน email หรือ usermatch แล้วอัปเดทค่าที่เกี่ยวข้อง
+        if (currentRoom.email === userEmail) {
+          updateData.emailjoined = true;
+        } else if (currentRoom.usermatch === userEmail) {
+          updateData.usermatchjoined = true;
         }
-      );
-      toast.success("เข้าร่วมห้องสําเร็จ!");
+
+        await axios.put(
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/${currentRoom._id}`,
+          updateData
+        );
+      }
+
+      toast.success("คุณกดไลค์แล้ว!");
     } catch (error) {
       console.error("Error adding friend:", error);
       toast.error("ไม่สามารถเพิ่มเพื่อนได้");
     }
   };
-  const swiped = (direction, roomId, roomName, index) => {
+  const swiped = async (direction, roomId, roomName, index) => {
     if (direction === "right") {
       handleEnterRoom(roomId, roomName);
+    } else if (direction === "left") {
+      // ลบข้อมูลเมื่อ swipe ซ้าย (เหมือนปุ่ม skip)
+      const currentRoom = filteredRooms[currentIndex];
+      console.log("Swiped left - deleting room:", currentRoom._id);
+
+      if (currentRoom && currentRoom.roomId) {
+        try {
+          await fetch(
+            `${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-event-match/${currentRoom.roomId}`,
+            { method: "DELETE" }
+          );
+        } catch (error) {
+          console.error("Error deleting event match:", error);
+        }
+      }
+
+      if (currentRoom && currentRoom._id) {
+        try {
+          await fetch(
+            `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/${currentRoom._id}`,
+            { method: "DELETE" }
+          );
+        } catch (error) {
+          console.error("Error deleting info match:", error);
+        }
+      }
     }
     setCurrentIndex((prev) => prev - 1);
   };
@@ -134,51 +201,51 @@ const RoomMatch = () => {
             </div>
           </div>
         )}
-          {!loading &&
+        {!loading &&
           filteredRooms.length > 0 &&
           filteredRooms.map((room, index) => (
             <div className="container-tinder-card" key={room._id}>
-            <TinderCard
-              ref={childRefs.current[index]}
-              key={room._id}
-              onSwipe={(dir) => swiped(dir, room._id, room.title, index)}
-              preventSwipe={["up", "down"]}
-              className="tinder-card"
-            >
-              <div className="room-card-match">
-                <div className="room-chance-badge">โอกาสแมช {room.chance}</div>
-                {/* หา user ที่ email ตรงกับ room.email เพื่อเอารูป */}
-                {(() => {
-                  const user = users.find((u) => u.email === room.usermatch);
-                  if (user && user.photoURL) {
+              <TinderCard
+                ref={childRefs.current[index]}
+                key={room._id}
+                onSwipe={(dir) => swiped(dir, room._id, room.title, index)}
+                preventSwipe={["up", "down"]}
+                className="tinder-card"
+              >
+                <div className="room-card-match">
+                  <div className="room-chance-badge">โอกาสแมช {room.chance}</div>
+                  {/* หา user ที่ email ตรงกับ room.email เพื่อเอารูป */}
+                  {(() => {
+                    const user = users.find((u) => u.email === room.usermatch);
+                    if (user && user.photoURL) {
+                      return (
+                        <img
+                          src={getHighResPhoto(user.photoURL)}
+                          alt="room"
+                          className="room-image-match" // เพิ่มคลาส room-image-full
+                        />
+                      );
+                    }
                     return (
-                      <img
-                        src={getHighResPhoto(user.photoURL)}
-                        alt="room"
-                        className="room-image-match" // เพิ่มคลาส room-image-full
-                      />
+                      <div className="tinder-card-inner-loading">
+                        <div className="tinder-card-spinner">
+                          <div className="tinder-card-dot"></div>
+                          <div className="tinder-card-dot"></div>
+                          <div className="tinder-card-dot"></div>
+                        </div>
+                        <div className="tinder-card-loading-text">
+                          กำลังโหลดข้อมูลห้อง...
+                        </div>
+                      </div>
                     );
-                  }
-                  return (
-                    <div className="tinder-card-inner-loading">
-                      <div className="tinder-card-spinner">
-                        <div className="tinder-card-dot"></div>
-                        <div className="tinder-card-dot"></div>
-                        <div className="tinder-card-dot"></div>
-                      </div>
-                      <div className="tinder-card-loading-text">
-                        กำลังโหลดข้อมูลห้อง...
-                      </div>
-                    </div>
-                  );
-                })()}
-                <div className="room-match-info">
-                  {/* <h4>{room.title}</h4> */}
-                  <p>{room.usermatch}</p>
-                  <p>{room.title}</p>
+                  })()}
+                  <div className="room-match-info">
+                    {/* <h4>{room.title}</h4> */}
+                    <p>{room.usermatch !== userEmail && room.email !== userEmail}</p>
+                    <p>คุณมีสิ่งที่คล้ายกัน: {room.title || room.detail}</p>
+                  </div>
                 </div>
-              </div>
-            </TinderCard></div>
+              </TinderCard></div>
 
           ))}
       </div>
@@ -189,9 +256,17 @@ const RoomMatch = () => {
             // ลบ event match เฉพาะห้องที่แสดงอยู่ (current)
             if (currentIndex >= 0 && currentIndex < filteredRooms.length) {
               const currentRoom = filteredRooms[currentIndex];
+              console.log("Current room to delete:", currentRoom._id);
               if (currentRoom && currentRoom.roomId) {
                 await fetch(
                   `${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-event-match/${currentRoom.roomId}`,
+                  { method: "DELETE" }
+                );
+              }
+              if (currentRoom && currentRoom._id) {
+
+                await fetch(
+                  `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/${currentRoom._id}`,
                   { method: "DELETE" }
                 );
               }
@@ -206,12 +281,13 @@ const RoomMatch = () => {
         <button
           onClick={() =>
             currentIndex >= 0 &&
+            handleEnterRoom(rooms[currentIndex]._id, rooms[currentIndex].title) ||
             handleEnterRoom(rooms[currentIndex]._id, rooms[currentIndex].title)
           }
           className="join-button"
           disabled={loading}
         >
-          Join
+          Like
         </button>
       </div>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />

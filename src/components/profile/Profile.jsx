@@ -129,6 +129,20 @@ const Profile = () => {
         setUserInfo(tempInfo);
         setEditingField(null);
         toast.success("บันทึกข้อมูลสำเร็จ");
+        
+        // ส่งข้อมูลไปยัง Make.com webhook
+        try {
+          await fetch(import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_ABOUT_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              detail: tempInfo.detail,
+              userEmail: email
+            }),
+          });
+        } catch (webhookError) {
+          console.error("เกิดข้อผิดพลาดในการส่งข้อมูลไปยัง webhook:", webhookError);
+        }
       } else {
         setError("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
         toast.error("บันทึกข้อมูลล้มเหลว");

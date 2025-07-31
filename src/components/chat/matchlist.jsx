@@ -26,38 +26,10 @@ const MatchList = ({
   const userEmail = localStorage.getItem("userEmail");
   const dropdownRefs = useRef({});
   const [loadingRoomId, setLoadingRoomId] = useState(null);
-
-  const handleDeleteRoom = async (roomId, roomName) => {
-    try {
-      setLoadingRoomId(roomId);
-      console.log("Deleting room:", roomId, "for user:", userEmail);
-      await axios.delete(
-        `${import.meta.env.VITE_APP_API_BASE_URL
-        }/api/delete-joined-rooms/${roomId}/${userEmail}`
-      );
-
-      // อัปเดต state ทันที
-      setJoinedRooms((prev) => ({
-        ...prev,
-        roomNames: prev.roomNames.filter((name) => name !== roomName),
-        roomIds: prev.roomIds.filter((id) => id !== roomId), // ใช้ roomName ถ้าเก็บเป็นชื่อ
-      }));
-
-      toast.success("ลบห้องสําเร็จ!");
-    } catch (error) {
-      console.error("ลบห้องล้มเหลว:", error);
-      toast.error("ลบห้องล้มเหลว!");
-    } finally {
-      setLoadingRoomId(null);
-    }
-  };
   const handleEnterRoom = (roomId) => {
     navigate(`/chat/${roomId}`);
   };
-  
-  const handleMenuClick = (roomId) => {
-    setOpenMenuFor(prev => prev === roomId ? null : roomId);
-  };
+
 
   // ปิด dropdown เมื่อคลิกนอก dropdown
   useEffect(() => {
@@ -69,12 +41,13 @@ const MatchList = ({
         }
       }
     };
-
+    console.log("openMenuFor changed:", joinedRooms);
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [openMenuFor]);
+
+  }, [openMenuFor, joinedRooms]);
 
   return (
     <div className="favorite-container">
