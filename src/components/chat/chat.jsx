@@ -62,9 +62,9 @@ const Chat = () => {
   const [isGroupChat, setIsGroupChat] = useState(false);
   const [getnickName, getNickName] = useState("");
   const [lastMessages, setLastMessages] = useState({});
-  const [loadingFriends, setLoadingFriends] = useState(true);
-  const [loadingRooms, setLoadingRooms] = useState(true);
-  const [loadingMessages, setLoadingMessages] = useState(true);
+  const [loadingFriends, setLoadingFriends] = useState(false);
+  const [loadingRooms, setLoadingRooms] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const [isOpenMatch, setIsOpenMatch] = useState(false);
   const [userImage, setUserImage] = useState({});
   const [selectedTab, setSelectedTab] = useState(null);
@@ -72,6 +72,7 @@ const Chat = () => {
   const defaultProfileImage = userPhoto;
 
   const fetchUsersAndFriends = async () => {
+    if (!userEmail) return;
     setLoadingFriends(true);
     try {
       const response = await axios.get(
@@ -85,7 +86,6 @@ const Chat = () => {
         const friendEmails = currentUser.map((f) =>
           typeof f === "string" ? f : f.email
         );
-        console.log("Friend emails:", friendEmails);
 
         // ดึงข้อมูล user ของแต่ละ friend จาก allUsers
         const filteredFriends = allUsers
@@ -98,7 +98,6 @@ const Chat = () => {
             isOnline: user.isOnline || false,
           }))
           .sort((a, b) => a.displayName.localeCompare(b.displayName));
-        console.log("Filtered friends:", filteredFriends);
         setFriends(filteredFriends);
       } else {
         setFriends([]);
@@ -111,6 +110,7 @@ const Chat = () => {
   };
 
   const fetchCurrentUserAndFriends = async () => {
+    if (!userEmail) return;
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const userRes = await axios.get(
@@ -168,6 +168,22 @@ const Chat = () => {
         }/api/user-rooms/${encodedEmail}`
       );
       setJoinedRooms(res.data);
+    } catch (err) {
+      console.error("Error fetching joined rooms:", err);
+    } finally {
+      setLoadingRooms(false);
+    }
+  };
+  const fetchMatchRooms = async () => {
+    setLoadingRooms(true);
+    try {
+      const encodedEmail = encodeURIComponent(userEmail);
+      const res = await axios.get(
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/api/infomatch/user/${encodedEmail}`
+      );
+      setJoinedRooms(res.data.data);
     } catch (err) {
       console.error("Error fetching joined rooms:", err);
     } finally {
@@ -303,24 +319,50 @@ const Chat = () => {
   const setRoombar = (roomImage, roomName) => {
     setRoomBar({ roomImage, roomName });
   };
+
+  // Initial load optimization - progressive loading
   useEffect(() => {
-    fetchUsersAndFriends();
-  }, []);
+    if (userEmail && initialLoad) {
+      setIsLoading(true);
+      // Load essential data first
+      const timeoutId = setTimeout(() => {
+        fetchUsersAndFriends().finally(() => {
+          setIsLoading(false);
+        });
+        setInitialLoad(false);
+      }, 50); // Reduced delay for essential data
+      return () => clearTimeout(timeoutId);
+    }
+  }, [userEmail, initialLoad]);
   useEffect(() => {
     if (!userEmail) return;
     fetchCurrentUserAndFriends();
   }, [userEmail]);
   useEffect(() => {
-    fetchGmailUser();
-  }, []);
+    if (userEmail && (activeUser || isOpencom || isOpenMatch)) {
+      const timeoutId = setTimeout(() => {
+        fetchGmailUser();
+      }, 1200);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [userEmail, activeUser, isOpencom, isOpenMatch]);
 
+  // Optimize room and event fetching - only load when UI is actually opened
   useEffect(() => {
-    if (isOpencom) {
-      fetchJoinedRooms();
-      getallRooms();
-    } else if (isOpenMatch) {
-      fetchJoinedRooms();
-      getallEvents();
+    if (!userEmail) return;
+    
+    if (isOpencom && !isOpenMatch) {
+      const timeoutId = setTimeout(() => {
+        fetchJoinedRooms();
+        getallRooms();
+      }, 400); // Increased delay for better performance
+      return () => clearTimeout(timeoutId);
+    } else if (isOpenMatch && !isOpencom) {
+      const timeoutId = setTimeout(() => {
+        fetchMatchRooms();
+        getallEvents();
+      }, 400); // Increased delay for better performance
+      return () => clearTimeout(timeoutId);
     }
   }, [isOpencom, isOpenMatch, userEmail]);
   /////////Chat One To One//////////
@@ -397,6 +439,7 @@ const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Optimize nickname fetching - lazy load only when needed
   useEffect(() => {
     const getNickNameF = async () => {
       try {
@@ -408,11 +451,20 @@ const Chat = () => {
         console.error("โหลด nickname ล้มเหลว:", err);
       }
     };
-    getNickNameF();
-  }, []);
 
-  /////////////เรียงข้อความตามเวลา///////////////
+    if (userEmail && (isOpencom || isOpenMatch || activeUser)) {
+      // Only load nicknames when actually needed
+      const timeoutId = setTimeout(() => {
+        getNickNameF();
+      }, 1000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [userEmail, isOpencom, isOpenMatch, activeUser]);
+
+  /////////////เรียงข้อความตามเวลา - Optimized///////////////
   useEffect(() => {
+    if (!userEmail) return;
+    
     const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const newMessages = snapshot.docs.map((doc) => ({
@@ -605,6 +657,7 @@ const Chat = () => {
           </div>
         </div>
       </div>
+      )}
     </RequireLogin>
   );
 };
