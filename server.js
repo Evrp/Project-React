@@ -1,3 +1,4 @@
+
 // ✅ Import libraries และตั้งค่าเบื้องต้น
 import express from "express";
 import cors from "cors";
@@ -20,11 +21,13 @@ import axios from "axios";
 import friendRequestRoutes from "./routes/friendRequest.js";
 import friendApiRoutes from "./routes/friendApi.js";
 import userPhotoRoutes from "./routes/userPhoto.js";
+import infoMatchRoutes from "./routes/infomatch.js"; // Import info match routes
 
 // Debug routes
 console.log("Registered routes:");
 console.log("- friendRequestRoutes:", Object.keys(friendRequestRoutes).length > 0 ? "Loaded" : "Empty");
 console.log("- userPhotoRoutes:", Object.keys(userPhotoRoutes).length > 0 ? "Loaded" : "Empty");
+console.log("- infoMatchRoutes:", Object.keys(infoMatchRoutes).length > 0 ? "Loaded" : "Empty");
 
 
 
@@ -56,6 +59,9 @@ app.use(
   })
 );
 app.use(bodyParser.json());
+
+// Serve static files from the uploads directory
+app.use('/uploads', express.static('uploads'));
 
 // Serve static files from the uploads directory
 app.use('/uploads', express.static('uploads'));
@@ -280,6 +286,7 @@ app.use("/api", eventRoutes);
 app.use("/api", infoRoutes);
 app.use("/api", roommatchRoutes);
 app.use("/api", likeRoutes);
+app.use("/api", infoMatchRoutes); // ใช้งาน info match routes
 
 // ลงทะเบียน friendRequest routes โดยตรงเพื่อแก้ปัญหาเรื่อง 404
 // Log API requests for debugging
@@ -288,8 +295,26 @@ app.use((req, res, next) => {
   next();
 });
 
+// Log API requests for debugging
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
+
 app.use("/api", friendRequestRoutes);
 app.use("/api", friendApiRoutes);
+app.use("/api", userPhotoRoutes);
+
+// Fallback route to check if API is working
+app.get("/api-status", (req, res) => {
+  res.json({
+    status: "API is running",
+    routes: {
+      userPhoto: "/api/test-photo-route",
+      uploadPhoto: "/api/upload-user-photo"
+    }
+  });
+});
 app.use("/api", userPhotoRoutes);
 
 // Fallback route to check if API is working
