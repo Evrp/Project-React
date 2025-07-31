@@ -68,6 +68,8 @@ const Chat = () => {
   const [isOpenMatch, setIsOpenMatch] = useState(false);
   const [userImage, setUserImage] = useState({});
   const [selectedTab, setSelectedTab] = useState(null);
+  const [initialLoad, setInitialLoad] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const defaultProfileImage = userPhoto;
 
@@ -320,49 +322,37 @@ const Chat = () => {
     setRoomBar({ roomImage, roomName });
   };
 
-  // Initial load optimization - progressive loading
+  // Initial load optimization - immediate loading for better stability
   useEffect(() => {
     if (userEmail && initialLoad) {
       setIsLoading(true);
-      // Load essential data first
-      const timeoutId = setTimeout(() => {
-        fetchUsersAndFriends().finally(() => {
-          setIsLoading(false);
-        });
-        setInitialLoad(false);
-      }, 50); // Reduced delay for essential data
-      return () => clearTimeout(timeoutId);
+      fetchUsersAndFriends().finally(() => {
+        setIsLoading(false);
+      });
+      setInitialLoad(false);
     }
   }, [userEmail, initialLoad]);
   useEffect(() => {
     if (!userEmail) return;
     fetchCurrentUserAndFriends();
   }, [userEmail]);
+  // Load Gmail user data immediately when needed
   useEffect(() => {
-    if (userEmail && (activeUser || isOpencom || isOpenMatch)) {
-      const timeoutId = setTimeout(() => {
-        fetchGmailUser();
-      }, 1200);
-      return () => clearTimeout(timeoutId);
+    if (userEmail) {
+      fetchGmailUser();
     }
-  }, [userEmail, activeUser, isOpencom, isOpenMatch]);
+  }, [userEmail]);
 
-  // Optimize room and event fetching - only load when UI is actually opened
+  // Optimize room and event fetching - immediate load when opened
   useEffect(() => {
     if (!userEmail) return;
     
     if (isOpencom && !isOpenMatch) {
-      const timeoutId = setTimeout(() => {
-        fetchJoinedRooms();
-        getallRooms();
-      }, 400); // Increased delay for better performance
-      return () => clearTimeout(timeoutId);
+      fetchJoinedRooms();
+      getallRooms();
     } else if (isOpenMatch && !isOpencom) {
-      const timeoutId = setTimeout(() => {
-        fetchMatchRooms();
-        getallEvents();
-      }, 400); // Increased delay for better performance
-      return () => clearTimeout(timeoutId);
+      fetchMatchRooms();
+      getallEvents();
     }
   }, [isOpencom, isOpenMatch, userEmail]);
   /////////Chat One To One//////////
@@ -439,7 +429,7 @@ const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
-  // Optimize nickname fetching - lazy load only when needed
+  // Load nicknames immediately when user is available
   useEffect(() => {
     const getNickNameF = async () => {
       try {
@@ -452,14 +442,10 @@ const Chat = () => {
       }
     };
 
-    if (userEmail && (isOpencom || isOpenMatch || activeUser)) {
-      // Only load nicknames when actually needed
-      const timeoutId = setTimeout(() => {
-        getNickNameF();
-      }, 1000);
-      return () => clearTimeout(timeoutId);
+    if (userEmail) {
+      getNickNameF();
     }
-  }, [userEmail, isOpencom, isOpenMatch, activeUser]);
+  }, [userEmail]);
 
   /////////////เรียงข้อความตามเวลา - Optimized///////////////
   useEffect(() => {
@@ -541,22 +527,30 @@ const Chat = () => {
   });
   return (
     <RequireLogin>
-      <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
-        <div className="user-container">
-          <div className="chat">
-            <h2>Chat</h2>
+      {isLoading ? (
+        <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', animation: 'spin 1s linear infinite' }}>⏳</div>
+            <p style={{ marginTop: '1rem', color: isDarkMode ? '#fff' : '#333' }}>กำลังโหลด...</p>
           </div>
-          <div className="search-con">
-            <FaSearch className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
-              className="search-input-chat"
-              autoFocus
-            />
-          </div>
+        </div>
+      ) : (
+        <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
+          <div className="user-container">
+            <div className="chat">
+              <h2>Chat</h2>
+            </div>
+            <div className="search-con">
+              <FaSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+                className="search-input-chat"
+                autoFocus
+              />
+            </div>
           <div className="slide-chat">
             <ListUser
               sortedFriends={sortedFriends}
