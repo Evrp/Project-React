@@ -70,6 +70,8 @@ const Chat = () => {
   const [selectedTab, setSelectedTab] = useState(null);
   const [initialLoad, setInitialLoad] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [initialLoad, setInitialLoad] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const defaultProfileImage = userPhoto;
 
@@ -321,24 +323,38 @@ const Chat = () => {
   const setRoombar = (roomImage, roomName) => {
     setRoomBar({ roomImage, roomName });
   };
+
+  // Initial load optimization - immediate loading for better stability
   useEffect(() => {
-    fetchUsersAndFriends();
-  }, []);
+    if (userEmail && initialLoad) {
+      setIsLoading(true);
+      fetchUsersAndFriends().finally(() => {
+        setIsLoading(false);
+      });
+      setInitialLoad(false);
+    }
+  }, [userEmail, initialLoad]);
   useEffect(() => {
     if (!userEmail) return;
     fetchCurrentUserAndFriends();
   }, [userEmail]);
   // Load Gmail user data immediately when needed
+  // Load Gmail user data immediately when needed
   useEffect(() => {
-    fetchGmailUser();
-  }, []);
+    if (userEmail) {
+      fetchGmailUser();
+    }
+  }, [userEmail]);
 
+  // Optimize room and event fetching - immediate load when opened
   useEffect(() => {
-    if (isOpencom) {
+    if (!userEmail) return;
+    
+    if (isOpencom && !isOpenMatch) {
       fetchJoinedRooms();
       getallRooms();
-    } else if (isOpenMatch) {
-      fetchJoinedRooms();
+    } else if (isOpenMatch && !isOpencom) {
+      fetchMatchRooms();
       getallEvents();
     }
   }, [isOpencom, isOpenMatch, userEmail]);
@@ -416,6 +432,7 @@ const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Load nicknames immediately when user is available
   useEffect(() => {
     const getNickNameF = async () => {
       try {
@@ -427,8 +444,11 @@ const Chat = () => {
         console.error("โหลด nickname ล้มเหลว:", err);
       }
     };
-    getNickNameF();
-  }, []);
+
+    if (userEmail) {
+      getNickNameF();
+    }
+  }, [userEmail]);
 
   /////////////เรียงข้อความตามเวลา - Optimized///////////////
   useEffect(() => {
@@ -510,6 +530,30 @@ const Chat = () => {
   });
   return (
     <RequireLogin>
+      {isLoading ? (
+        <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', animation: 'spin 1s linear infinite' }}>⏳</div>
+            <p style={{ marginTop: '1rem', color: isDarkMode ? '#fff' : '#333' }}>กำลังโหลด...</p>
+          </div>
+        </div>
+      ) : (
+        <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
+          <div className="user-container">
+            <div className="chat">
+              <h2>Chat</h2>
+            </div>
+            <div className="search-con">
+              <FaSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+                className="search-input-chat"
+                autoFocus
+              />
+            </div>
       {isLoading ? (
         <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
           <div style={{ textAlign: 'center' }}>
