@@ -48,6 +48,7 @@ const Chat = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isOpencom, setIsOpencom] = useState(false);
   const [isOpenevent, setIsOpenevent] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
   const { roomId } = useParams();
   const [users, setUsers] = useState([]);
   const userPhoto = localStorage.getItem("userPhoto");
@@ -76,15 +77,17 @@ const Chat = () => {
   const [isGroupChat, setIsGroupChat] = useState(false);
   const [getnickName, getNickName] = useState("");
   const [lastMessages, setLastMessages] = useState({});
-  const [loadingFriends, setLoadingFriends] = useState(true);
-  const [loadingRooms, setLoadingRooms] = useState(true);
-  const [loadingMessages, setLoadingMessages] = useState(true);
+  const [loadingFriends, setLoadingFriends] = useState(false);
+  const [loadingRooms, setLoadingRooms] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const [isOpenMatch, setIsOpenMatch] = useState(false);
   const [userImage, setUserImage] = useState({});
+  const [initialLoad, setInitialLoad] = useState(true);
 
   const defaultProfileImage = userPhoto;
 
   const fetchUsersAndFriends = async () => {
+    if (!userEmail) return;
     setLoadingFriends(true);
     try {
       const response = await axios.get(
@@ -98,7 +101,6 @@ const Chat = () => {
         const friendEmails = currentUser.map((f) =>
           typeof f === "string" ? f : f.email
         );
-        console.log("Friend emails:", friendEmails);
 
         // ดึงข้อมูล user ของแต่ละ friend จาก allUsers
         const filteredFriends = allUsers
@@ -111,7 +113,6 @@ const Chat = () => {
             isOnline: user.isOnline || false,
           }))
           .sort((a, b) => a.displayName.localeCompare(b.displayName));
-        console.log("Filtered friends:", filteredFriends);
         setFriends(filteredFriends);
       } else {
         setFriends([]);
@@ -124,6 +125,7 @@ const Chat = () => {
   };
 
   const fetchCurrentUserAndFriends = async () => {
+    if (!userEmail) return;
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const userRes = await axios.get(
@@ -181,6 +183,22 @@ const Chat = () => {
         }/api/user-rooms/${encodedEmail}`
       );
       setJoinedRooms(res.data);
+    } catch (err) {
+      console.error("Error fetching joined rooms:", err);
+    } finally {
+      setLoadingRooms(false);
+    }
+  };
+  const fetchMatchRooms = async () => {
+    setLoadingRooms(true);
+    try {
+      const encodedEmail = encodeURIComponent(userEmail);
+      const res = await axios.get(
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
+        }/api/infomatch/user/${encodedEmail}`
+      );
+      setJoinedRooms(res.data.data);
     } catch (err) {
       console.error("Error fetching joined rooms:", err);
     } finally {
@@ -341,16 +359,33 @@ const Chat = () => {
   const setRoombar = (roomImage, roomName) => {
     setRoomBar({ roomImage, roomName });
   };
+
+  // Initial load optimization - progressive loading
   useEffect(() => {
-    fetchUsersAndFriends();
-  }, []);
+    if (userEmail && initialLoad) {
+      setIsLoading(true);
+      // Load essential data first
+      const timeoutId = setTimeout(() => {
+        fetchUsersAndFriends().finally(() => {
+          setIsLoading(false);
+        });
+        setInitialLoad(false);
+      }, 50); // Reduced delay for essential data
+      return () => clearTimeout(timeoutId);
+    }
+  }, [userEmail, initialLoad]);
   useEffect(() => {
     if (!userEmail) return;
 
-    fetchCurrentUserAndFriends();
+    // Debounce การเรียก fetchCurrentUserAndFriends - increased delay for better performance
+    const timeoutId = setTimeout(() => {
+      fetchCurrentUserAndFriends();
+    }, 300);
 
-    // เมื่อเข้าสู่หน้า chat ส่งข้อมูลว่าผู้ใช้ออนไลน์
-    socket.emit("user-online", { displayName, photoURL, email: userEmail });
+    // เมื่อเข้าสู่หน้า chat ส่งข้อมูลว่าผู้ใช้ออนไลน์ - delay socket connection
+    const socketTimeoutId = setTimeout(() => {
+      socket.emit("user-online", { displayName, photoURL, email: userEmail });
+    }, 100);
 
     // ตั้งค่า ping เพื่อบอกเซิร์ฟเวอร์ว่าผู้ใช้ยังออนไลน์อยู่ ทุก 30 วินาที
     const pingInterval = setInterval(() => {
@@ -474,6 +509,8 @@ const Chat = () => {
 
     // Cleanup function
     return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(socketTimeoutId);
       // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้ออฟไลน์เมื่อออกจากหน้า chat
       socket.emit("user-offline", { email: userEmail });
       socket.off("update-users");
@@ -483,17 +520,33 @@ const Chat = () => {
       clearInterval(pingInterval);
     };
   }, [userEmail, displayName, photoURL]);
-  useEffect(() => {
-    fetchGmailUser();
-  }, []);
 
+  // Lazy load Gmail user data - only when chat is actually used
   useEffect(() => {
-    if (isOpencom) {
-      fetchJoinedRooms();
-      getallRooms();
-    } else if (isOpenMatch) {
-      fetchJoinedRooms();
-      getallEvents();
+    if (userEmail && (activeUser || isOpencom || isOpenMatch)) {
+      const timeoutId = setTimeout(() => {
+        fetchGmailUser();
+      }, 1200);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [userEmail, activeUser, isOpencom, isOpenMatch]);
+
+  // Optimize room and event fetching - only load when UI is actually opened
+  useEffect(() => {
+    if (!userEmail) return;
+    
+    if (isOpencom && !isOpenMatch) {
+      const timeoutId = setTimeout(() => {
+        fetchJoinedRooms();
+        getallRooms();
+      }, 400); // Increased delay for better performance
+      return () => clearTimeout(timeoutId);
+    } else if (isOpenMatch && !isOpencom) {
+      const timeoutId = setTimeout(() => {
+        fetchMatchRooms();
+        getallEvents();
+      }, 400); // Increased delay for better performance
+      return () => clearTimeout(timeoutId);
     }
   }, [isOpencom, isOpenMatch, userEmail]);
   /////////Chat One To One//////////
@@ -570,6 +623,7 @@ const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
+  // Optimize nickname fetching - lazy load only when needed
   useEffect(() => {
     const getNickNameF = async () => {
       try {
@@ -581,11 +635,20 @@ const Chat = () => {
         console.error("โหลด nickname ล้มเหลว:", err);
       }
     };
-    getNickNameF();
-  }, []);
 
-  /////////////เรียงข้อความตามเวลา///////////////
+    if (userEmail && (isOpencom || isOpenMatch || activeUser)) {
+      // Only load nicknames when actually needed
+      const timeoutId = setTimeout(() => {
+        getNickNameF();
+      }, 1000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [userEmail, isOpencom, isOpenMatch, activeUser]);
+
+  /////////////เรียงข้อความตามเวลา - Optimized///////////////
   useEffect(() => {
+    if (!userEmail) return;
+    
     const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const newMessages = snapshot.docs.map((doc) => ({
@@ -623,34 +686,42 @@ const Chat = () => {
   });
   return (
     <RequireLogin>
-      <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
-        <div className="user-container">
-          <div className="chat">
-            <h2>Chat</h2>
+      {isLoading ? (
+        <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+          <div style={{ textAlign: 'center' }}>
+            <ImSpinner2 className="spinner" style={{ fontSize: '2rem', animation: 'spin 1s linear infinite' }} />
+            <p style={{ marginTop: '1rem', color: isDarkMode ? '#fff' : '#333' }}>กำลังโหลด...</p>
           </div>
-          <div className="search-con">
-            <FaSearch className="search-icon" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
-              className="search-input-chat"
-              autoFocus
-            />
-          </div>
-          <div className="slide-chat">
-            <ListUser
-              sortedFriends={sortedFriends}
-              lastMessages={lastMessages}
-              setActiveUser={setActiveUser}
-              setIsGroupChat={setIsGroupChat}
-              dropdownRefs={dropdownRefs}
-              getnickName={getnickName}
-              setUserImage={setUserImage}
-              setFriends={setFriends}
-              formatOnlineStatus={formatOnlineStatus}
-            />
+        </div>
+      ) : (
+        <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
+          <div className="user-container">
+            <div className="chat">
+              <h2>Chat</h2>
+            </div>
+            <div className="search-con">
+              <FaSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+                className="search-input-chat"
+                autoFocus
+              />
+            </div>
+            <div className="slide-chat">
+              <ListUser
+                sortedFriends={sortedFriends}
+                lastMessages={lastMessages}
+                setActiveUser={setActiveUser}
+                setIsGroupChat={setIsGroupChat}
+                dropdownRefs={dropdownRefs}
+                getnickName={getnickName}
+                setUserImage={setUserImage}
+                setFriends={setFriends}
+                formatOnlineStatus={formatOnlineStatus}
+              />
 
             <CommunityList
               joinedRooms={joinedRooms}
@@ -733,6 +804,7 @@ const Chat = () => {
           </div>
         </div>
       </div>
+      )}
     </RequireLogin>
   );
 };

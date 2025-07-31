@@ -20,11 +20,13 @@ import axios from "axios";
 import friendRequestRoutes from "./routes/friendRequest.js";
 import friendApiRoutes from "./routes/friendApi.js";
 import userPhotoRoutes from "./routes/userPhoto.js";
+import infoMatchRoutes from "./routes/infomatch.js"; // Import info match routes
 
 // Debug routes
 console.log("Registered routes:");
 console.log("- friendRequestRoutes:", Object.keys(friendRequestRoutes).length > 0 ? "Loaded" : "Empty");
 console.log("- userPhotoRoutes:", Object.keys(userPhotoRoutes).length > 0 ? "Loaded" : "Empty");
+console.log("- infoMatchRoutes:", Object.keys(infoMatchRoutes).length > 0 ? "Loaded" : "Empty");
 
 
 
@@ -280,6 +282,7 @@ app.use("/api", eventRoutes);
 app.use("/api", infoRoutes);
 app.use("/api", roommatchRoutes);
 app.use("/api", likeRoutes);
+app.use("/api", infoMatchRoutes); // ใช้งาน info match routes
 
 // ลงทะเบียน friendRequest routes โดยตรงเพื่อแก้ปัญหาเรื่อง 404
 // Log API requests for debugging
