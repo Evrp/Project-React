@@ -321,37 +321,24 @@ const Chat = () => {
   const setRoombar = (roomImage, roomName) => {
     setRoomBar({ roomImage, roomName });
   };
-
-  // Initial load optimization - immediate loading for better stability
   useEffect(() => {
-    if (userEmail && initialLoad) {
-      setIsLoading(true);
-      fetchUsersAndFriends().finally(() => {
-        setIsLoading(false);
-      });
-      setInitialLoad(false);
-    }
-  }, [userEmail, initialLoad]);
+    fetchUsersAndFriends();
+  }, []);
   useEffect(() => {
     if (!userEmail) return;
     fetchCurrentUserAndFriends();
   }, [userEmail]);
   // Load Gmail user data immediately when needed
   useEffect(() => {
-    if (userEmail) {
-      fetchGmailUser();
-    }
-  }, [userEmail]);
+    fetchGmailUser();
+  }, []);
 
-  // Optimize room and event fetching - immediate load when opened
   useEffect(() => {
-    if (!userEmail) return;
-    
-    if (isOpencom && !isOpenMatch) {
+    if (isOpencom) {
       fetchJoinedRooms();
       getallRooms();
-    } else if (isOpenMatch && !isOpencom) {
-      fetchMatchRooms();
+    } else if (isOpenMatch) {
+      fetchJoinedRooms();
       getallEvents();
     }
   }, [isOpencom, isOpenMatch, userEmail]);
@@ -429,7 +416,6 @@ const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
-  // Load nicknames immediately when user is available
   useEffect(() => {
     const getNickNameF = async () => {
       try {
@@ -441,11 +427,8 @@ const Chat = () => {
         console.error("โหลด nickname ล้มเหลว:", err);
       }
     };
-
-    if (userEmail) {
-      getNickNameF();
-    }
-  }, [userEmail]);
+    getNickNameF();
+  }, []);
 
   /////////////เรียงข้อความตามเวลา - Optimized///////////////
   useEffect(() => {
