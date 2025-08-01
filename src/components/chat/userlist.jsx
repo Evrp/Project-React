@@ -11,6 +11,9 @@ const ListUser = ({
   setIsGroupChat,
   selectedTab,
   setSelectedTab,
+  setIsOpen,
+  setOpenchat,
+  isOpen,
   dropdownRefs,
   setUserImage,
   setActiveRoomId, // เพิ่ม prop
@@ -18,7 +21,6 @@ const ListUser = ({
 }) => {
   console.log("sortedFriends:", sortedFriends);
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
   const userEmail = localStorage.getItem("userEmail");
 
   const formatRelativeTime = (timestamp) => {
@@ -71,6 +73,7 @@ const ListUser = ({
                     setUserImage(friend);
                     handleEnterRoom(friend.roomId);
                     setActiveUser(friend.email);
+                    setOpenchat(true);
                     setIsGroupChat(false);
                     setSelectedTab(friend.email);
                     if (setActiveRoomId)

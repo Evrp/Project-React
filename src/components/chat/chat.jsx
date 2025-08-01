@@ -51,6 +51,7 @@ const Chat = () => {
   const [currentUserfollow, setCurrentUserfollow] = useState(null);
   const userEmail = localStorage.getItem("userEmail");
   const messagesRef = collection(db, "messages");
+  const [isOpen, setIsOpen] = useState(false);
   const endOfMessagesRef = useRef(null);
   const dropdownRefs = useRef({});
   const [joinedRooms, setJoinedRooms] = useState([]); /// เพิ่ม joinedRooms
@@ -70,8 +71,7 @@ const Chat = () => {
   const [selectedTab, setSelectedTab] = useState(null);
   const [initialLoad, setInitialLoad] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [initialLoad, setInitialLoad] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [openchat, setOpenchat] = useState(false);
 
   const defaultProfileImage = userPhoto;
 
@@ -349,7 +349,7 @@ const Chat = () => {
   // Optimize room and event fetching - immediate load when opened
   useEffect(() => {
     if (!userEmail) return;
-    
+
     if (isOpencom && !isOpenMatch) {
       fetchJoinedRooms();
       getallRooms();
@@ -453,7 +453,7 @@ const Chat = () => {
   /////////////เรียงข้อความตามเวลา - Optimized///////////////
   useEffect(() => {
     if (!userEmail) return;
-    
+
     const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const newMessages = snapshot.docs.map((doc) => ({
@@ -504,13 +504,13 @@ const Chat = () => {
   };
 
   // อัปเดต friends ด้วยข้อมูลสถานะออนไลน์จาก context
-  const friendsWithOnlineStatus = friends.map(friend => {
+  const friendsWithOnlineStatus = friends.map((friend) => {
     if (!friend || !friend.email) return friend;
-    
+
     return {
       ...friend,
       isOnline: isOnline(friend.email),
-      lastSeen: onlineUsers[friend.email]?.lastActive
+      lastSeen: onlineUsers[friend.email]?.lastActive,
     };
   });
 
@@ -520,7 +520,7 @@ const Chat = () => {
     if (a?.email && b?.email) {
       if (isOnline(a.email) && !isOnline(b.email)) return -1;
       if (!isOnline(a.email) && isOnline(b.email)) return 1;
-      
+
       // ถ้าสถานะออนไลน์เหมือนกัน ให้เรียงตามเวลาข้อความล่าสุด
       const timeA = lastMessages[a.email]?.timestamp?.toDate()?.getTime() || 0;
       const timeB = lastMessages[b.email]?.timestamp?.toDate()?.getTime() || 0;
@@ -531,15 +531,32 @@ const Chat = () => {
   return (
     <RequireLogin>
       {isLoading ? (
-        <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '2rem', animation: 'spin 1s linear infinite' }}>⏳</div>
-            <p style={{ marginTop: '1rem', color: isDarkMode ? '#fff' : '#333' }}>กำลังโหลด...</p>
+        <div
+          className={`main-container ${isDarkMode ? "dark-mode" : ""}`}
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "100vh",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <div
+              style={{ fontSize: "2rem", animation: "spin 1s linear infinite" }}
+            >
+              ⏳
+            </div>
+            <p
+              style={{ marginTop: "1rem", color: isDarkMode ? "#fff" : "#333" }}
+            >
+              กำลังโหลด...
+            </p>
           </div>
         </div>
       ) : (
         <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
-          <div className="user-container">
+          {/* <div className="user-container"> */}
+          <div className={`user-container ${openchat ? "mobile-layout-mode" : ""}`}>
             <div className="chat">
               <h2>Chat</h2>
             </div>
@@ -554,130 +571,110 @@ const Chat = () => {
                 autoFocus
               />
             </div>
-      {isLoading ? (
-        <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '2rem', animation: 'spin 1s linear infinite' }}>⏳</div>
-            <p style={{ marginTop: '1rem', color: isDarkMode ? '#fff' : '#333' }}>กำลังโหลด...</p>
-          </div>
-        </div>
-      ) : (
-        <div className={`main-container ${isDarkMode ? "dark-mode" : ""}`}>
-          <div className="user-container">
-            <div className="chat">
-              <h2>Chat</h2>
-            </div>
-            <div className="search-con">
-              <FaSearch className="search-icon" />
-              <input
-                type="text"
-                placeholder="Search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
-                className="search-input-chat"
-                autoFocus
+            <div className="slide-chat">
+              <ListUser
+                sortedFriends={sortedFriends}
+                lastMessages={lastMessages}
+                setOpenchat={setOpenchat}
+                setActiveUser={setActiveUser}
+                isOpen={isOpen}
+                setIsOpen={setIsOpen}
+                setIsGroupChat={setIsGroupChat}
+                dropdownRefs={dropdownRefs}
+                getnickName={getnickName}
+                setSelectedTab={setSelectedTab}
+                selectedTab={selectedTab}
+                setUserImage={setUserImage}
+                setFriends={setFriends}
+                formatOnlineStatus={formatOnlineStatus}
+              />
+
+              <CommunityList
+                joinedRooms={joinedRooms}
+                allRooms={allRooms}
+                isOpencom={isOpencom}
+                setUserImage={setUserImage}
+                setSelectedTab={setSelectedTab}
+                selectedTab={selectedTab}
+                setIsOpencom={setIsOpencom}
+                setActiveUser={(roomId) => {
+                  setActiveUser(roomId);
+                  setIsGroupChat(true);
+                }}
+                setIsGroupChat={setIsGroupChat}
+                dropdownRefs={dropdownRefs}
+                getnickName={getnickName}
+                setFriends={setFriends}
+                setRoombar={setRoombar}
+                loadingFriendRooms={loadingFriendRooms}
+                openMenuFor={openMenuFor}
+                setJoinedRooms={setJoinedRooms}
+                setOpenMenuFor={setOpenMenuFor}
+              />
+
+              <MatchList
+                joinedRooms={joinedRooms}
+                allEvents={allEvents}
+                users={users}
+                isOpenMatch={isOpenMatch}
+                setSelectedTab={setSelectedTab}
+                selectedTab={selectedTab}
+                setIsOpenMatch={setIsOpenMatch}
+                setActiveUser={setActiveUser}
+                handleProfileClick={handleProfileClick}
+                setRoombar={setRoombar}
+                setIsGroupChat={setIsGroupChat}
+                loadingFriendRooms={loadingFriendRooms}
+                openMenuFor={openMenuFor}
+                setOpenMenuFor={setOpenMenuFor}
+                dropdownRefs={dropdownRefs}
+                setJoinedRooms={setJoinedRooms}
+                getnickName={getnickName}
+                setFriends={setFriends}
+                setUserImage={setUserImage}
               />
             </div>
-          <div className="slide-chat">
-            <ListUser
-              sortedFriends={sortedFriends}
-              lastMessages={lastMessages}
-              setActiveUser={setActiveUser}
-              setIsGroupChat={setIsGroupChat}
-              dropdownRefs={dropdownRefs}
-              getnickName={getnickName}
-              setSelectedTab={setSelectedTab}
-              selectedTab={selectedTab}
-              setUserImage={setUserImage}
-              setFriends={setFriends}
-              formatOnlineStatus={formatOnlineStatus}
-            />
-
-            <CommunityList
-              joinedRooms={joinedRooms}
-              allRooms={allRooms}
-              isOpencom={isOpencom}
-              setUserImage={setUserImage}
-              setSelectedTab={setSelectedTab}
-              selectedTab={selectedTab}
-              setIsOpencom={setIsOpencom}
-              setActiveUser={(roomId) => {
-                setActiveUser(roomId);
-                setIsGroupChat(true);
-              }}
-              setIsGroupChat={setIsGroupChat}
-              dropdownRefs={dropdownRefs}
-              getnickName={getnickName}
-              setFriends={setFriends}
-              setRoombar={setRoombar}
-              loadingFriendRooms={loadingFriendRooms}
-              openMenuFor={openMenuFor}
-              setJoinedRooms={setJoinedRooms}
-              setOpenMenuFor={setOpenMenuFor}
-            />
-
-            <MatchList
-              joinedRooms={joinedRooms}
-              allEvents={allEvents}
-              users={users}
-              isOpenMatch={isOpenMatch}
-              setSelectedTab={setSelectedTab}
-              selectedTab={selectedTab}
-              setIsOpenMatch={setIsOpenMatch}
-              setActiveUser={setActiveUser}
-              handleProfileClick={handleProfileClick}
-              setRoombar={setRoombar}
-              setIsGroupChat={setIsGroupChat}
-              loadingFriendRooms={loadingFriendRooms}
-              openMenuFor={openMenuFor}
-              setOpenMenuFor={setOpenMenuFor}
-              dropdownRefs={dropdownRefs}
-              setJoinedRooms={setJoinedRooms}
-              getnickName={getnickName}
-              setFriends={setFriends}
-              setUserImage={setUserImage}
-            />
           </div>
-        </div>
-        <div className="bg-chat-con">
-          <ChatPanel
-            messages={messages}
-            users={users}
-            userEmail={userEmail}
-            userPhoto={userPhoto}
-            setJoinedRooms={setJoinedRooms}
-            userName={userName}
-            RoomsBar={RoomsBar}
-            getnickName={getnickName}
-            input={input}
-            isOpencom={isOpencom}
-            isOpenMatch={isOpenMatch}
-            setFriends={setFriends}
-            userImage={userImage}
-            sortedFriends={sortedFriends}
-            setInput={setInput}
-            handleSend={handleSend}
-            endOfMessagesRef={endOfMessagesRef}
-            defaultProfileImage={defaultProfileImage}
-            formatChatDate={formatChatDate}
-          />
-          <div className="tabright">
-            <ShowTitle userimage={userImage} />
-            <ChatContainerAI
-              loadingMessages={loadingMessages}
+          {/* <div className="bg-chat-con"> */}
+          <div className={`bg-chat-con ${openchat ? "mobile-layout-mode" : ""}`}>
+            <ChatPanel
               messages={messages}
               users={users}
               userEmail={userEmail}
-              defaultProfileImage={defaultProfileImage}
-              formatChatDate={formatChatDate}
-              endOfMessagesRef={endOfMessagesRef}
+              userPhoto={userPhoto}
+              setJoinedRooms={setJoinedRooms}
+              userName={userName}
+              RoomsBar={RoomsBar}
+              getnickName={getnickName}
               input={input}
+              isOpencom={isOpencom}
+              isOpenMatch={isOpenMatch}
+              setFriends={setFriends}
+              userImage={userImage}
+              sortedFriends={sortedFriends}
               setInput={setInput}
               handleSend={handleSend}
+              endOfMessagesRef={endOfMessagesRef}
+              defaultProfileImage={defaultProfileImage}
+              formatChatDate={formatChatDate}
             />
+            <div className="tabright">
+              <ShowTitle userimage={userImage} />
+              <ChatContainerAI
+                loadingMessages={loadingMessages}
+                messages={messages}
+                users={users}
+                userEmail={userEmail}
+                defaultProfileImage={defaultProfileImage}
+                formatChatDate={formatChatDate}
+                endOfMessagesRef={endOfMessagesRef}
+                input={input}
+                setInput={setInput}
+                handleSend={handleSend}
+              />
+            </div>
           </div>
         </div>
-      </div>
       )}
     </RequireLogin>
   );

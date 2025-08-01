@@ -177,7 +177,6 @@
   background-color: #f7f8fc;
 }
 
-
 /* กล่องข้อความเมื่อผู้ใช้ไม่ได้ล็อกอิน */
 .text-center {
   text-align: center;
@@ -505,4 +504,13 @@ textarea::placeholder {
 .dark-mode .tabs ul li {
   font-size: 16px;
   color: #f5f5f5;
+}
+@media screen and (min-width: 768px) and (max-width: 990px) {
+  .profile-header h1{
+    display: none;
+  }
+  .profile-header {
+   display: flex;
+   justify-content: end;
+  }
 }

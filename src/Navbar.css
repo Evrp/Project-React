@@ -94,18 +94,29 @@
 }
 
 @media screen and (max-width: 768px) {
+  .navbar-container {
+    background: rgb(255, 255, 255);
+    display: flex;
+    width: 20vh;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 100vh;
+    align-items: center;
+    border-right: 1px solid #ccc;
+    top: 0;
+    position: relative;
+  }
   .navbar-con {
     width: 28%;
     /* เปลี่ยนขนาด navbar ให้เต็มหน้าจอมือถือ */
   }
-
+/* 
   .mobile-menu {
     display: block;
     margin-left: 40%;
 
     font-size: 1.8rem;
-
-  }
+  } */
 
   .menu-bar {
     width: 100%;
@@ -220,10 +231,166 @@
   /* หรือสีที่ต้องการ */
 }
 
-
 /* เปลี่ยนสีไอคอนและข้อความเมื่อ hover */
 /* .menu-link:hover a,
 .menu-link:hover .logout-link,
 .menu-link:hover i {
   color: #007bff; 
 } */
+
+/* Tablet และ Mobile Responsive - Bottom Navigation */
+@media screen and (min-width: 768px) and (max-width: 990px) {
+  .navbar-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: auto;
+    width: 100%;
+    height: fit-content;
+    min-height: auto;
+    justify-content: space-between;
+    align-items: center;
+    border-right: none;
+    border-top: 1px solid #ccc;
+    background: rgb(255, 255, 255);
+    z-index: 1000;
+    padding: 8px 0;
+  }
+
+  .dark-mode .navbar-container {
+    background: #2d2d2d;
+    border-top: 1px solid #555;
+  }
+
+  .logo-con {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin: 0px 0px 0px 20px;
+    position: absolute;
+    bottom: 1000px;
+    left: 16px;
+  }
+
+  .navbar-notification {
+    display: none; /* ซ่อน notification ในโหมดโมบาย */
+  }
+
+  .menu-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .menu-bar li {
+    margin: 0;
+    padding: 8px 4px;
+    width: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .menu-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 8px 4px;
+    width: 100%;
+    min-height: 50px;
+    border-radius: 8px;
+  }
+
+  .menu-link i {
+    margin: 0 0 4px 0;
+    width: auto;
+    font-size: 20px;
+  }
+
+  .menu-link a,
+  .menu-link .logout-link {
+    font-size: 10px;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .menu-link:hover {
+    background: rgba(0, 123, 255, 0.1);
+  }
+
+  .dark-mode .menu-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .menu-link.active {
+    background: rgba(0, 123, 255, 0.15);
+  }
+
+  .dark-mode .menu-link.active {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .mobile-menu {
+    display: none; /* ซ่อน hamburger menu เพราะใช้ bottom nav แล้ว */
+  }
+
+  /* ปรับขนาดข้อความสำหรับหน้าจอเล็กมาก */
+  @media screen and (max-width: 480px) {
+    .menu-link a,
+    .menu-link .logout-link {
+      font-size: 8px;
+    }
+
+    .menu-link i {
+      font-size: 18px;
+    }
+
+    .menu-link {
+      padding: 6px 2px;
+      min-height: 45px;
+    }
+  }
+}
+
+/* Desktop Responsive - รักษา navbar แบบเดิม */
+@media screen and (min-width: 991px) {
+  .navbar-container {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    width: 20vh;
+    height: auto;
+    min-height: 100vh;
+    flex-direction: column;
+    border-right: 1px solid #ccc;
+    border-top: none;
+  }
+
+  .menu-bar {
+    flex-direction: column;
+  }
+
+  .menu-link {
+    flex-direction: row;
+    margin: 1rem 0;
+  }
+
+  .menu-link i {
+    margin-right: 12px;
+    margin-bottom: 0;
+  }
+}
