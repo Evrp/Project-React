@@ -1,0 +1,20 @@
+.reponsive {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+@media screen and (min-width: 768px) and (max-width: 990px) {
+  .reponsive {
+    display: flex;
+    flex-direction: column-reverse;
+    width: 100%;
+  }
+    
+}
+@media screen and (max-width: 1024px) {
+  .reponsive {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+  }
+}

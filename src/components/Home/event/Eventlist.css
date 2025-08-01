@@ -508,3 +508,31 @@
 .event-container.dark-mode .loading-text {
   color: #ecebfa;
 }
+@media screen and (min-width: 768px) and (max-width: 990px) {
+  .event-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 32px 28px;
+  max-width: 300px;
+  margin: 0 auto;
+  padding: 12px 0 32px 0;
+  align-items: stretch;
+}
+.event-container {
+  height: calc(100vh - 147px);
+  background-color: #f3f4f6;
+  padding: 60px 24px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+}
+.dark-mode .event-list {
+  display: flex;
+  flex-direction: column;
+  color: #23242b;
+  gap: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #1e1e1e;
+}
+}

@@ -21,20 +21,22 @@ function App() {
     <SocketProvider>
       <NotificationProvider>
         {/* หากไม่ใช่หน้า login, จะแสดง Navbar */}
-        {location.pathname !== "/login" && <Navbar />}
+        <div className="reponsive">
+          {location.pathname !== "/login" && <Navbar />}
 
-        <Routes>
-          <Route path="/home" element={<Home />} />
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<LoginForm />} />
-          <Route path="/friend" element={<Freind />} />
-          <Route path="/setup" element={<Setup />} />
-          {/* <Route path="/chat" element={<Chat />} /> */}
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/community" element={<Community />} />
-          <Route path="/chat/:roomId" element={<Chat />} />
-          <Route path="/ai-chat" element={<ChatContainerAI />} />
-        </Routes>
+          <Routes>
+            <Route path="/home" element={<Home />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<LoginForm />} />
+            <Route path="/friend" element={<Freind />} />
+            <Route path="/setup" element={<Setup />} />
+            {/* <Route path="/chat" element={<Chat />} /> */}
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/community" element={<Community />} />
+            <Route path="/chat/:roomId" element={<Chat />} />
+            <Route path="/ai-chat" element={<ChatContainerAI />} />
+          </Routes>
+        </div>
       </NotificationProvider>
     </SocketProvider>
   );
