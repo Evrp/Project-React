@@ -80,24 +80,26 @@ const ListUser = ({
                       setActiveRoomId(getRoomIdForFriend(friend.email));
                   }}
                 >
-                  <img
-                    src={friend.photoURL}
-                    alt={friend.displayName}
-                    className="friend-photo"
-                  />
-                  <div className="friend-details">
-                    <span className="friend-name">{friend.displayName}</span>
-                    <div className="row-last-time">
-                      <span className="last-message">
-                        {lastMessages[friend.email]?.content ||
-                          "ยังไม่มีข้อความ"}
-                      </span>
-                      <span className="message-time">
-                        {lastMessages[friend.email]?.timestamp &&
-                          formatRelativeTime(
-                            lastMessages[friend.email].timestamp.toDate()
-                          )}
-                      </span>
+                  <div className="mobilelarge">
+                    <img
+                      src={friend.photoURL}
+                      alt={friend.displayName}
+                      className="friend-photo"
+                    />
+                    <div className="friend-details">
+                      <span className="friend-name">{friend.displayName}</span>
+                      <div className="row-last-time">
+                        <span className="last-message">
+                          {lastMessages[friend.email]?.content ||
+                            "ยังไม่มีข้อความ"}
+                        </span>
+                        <span className="message-time">
+                          {lastMessages[friend.email]?.timestamp &&
+                            formatRelativeTime(
+                              lastMessages[friend.email].timestamp.toDate()
+                            )}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="con-right">

@@ -369,9 +369,7 @@ const Newcommu = () => {
               ยืนยันการลบ ({selectedRooms.length})
             </button>
           )}
-          <button className="filter-button" onClick={handleMatchFriend}>
-            Match Friend
-          </button>
+         
         </div>
         <div className="container-content">
           {handlematchfriend === true ? (
@@ -390,97 +388,7 @@ const Newcommu = () => {
             />
           )}
 
-          <div className="recommentfreind">
-            <h2 className="grd">FREIND MATCH</h2>
-            <div className="con-card">
-              {matches.length === 0 ? (
-                <p>ไม่พบเพื่อนที่มีความสนใจเหมือนกัน</p>
-              ) : (
-                matches.map((friend, index) => (
-                  <div key={index} className="friend-card">
-                    <div className="dfd"></div>
-                    <div className="header-friend-card">
-                      <h1 className="ee">ee</h1>
-                      <img
-                        src={friend.photoURL}
-                        alt="profile"
-                        className="friend-image"
-                        style={{ borderRadius: "50%", width: "60px" }}
-                      />
-                      <div className="rr">
-                        <DropdownMenu
-                          user={friend}
-                          currentUserfollow={currentUserfollow}
-                          loadingFriendEmail={loadingFriendEmail}
-                          onProfileClick={handleProfileClick}
-                          onFollow={handleFollow}
-                          fetchFollowInfo={fetchFollowInfo}
-                        />
-                      </div>
-                    </div>
-
-                    <h3>
-                      {(getnickName &&
-                        getnickName.find((n) => n.email === friend.email)
-                          ?.nickname) ||
-                        friend.displayName}
-                    </h3>
-                    <p>{friend.email}</p>
-                    <p>หมวดหมู่: {friend.genres.join(", ")}</p>
-
-                    {friend.subGenres &&
-                      Object.keys(friend.subGenres).length > 0 && (
-                        <ul>
-                          {Object.entries(friend.subGenres).map(
-                            ([category, topics]) => (
-                              <li key={category}>
-                                {category}: {topics.join(", ")}
-                              </li>
-                            )
-                          )}
-                        </ul>
-                      )}
-                  </div>
-                ))
-              )}
-            </div>
-
-            {isModalOpen && selectedUser && (
-              <div className="profile-modal">
-                <div className="modal-content" ref={modalRef}>
-                  <div className="profile-info">
-                    <img
-                      src={selectedUser.photoURL}
-                      alt={
-                        getnickName.find((n) => n.email === selectedUser.email)
-                          ?.nickname || selectedUser.displayName
-                      }
-                      className="profile-photo"
-                    />
-                    <h2>
-                      {getnickName.find((n) => n.email === selectedUser.email)
-                        ?.nickname || selectedUser.displayName}
-                    </h2>
-                    <div className="tabs">
-                      <ul className="followers">
-                        <li>{followers.length} followers</li>
-                      </ul>
-                      <ul className="following">
-                        <li>{following.length} following</li>
-                      </ul>
-                    </div>
-                    <p>Email: {selectedUser.email}</p>
-                    <p>
-                      สถานะ: {selectedUser.isOnline ? "ออนไลน์" : "ออฟไลน์"}
-                    </p>
-                    <button className="close-btn" onClick={handleCloseModal}>
-                      ปิด
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+         
         </div>
       </div>
     </RequireLogin>

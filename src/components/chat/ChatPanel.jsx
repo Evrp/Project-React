@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { TiMicrophoneOutline } from "react-icons/ti";
 import { MdAttachFile } from "react-icons/md";
 import { IoCameraOutline } from "react-icons/io5";
+import { IoIosArrowBack } from "react-icons/io";
 import { BsEmojiSmile } from "react-icons/bs";
 import ProfileModal from "./ProfileModal";
 import axios from "axios";
@@ -15,10 +16,12 @@ const ChatPanel = ({
   sortedFriends,
   RoomsBar,
   getnickName,
+  openchat,
   input,
   setInput,
   handleSend,
   userImage,
+  setOpenchat,
   endOfMessagesRef,
   defaultProfileImage,
   setFriends,
@@ -51,8 +54,8 @@ const ChatPanel = ({
   };
   useEffect(() => {
     if (!userImage) return;
-    if (userImage.name) {setIscom(true); return;}
-    if (userImage.usermatch) {setIscom(true); return;}
+    if (userImage.name) { setIscom(true); return; }
+    if (userImage.usermatch) { setIscom(true); return; }
     if (userImage.email) setIscom(false);
     try {
       fetchFollowInfo(userImage.email);
@@ -62,29 +65,40 @@ const ChatPanel = ({
   }, [userImage]);
 
   return (
-    <div className="chat-container">
-      <div className="show-info">
-        <img
-          src={
-            userImage && users && (
-              users.find((u) => u.email === userImage?.usermatch)?.photoURL ||
-              users.find((u) => u.email === userImage?.email)?.photoURL ||
-              userImage?.image ||
-              defaultProfileImage
-            )
-          }
-          alt="Profile"
-          className="chat-profile"
-          onClick={() => {
-            if (!userImage || !users) return;
-            const userObject =
-              users.find((u) => u.email === userImage?.usermatch) ||
-              users.find((u) => u.email === userImage?.email) || userImage;
-            handleProfileClick(userObject);
+    <div className={`chat-container ${openchat ? "mobile-layout-mode" : ""}`}>
+      <div className={`show-info ${openchat ? "mobile-layout-mode" : ""}`}>
+        <button
+          className={`back-button-mobile ${openchat ? "mobile-layout-mode" : ""}`}
+          onClick={() => setOpenchat(false)}
+          style={{
+            WebkitTapHighlightColor: 'transparent', // ลบ highlight สีฟ้าบน iOS
+            userSelect: 'none' // ป้องกันการเลือกข้อความ
           }}
-          style={{ cursor: "pointer" }}
-        />
-        <h2>
+        >
+          <IoIosArrowBack />
+        </button>
+        <div className="center-mobile">
+          <img
+            src={
+              userImage && users && (
+                users.find((u) => u.email === userImage?.usermatch)?.photoURL ||
+                users.find((u) => u.email === userImage?.email)?.photoURL ||
+                userImage?.image ||
+                defaultProfileImage
+              )
+            }
+            alt="Profile"
+            className={`chat-profile ${openchat ? "mobile-layout-mode" : ""}`}
+            onClick={() => {
+              if (!userImage || !users) return;
+              const userObject =
+                users.find((u) => u.email === userImage?.usermatch) ||
+                users.find((u) => u.email === userImage?.email) || userImage;
+              handleProfileClick(userObject);
+            }}
+          />
+        </div>
+        <h2 className={`chat-title ${openchat ? "mobile-layout-mode" : ""}`}>
           {userImage && Array.isArray(getnickName) && users && (
             getnickName.find((u) => u.email === userImage?.usermatch)
               ?.nickname ||

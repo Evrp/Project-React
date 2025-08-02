@@ -14,6 +14,8 @@ import "./ChatAI.css";
 // หรือแก้ใน src/service/aiService.js ตรง OPENAI_API_KEY
 
 const ChatContainerAI = ({
+  openchat,
+  isAiChatOpen,
   userEmail = "user@example.com", // ใส่ email ผู้ใช้จริงถ้ามี
   defaultProfileImage = "https://ui-avatars.com/api/?name=User&background=4f46e5&color=fff", // รูปโปรไฟล์ผู้ใช้
   aiProfileImage = "https://ui-avatars.com/api/?name=AI&background=6366f1&color=fff", // รูปโปรไฟล์ AI
@@ -28,10 +30,10 @@ const ChatContainerAI = ({
   // เพิ่มข้อความต้อนรับเมื่อเริ่มต้น
   useEffect(() => {
     setMessages([
-      { 
-        text: "สวัสดี! ฉันคือ AI Assistant พร้อมช่วยเหลือคุณเกี่ยวกับการใช้งานแอพ การหาเพื่อนที่มีความสนใจคล้ายกัน และแนะนำกิจกรรมที่น่าสนใจ มีอะไรให้ช่วยไหมคะ?", 
+      {
+        text: "สวัสดี! ฉันคือ AI Assistant พร้อมช่วยเหลือคุณเกี่ยวกับการใช้งานแอพ การหาเพื่อนที่มีความสนใจคล้ายกัน และแนะนำกิจกรรมที่น่าสนใจ มีอะไรให้ช่วยไหมคะ?",
         isAI: true,
-        timestamp: new Date() 
+        timestamp: new Date()
       }
     ]);
   }, []);
@@ -62,10 +64,10 @@ const ChatContainerAI = ({
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     const messageDate = new Date(date);
     const messageDay = new Date(messageDate.getFullYear(), messageDate.getMonth(), messageDate.getDate());
-    
+
     if (messageDay.getTime() === today.getTime()) {
       return `วันนี้ ${messageDate.getHours().toString().padStart(2, '0')}:${messageDate.getMinutes().toString().padStart(2, '0')}`;
     } else if (messageDay.getTime() === yesterday.getTime()) {
@@ -91,8 +93,8 @@ const ChatContainerAI = ({
 
   const handleSend = async () => {
     if (!input.trim()) return;
-    const userMsg = { 
-      text: input, 
+    const userMsg = {
+      text: input,
       isAI: false,
       timestamp: new Date()
     };
@@ -100,34 +102,34 @@ const ChatContainerAI = ({
     setInput("");
     setLoading(true);
     setIsTyping(true);
-    
+
     try {
       // สร้าง delay เล็กน้อยเพื่อให้ดูเป็นธรรมชาติ
       const minDelay = 700; // มิลลิวินาที
       const sendTime = Date.now();
-      
+
       // ส่งข้อความและประวัติการแชทไปยัง AI
       const aiReply = await sendMessageToAI(input, chatHistory);
-      
+
       // คำนวณเวลาที่ผ่านไปตั้งแต่ส่งคำขอ
       const elapsedTime = Date.now() - sendTime;
-      
+
       // ถ้าใช้เวลาน้อยกว่า minDelay ให้รอเพิ่ม
       if (elapsedTime < minDelay) {
         await new Promise(resolve => setTimeout(resolve, minDelay - elapsedTime));
       }
-      
+
       setIsTyping(false);
-      setMessages(prev => [...prev, { 
-        text: aiReply, 
+      setMessages(prev => [...prev, {
+        text: aiReply,
         isAI: true,
         timestamp: new Date()
       }]);
     } catch (err) {
       console.error("AI Error:", err);
       setIsTyping(false);
-      setMessages(prev => [...prev, { 
-        text: "เกิดข้อผิดพลาดในการเชื่อมต่อ AI กรุณาลองใหม่อีกครั้ง", 
+      setMessages(prev => [...prev, {
+        text: "เกิดข้อผิดพลาดในการเชื่อมต่อ AI กรุณาลองใหม่อีกครั้ง",
         isAI: true,
         timestamp: new Date()
       }]);
@@ -138,14 +140,17 @@ const ChatContainerAI = ({
 
   return (
     <div className="chat-container-ai">
-      <div className="header-chat-ai">
-        <div className="chat-header">
-          <h1>
-            <RiRobot2Fill /> AI Assistant
-            <span className="ai-status">Online</span>
-          </h1>
+      {!isAiChatOpen && (
+        <div className="header-chat-ai">
+          <div className="chat-header">
+            <h1>
+              <RiRobot2Fill /> AI Assistant
+              <span className="ai-status">Online</span>
+            </h1>
+          </div>
         </div>
-        <div className="chat-box-ai">
+      )}
+      <div className="chat-box-ai">
           {messages.length === 0 && !loading && (
             <div className="empty-list">
               <RiRobot2Fill size={36} />
@@ -227,16 +232,15 @@ const ChatContainerAI = ({
               <MdAttachFile />
               <BsEmojiSmile />
             </div>
-            <button 
-              onClick={handleSend} 
-              className="chat-send-button" 
+            <button
+              onClick={handleSend}
+              className="chat-send-button"
               disabled={loading || !input.trim()}
             >
               <MdSend /> ส่ง
             </button>
           </div>
         </div>
-      </div>
     </div>
   );
 };
