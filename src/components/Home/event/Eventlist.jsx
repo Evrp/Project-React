@@ -3,11 +3,13 @@ import axios from "axios";
 import "./Eventlist.css";
 import { useTheme } from "../../../context/themecontext";
 import { MdFavorite, MdFavoriteBorder } from "react-icons/md";
+import { FiCalendar, FiX } from "react-icons/fi";
 
 const EventList = () => {
   const [events, setEvents] = useState([]);
   const [eventsImage, setEventsImage] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const email = localStorage.getItem("userEmail");
   const { isDarkMode, setIsDarkMode } = useTheme();
   const [favoriteEvents, setFavoriteEvents] = useState([]); // Store array of favorited event IDs
@@ -160,7 +162,8 @@ const EventList = () => {
 
   if (loading) return <p className="loading-text">กำลังโหลด...</p>;
 
-  return (
+  // Event List Content Component
+  const EventListContent = () => (
     <div className={`event-container ${isDarkMode ? "dark-mode" : ""}`}>
       {events.length === 0 ? (
         <div className="eventlist-empty-loading">
@@ -273,6 +276,43 @@ const EventList = () => {
         </div>
       )}
     </div>
+  );
+
+  return (
+    <>
+      {/* Mobile Toggle Button (visible only on screens < 990px) */}
+      <button 
+        className="eventlist-modal-toggle-btn"
+        onClick={() => setIsModalOpen(true)}
+        aria-label="Open Events"
+      >
+        <FiCalendar />
+      </button>
+
+      {/* Desktop View (hidden on screens < 990px) */}
+      <div className="eventlist-desktop-view">
+        <EventListContent />
+      </div>
+
+      {/* Modal Sheet (visible only on screens < 990px) */}
+      <div className={`eventlist-modal-overlay ${isModalOpen ? 'active' : ''}`} onClick={() => setIsModalOpen(false)}>
+        <div className={`eventlist-modal-sheet ${isModalOpen ? 'active' : ''}`} onClick={(e) => e.stopPropagation()}>
+          <div className="eventlist-modal-header">
+            <div className="eventlist-modal-handle"></div>
+            <button 
+              className="eventlist-modal-close"
+              onClick={() => setIsModalOpen(false)}
+              aria-label="Close Events"
+            >
+              <FiX />
+            </button>
+          </div>
+          <div className="eventlist-modal-content">
+            <EventListContent />
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 

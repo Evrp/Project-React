@@ -7,7 +7,7 @@
 .accordion-item {
     border-block-end: 1px solid #e0e0e0;
     background: #fff;
-    border-radius: 35px;
+    border-radius: 8px;
 }
 
 .accordion-header {
@@ -15,7 +15,7 @@
     background: none;
     border: none;
     width: 100%;
-    border-radius: 40px;
+    border-radius: 1px;
     margin-block-start: 1rem;
     box-shadow: 1px rgba(0, 0, 0, 0.9);
     outline: none;
@@ -239,7 +239,7 @@
     box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
     padding: 6px 18px 6px 12px;
     position: relative;
-    border-radius: 18px;
+    border-radius: 12px;
     transition: box-shadow 0.2s;
     scrollbar-width: thin;
     scrollbar-color: #90caf9 #e3f2fd;
@@ -372,4 +372,148 @@
 .dark-mode .accordion-content {
     background: #2c313a;
     color: #e0e0e0;
+}
+
+/* Responsive Design for AccordionList */
+@media screen and (max-width: 990px) {
+    .accordion-list {
+        inline-size: 100%;
+        max-inline-size: 100%;
+        margin: 0;
+        padding: 0 16px;
+    }
+
+    .accordion-header {
+        padding: 12px 16px;
+        font-size: 1rem;
+        max-inline-size: 100%;
+    }
+
+    .accordion-content {
+        inline-size: 100%;
+        margin-block-start: 3px;
+        padding: 12px 16px;
+    }
+
+    .accordion-content-title {
+        font-size: 1.4rem;
+        margin-block-end: 6px;
+    }
+
+    .accordion-header-chips {
+        max-inline-size: calc(100vw - 64px);
+        padding: 4px 12px;
+    }
+
+    .accordion-filter-chip {
+        height: 32px;
+        padding: 4px 10px;
+        font-size: 0.9rem;
+    }
+
+    .submit-genres-button,
+    .clear-genres-button {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+}
+
+
+
+@media screen and (max-width: 600px) {
+    .accordion-list {
+        padding: 0 8px;
+    }
+    .accordion-header {
+        padding: 8px 10px;
+        font-size: 0.9rem;
+        max-block-size: 60px;
+    }
+
+    .accordion-content {
+        padding: 8px 10px;
+    }
+
+    .accordion-content-title {
+        font-size: 1.2rem;
+    }
+
+    .accordion-header-chips {
+        max-inline-size: calc(100vw - 32px);
+        padding: 2px 8px;
+    }
+
+    .accordion-filter-chip {
+        height: 28px;
+        padding: 2px 6px;
+        font-size: 0.8rem;
+    }
+
+    .submit-genres-button,
+    .clear-genres-button {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+
+    .accordion-bg {
+        inline-size: 100%;
+    }
+
+    .accordion-tabs-wrapper {
+        inset-inline-start: calc(100% - 160px);
+    }
+
+    .accordion-tab {
+        inline-size: 150px;
+        font-size: 0.85rem;
+        block-size: 36px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .accordion-list {
+        padding: 0 6px;
+    }
+
+    .accordion-header {
+        padding: 6px 8px;
+        font-size: 0.85rem;
+        max-block-size: 55px;
+    }
+
+    .accordion-content {
+        padding: 6px 8px;
+    }
+
+    .accordion-content-title {
+        font-size: 1.1rem;
+    }
+
+    .accordion-header-chips {
+        max-inline-size: calc(100vw - 24px);
+        padding: 2px 6px;
+    }
+
+    .accordion-filter-chip {
+        height: 26px;
+        padding: 2px 5px;
+        font-size: 0.75rem;
+    }
+
+    .submit-genres-button,
+    .clear-genres-button {
+        padding: 3px 6px;
+        font-size: 0.75rem;
+    }
+
+    .accordion-tabs-wrapper {
+        inset-inline-start: calc(100% - 140px);
+    }
+
+    .accordion-tab {
+        inline-size: 130px;
+        font-size: 0.8rem;
+        block-size: 32px;
+        padding: 2px 8px;
+    }
 }

@@ -103,15 +103,16 @@
   cursor: pointer;
   width: 100%;
   border-radius: 12px;
+  position: relative;
 }
 
 .menu-link:hover {
-  background: rgb(0, 0, 0, 0.1);
+  background: transparent;
   border-radius: 12px;
 }
 
 .dark-mode .menu-link:hover {
-  background: #4d4d4d;
+  background: transparent;
   border-radius: 12px;
 }
 
@@ -141,12 +142,12 @@
 }
 
 .menu-link.active {
-  background: rgba(0, 0, 0, 0.1);
+  background: transparent;
   border-radius: 12px;
 }
 
 .dark-mode .menu-link.active {
-  background: #767474;
+  background: transparent;
   border-radius: 12px;
 }
 
@@ -162,6 +163,15 @@
 .menu-link:hover i {
   color: #007bff; 
 } */
+
+/* ป้องกัน content ไม่ให้ทับกับ logo */
+@media screen and (max-width: 990px) {
+  .content-wrapper,
+  .main-content {
+    padding-top: 60px; /* เผื่อพื้นที่สำหรับ logo */
+    padding-bottom: 80px; /* เผื่อพื้นที่สำหรับ bottom navbar */
+  }
+}
 
 /* Tablet และ Mobile Responsive - Bottom Navigation */
 @media screen and (max-width: 990px) {
@@ -189,13 +199,28 @@
   }
 
   .logo-con {
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    margin: 0px 0px 0px 20px;
-    position: absolute;
-    bottom: 1000px;
+    position: fixed;
+    top: 2px;
     left: 16px;
+    z-index: 2000;
+    font-size: 18px;
+    margin: 0;
+    color: black;
+    /* background: rgba(255, 255, 255, 0.95); */
+    padding: 8px 12px;
+    border-radius: 8px;
+    /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
+    backdrop-filter: blur(10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+  }
+
+  .dark-mode .logo-con {
+    color: #f5f5f5;
+    background: rgba(45, 45, 45, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
   }
 
   .navbar-notification {
@@ -233,6 +258,39 @@
     width: 100%;
     min-height: 50px;
     border-radius: 8px;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  /* แท่บขีดด้านล่างสำหรับ hover */
+  .menu-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 3px;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    border-radius: 2px 2px 0 0;
+    transition: width 0.3s ease;
+  }
+
+  .menu-link:hover::after {
+    width: 70%;
+  }
+
+  .menu-link.active::after {
+    width: 80%;
+    background: linear-gradient(135deg, #40a9ff 0%, #096dd9 100%);
+  }
+
+  .dark-mode .menu-link::after {
+    background: linear-gradient(135deg, #40a9ff 0%, #096dd9 100%);
+  }
+
+  .dark-mode .menu-link.active::after {
+    background: linear-gradient(135deg, #40a9ff 0%, #096dd9 100%);
   }
 
   .menu-link i {
@@ -253,19 +311,21 @@
   }
 
   .menu-link:hover {
-    background: rgba(0, 123, 255, 0.1);
+    background: transparent;
+    transform: translateY(-2px);
   }
 
   .dark-mode .menu-link:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: transparent;
   }
 
   .menu-link.active {
-    background: rgba(0, 123, 255, 0.15);
+    background: transparent;
+    transform: translateY(-1px);
   }
 
   .dark-mode .menu-link.active {
-    background: rgba(255, 255, 255, 0.15);
+    background: transparent;
   }
 
   .mobile-menu {
@@ -295,6 +355,57 @@
   .menu-link {
     flex-direction: row;
     margin: 1rem 0;
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  /* แท่บขีดด้านซ้ายสำหรับ desktop */
+  .menu-link::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 60%;
+    background: linear-gradient(180deg, #007bff 0%, #0056b3 100%);
+    border-radius: 0 3px 3px 0;
+    transition: width 0.3s ease;
+  }
+
+  .menu-link:hover::before {
+    width: 4px;
+  }
+
+  .menu-link.active::before {
+    width: 5px;
+    background: linear-gradient(135deg, #40a9ff 0%, #096dd9 100%);
+  }
+
+  .dark-mode .menu-link::before {
+    background: linear-gradient(180deg, #40a9ff 0%, #096dd9 100%);
+  }
+
+  .dark-mode .menu-link.active::before {
+    background: linear-gradient(135deg, #40a9ff 0%, #096dd9 100%);
+  }
+
+  .menu-link:hover {
+    background: transparent;
+    transform: translateX(3px);
+  }
+
+  .dark-mode .menu-link:hover {
+    background: transparent;
+  }
+
+  .menu-link.active {
+    background: transparent;
+    transform: translateX(2px);
+  }
+
+  .dark-mode .menu-link.active {
+    background: transparent;
   }
 
   .menu-link i {

@@ -1284,9 +1284,7 @@
 }
 
 @media screen and (max-width: 990px) {
-  .logo-con {
-    display: none;
-  }
+
 
   .chat {
     width: 100%;

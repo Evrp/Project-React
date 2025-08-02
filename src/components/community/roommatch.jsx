@@ -6,11 +6,12 @@ import { useTheme } from "../../context/themecontext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { MdOutlineRefresh } from "react-icons/md";
+import { FiHeart, FiX } from "react-icons/fi";
 
 import "./roommatch.css";
 import "./chance-badge.css";
 
-const RoomMatch = () => {
+const RoomMatch = ({ accordionComponent }) => {
   const userEmail = localStorage.getItem("userEmail");
   const { isDarkMode } = useTheme();
   const [rooms, setRooms] = useState([]);
@@ -19,8 +20,20 @@ const RoomMatch = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const childRefs = useRef([]);
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 990);
 
   const [loading, setLoading] = useState(true);
+
+  // ตรวจสอบขนาดหน้าจอ
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 990);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   useEffect(() => {
     const fetchRooms = async () => {
       setLoading(true);
@@ -166,132 +179,186 @@ const RoomMatch = () => {
       await childRefs.current[currentIndex]?.current?.swipe(dir);
     }
   };
+  
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  // ปิด modal เมื่อคลิกที่ overlay
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      closeModal();
+    }
+  };
+
+
+
+  // Modal Wrapper Component
+  const ModalWrapper = ({ children }) => {
+    if (!isMobile) {
+      return children; // แสดงแบบปกติในหน้าจอใหญ่
+    }
+
+    return (
+      <>
+        {/* <MobileToggleButton /> */}
+        <div
+          className={`roommatch-modal-overlay ${isModalOpen ? 'active' : ''}`}
+          onClick={handleOverlayClick}
+        >
+          <div className={`roommatch-modal-sheet ${isModalOpen ? 'active' : ''}`}>
+            <div className="roommatch-modal-header">
+              <div className="roommatch-modal-handle"></div>
+              <button 
+                className="roommatch-modal-close"
+                onClick={closeModal}
+              >
+                <FiX />
+              </button>
+            </div>
+            <div className="roommatch-modal-content">
+              {children}
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  };
+  
   const getHighResPhoto = (url) => {
     if (!url) return url;
     // รองรับทั้ง ...=s96-c และ ...=s96-c&... หรือ ...=s96-c?... (กรณีมี query string ต่อท้าย)
     return url.replace(/=s\d+-c(?=[&?]|$)/, "=s400-c");
   };
   return (
-    <div className={`room-match-container ${isDarkMode ? "dark-mode" : ""}`}>
-      {loading && (
-        <div className="roommatch-loading-overlay">
-          <div className="roommatch-spinner">
-            <div className="roommatch-dot"></div>
-            <div className="roommatch-dot"></div>
-            <div className="roommatch-dot"></div>
+    <ModalWrapper>
+      <div className={`room-match-container ${isDarkMode ? "dark-mode" : ""} ${isModalOpen ? 'modal-active' : ''}`}>
+        {/* Show AccordionList on mobile only */}
+        {isMobile && accordionComponent && (
+          <div className="roommatch-accordion-mobile">
+            {accordionComponent}
           </div>
-          <div className="roommatch-loading-text">
-            กำลังโหลดห้องแนะนำ กรุณารอสักครู่...
-          </div>
-        </div>
-      )}
-      <div className="card-stack">
-        {!loading && filteredRooms.length === 0 && (
-          <div className="roommatch-tindercard-loading">
-            <div className="roommatch-tindercard-spinner">
-              <div className="roommatch-tindercard-bar"></div>
-              <div className="roommatch-tindercard-bar"></div>
-              <div className="roommatch-tindercard-bar"></div>
-              <div className="roommatch-tindercard-bar"></div>
+        )}
+        
+        {loading && (
+          <div className="roommatch-loading-overlay">
+            <div className="roommatch-spinner">
+              <div className="roommatch-dot"></div>
+              <div className="roommatch-dot"></div>
+              <div className="roommatch-dot"></div>
             </div>
-            <div className="roommatch-tindercard-loading-text">
-              ไม่พบห้องที่เหมาะสม หรือคุณปัดหมดแล้ว
-              <br />
-              กำลังค้นหาห้องใหม่...
+            <div className="roommatch-loading-text">
+              กำลังโหลดห้องแนะนำ กรุณารอสักครู่...
             </div>
           </div>
         )}
-        {!loading &&
-          filteredRooms.length > 0 &&
-          filteredRooms.map((room, index) => (
-            <div className="container-tinder-card" key={room._id}>
-              <TinderCard
-                ref={childRefs.current[index]}
-                key={room._id}
-                onSwipe={(dir) => swiped(dir, room._id, room.title, index)}
-                preventSwipe={["up", "down"]}
-                className="tinder-card"
-              >
-                <div className="room-card-match">
-                  <div className="room-chance-badge">โอกาสแมช {room.chance}</div>
-                  {/* หา user ที่ email ตรงกับ room.email เพื่อเอารูป */}
-                  {(() => {
-                    const user = users.find((u) => u.email === room.usermatch);
-                    if (user && user.photoURL) {
+        <div className="card-stack">
+          {!loading && filteredRooms.length === 0 && (
+            <div className="roommatch-tindercard-loading">
+              <div className="roommatch-tindercard-spinner">
+                <div className="roommatch-tindercard-bar"></div>
+                <div className="roommatch-tindercard-bar"></div>
+                <div className="roommatch-tindercard-bar"></div>
+                <div className="roommatch-tindercard-bar"></div>
+              </div>
+              <div className="roommatch-tindercard-loading-text">
+                ไม่พบห้องที่เหมาะสม หรือคุณปัดหมดแล้ว
+                <br />
+                กำลังค้นหาห้องใหม่...
+              </div>
+            </div>
+          )}
+          {!loading &&
+            filteredRooms.length > 0 &&
+            filteredRooms.map((room, index) => (
+              <div className="container-tinder-card" key={room._id}>
+                <TinderCard
+                  ref={childRefs.current[index]}
+                  key={room._id}
+                  onSwipe={(dir) => swiped(dir, room._id, room.title, index)}
+                  preventSwipe={["up", "down"]}
+                  className="tinder-card"
+                >
+                  <div className="room-card-match">
+                    <div className="room-chance-badge">โอกาสแมช {room.chance}</div>
+                    {/* หา user ที่ email ตรงกับ room.email เพื่อเอารูป */}
+                    {(() => {
+                      const user = users.find((u) => u.email === room.usermatch);
+                      if (user && user.photoURL) {
+                        return (
+                          <img
+                            src={getHighResPhoto(user.photoURL)}
+                            alt="room"
+                            className="room-image-match" // เพิ่มคลาส room-image-full
+                          />
+                        );
+                      }
                       return (
-                        <img
-                          src={getHighResPhoto(user.photoURL)}
-                          alt="room"
-                          className="room-image-match" // เพิ่มคลาส room-image-full
-                        />
+                        <div className="tinder-card-inner-loading">
+                          <div className="tinder-card-spinner">
+                            <div className="tinder-card-dot"></div>
+                            <div className="tinder-card-dot"></div>
+                            <div className="tinder-card-dot"></div>
+                          </div>
+                          <div className="tinder-card-loading-text">
+                            กำลังโหลดข้อมูลห้อง...
+                          </div>
+                        </div>
                       );
-                    }
-                    return (
-                      <div className="tinder-card-inner-loading">
-                        <div className="tinder-card-spinner">
-                          <div className="tinder-card-dot"></div>
-                          <div className="tinder-card-dot"></div>
-                          <div className="tinder-card-dot"></div>
-                        </div>
-                        <div className="tinder-card-loading-text">
-                          กำลังโหลดข้อมูลห้อง...
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  <div className="room-match-info">
-                    {/* <h4>{room.title}</h4> */}
-                    <p>{room.usermatch !== userEmail && room.email !== userEmail}</p>
-                    <p>คุณมีสิ่งที่คล้ายกัน: {room.title || room.detail}</p>
+                    })()}
+                    <div className="room-match-info">
+                      {/* <h4>{room.title}</h4> */}
+                      <p>{room.usermatch !== userEmail && room.email !== userEmail}</p>
+                      <p>คุณมีสิ่งที่คล้ายกัน: {room.title || room.detail}</p>
+                    </div>
                   </div>
-                </div>
-              </TinderCard></div>
+                </TinderCard></div>
 
-          ))}
-      </div>
+            ))}
+        </div>
 
-      <div className="button-group">
-        <button
-          onClick={async () => {
-            // ลบ event match เฉพาะห้องที่แสดงอยู่ (current)
-            if (currentIndex >= 0 && currentIndex < filteredRooms.length) {
-              const currentRoom = filteredRooms[currentIndex];
-              console.log("Current room to delete:", currentRoom._id);
-              if (currentRoom && currentRoom.roomId) {
-                await fetch(
-                  `${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-event-match/${currentRoom.roomId}`,
-                  { method: "DELETE" }
-                );
+        <div className="button-group">
+          <button
+            onClick={async () => {
+              // ลบ event match เฉพาะห้องที่แสดงอยู่ (current)
+              if (currentIndex >= 0 && currentIndex < filteredRooms.length) {
+                const currentRoom = filteredRooms[currentIndex];
+                console.log("Current room to delete:", currentRoom._id);
+                if (currentRoom && currentRoom.roomId) {
+                  await fetch(
+                    `${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-event-match/${currentRoom.roomId}`,
+                    { method: "DELETE" }
+                  );
+                }
+                if (currentRoom && currentRoom._id) {
+
+                  await fetch(
+                    `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/${currentRoom._id}`,
+                    { method: "DELETE" }
+                  );
+                }
               }
-              if (currentRoom && currentRoom._id) {
-
-                await fetch(
-                  `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/${currentRoom._id}`,
-                  { method: "DELETE" }
-                );
-              }
+              swipe("left");
+            }}
+            className="skip-button"
+            disabled={loading}
+          >
+            Skip
+          </button>
+          <button
+            onClick={() =>
+              currentIndex >= 0 &&
+              handleEnterRoom(rooms[currentIndex]._id, rooms[currentIndex].title) ||
+              handleEnterRoom(rooms[currentIndex]._id, rooms[currentIndex].title)
             }
-            swipe("left");
-          }}
-          className="skip-button"
-          disabled={loading}
-        >
-          Skip
-        </button>
-        <button
-          onClick={() =>
-            currentIndex >= 0 &&
-            handleEnterRoom(rooms[currentIndex]._id, rooms[currentIndex].title) ||
-            handleEnterRoom(rooms[currentIndex]._id, rooms[currentIndex].title)
-          }
-          className="join-button"
-          disabled={loading}
-        >
-          Like
-        </button>
+            className="join-button"
+            disabled={loading}
+          >
+            Like
+          </button>
+        </div>
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       </div>
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
-    </div>
+    </ModalWrapper>
   );
 };
 

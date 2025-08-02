@@ -227,14 +227,14 @@
   height: 100%;
   padding: 20px;
   background-color: #23242b;
-  width: 40%;
+  /* width: 40%;
   right: 0;
   top: 0;
   left: 0;
-  bottom: 0;
+  bottom: 0; */
   margin: auto;
-  overflow-y: auto;
-  scroll-behavior: smooth;
+  /* overflow-y: auto;
+  scroll-behavior: smooth; */
 }
 
 .dark-mode {
@@ -414,4 +414,247 @@
 .dark-mode .join-button:hover:not(:disabled) {
   background: #6c63ff;
   color: #fff;
+}
+
+/* Responsive Design for RoomMatch */
+/* Mobile AccordionList in RoomMatch */
+.roommatch-accordion-mobile {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 0;
+  background: transparent;
+}
+
+.roommatch-accordion-mobile .accordion-list {
+  margin: 0;
+  padding: 0 16px;
+  width: 100%;
+  max-width: 100%;
+}
+
+.roommatch-accordion-mobile .accordion-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 100%;
+}
+
+.dark-mode .roommatch-accordion-mobile .accordion-header {
+  background: rgba(35, 36, 43, 0.95);
+  backdrop-filter: blur(10px);
+  color: #f5f5f5;
+}
+
+.roommatch-accordion-mobile .accordion-content {
+  position: relative;
+  width: 100%;
+  left: 0;
+  right: 0;
+  max-width: 100%;
+  border-radius: 12px;
+  margin-top: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode .roommatch-accordion-mobile .accordion-content {
+  background: rgba(44, 49, 58, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+/* Mobile responsive for accordion in RoomMatch */
+
+@media screen and (max-width: 600px) {
+  .roommatch-accordion-mobile .accordion-list {
+    padding: 0 8px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .roommatch-accordion-mobile .accordion-list {
+    padding: 0 6px;
+  }
+}
+
+/* Hide on desktop */
+
+
+
+
+@media screen and (max-width: 600px) {
+  .room-match-container {
+    padding: 80px 10px 100px 10px;
+  }
+
+  .card-stack {
+    max-width: 280px;
+    height: 420px;
+  }
+
+  .room-card-match {
+    border-radius: 18px;
+  }
+
+  .room-match-info {
+    padding: 10px 14px 2px 14px;
+    min-height: 35px;
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+  }
+
+  .room-match-info h4 {
+    font-size: 1rem;
+    margin: 0 0 3px 0;
+  }
+
+  .room-match-info p {
+    font-size: 0.75rem;
+  }
+
+  .button-group {
+    gap: 1.2rem;
+    margin-top: 16px;
+  }
+
+  .skip-button, .join-button {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.9rem;
+    border-radius: 1.5rem;
+  }
+
+  .room-chance {
+    top: 8px;
+    left: 8px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    border-radius: 8px;
+  }
+
+  .tinder-card.loading-card {
+    width: 280px;
+    min-height: 280px;
+    border-radius: 18px;
+  }
+
+  .tinder-card-loading-text {
+    font-size: 1rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .room-match-container {
+    padding: 80px 8px 100px 8px;
+  }
+
+  .card-stack {
+    max-width: 260px;
+    height: 380px;
+  }
+
+  .room-card-match {
+    border-radius: 16px;
+  }
+
+  .room-match-info {
+    padding: 8px 12px 2px 12px;
+    min-height: 30px;
+    border-bottom-left-radius: 16px;
+    border-bottom-right-radius: 16px;
+  }
+
+  .room-match-info h4 {
+    font-size: 0.95rem;
+    margin: 0 0 2px 0;
+  }
+
+  .room-match-info p {
+    font-size: 0.7rem;
+  }
+
+  .button-group {
+    gap: 1rem;
+    margin-top: 12px;
+  }
+
+  .skip-button, .join-button {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 1.3rem;
+  }
+
+  .room-chance {
+    top: 6px;
+    left: 6px;
+    padding: 3px 6px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+  }
+
+  .tinder-card.loading-card {
+    width: 260px;
+    min-height: 260px;
+    border-radius: 16px;
+  }
+
+  .tinder-card-loading-text {
+    font-size: 0.95rem;
+  }
+
+  .tinder-card-dot {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+@media screen and (max-width: 320px) {
+  .room-match-container {
+    padding: 80px 6px 100px 6px;
+  }
+
+  .card-stack {
+    max-width: 240px;
+    height: 360px;
+  }
+
+  .room-match-info h4 {
+    font-size: 0.9rem;
+  }
+
+  .room-match-info p {
+    font-size: 0.65rem;
+  }
+
+  .skip-button, .join-button {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.8rem;
+  }
+
+  .tinder-card.loading-card {
+    width: 240px;
+    min-height: 240px;
+  }
+}
+
+/* Desktop Responsive */
+@media screen and (min-width: 991px) {
+  .room-match-container {
+    height: calc(100vh - 145px);
+    padding: 20px;
+    width: 40%;
+    position: relative;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+  
+  .dark-mode .room-match-container {
+    height: calc(100vh - 145px);
+    width: 40%;
+  }
+
+  .card-stack {
+    width: 340px;
+    height: 540px;
+  }
 }
