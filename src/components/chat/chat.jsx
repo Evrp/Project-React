@@ -397,9 +397,128 @@ const Chat = () => {
   useEffect(() => {
     if (!userEmail) return;
     fetchCurrentUserAndFriends();
-  }, [userEmail]);
-  // Load Gmail user data immediately when needed
-  // Load Gmail user data immediately when needed
+
+    // เมื่อเข้าสู่หน้า chat ส่งข้อมูลว่าผู้ใช้ออนไลน์
+    socket.emit("user-online", { displayName, photoURL, email: userEmail });
+
+    // ตั้งค่า ping เพื่อบอกเซิร์ฟเวอร์ว่าผู้ใช้ยังออนไลน์อยู่ ทุก 30 วินาที
+    const pingInterval = setInterval(() => {
+      if (socket.connected) {
+        socket.emit("user-ping", { email: userEmail });
+      }
+    }, 30000);
+
+    // รับข้อมูลการอัปเดตสถานะผู้ใช้จากเซิร์ฟเวอร์
+    socket.on("update-users", (data) => {
+      // เช็คว่า data เป็น array หรือ object
+      console.log("ข้อมูลที่ได้จาก update-users:", data);
+
+      // ถ้าข้อมูลเป็น array ใช้ตามเดิม
+      if (Array.isArray(data)) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => ({
+            ...user,
+            isOnline: data.some(onlineUser => onlineUser.email === user.email),
+            lastSeen: data.find(onlineUser => onlineUser.email === user.email)?.lastSeen || user.lastSeen
+          }))
+        );
+        setFriends((prevFriends) =>
+          prevFriends.map((friend) => ({
+            ...friend,
+            isOnline: data.some(onlineUser => onlineUser.email === friend.email),
+            lastSeen: data.find(onlineUser => onlineUser.email === friend.email)?.lastSeen || friend.lastSeen
+          }))
+        );
+      }
+      // ถ้าข้อมูลเป็น object มี onlineUsers เป็น array
+      else if (data && Array.isArray(data.onlineUsers)) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => ({
+            ...user,
+            isOnline: user.email ? data.onlineUsers.includes(user.email) : false,
+            lastSeen: data.lastSeenTimes && data.lastSeenTimes[user.email] || user.lastSeen
+          }))
+        );
+        setFriends((prevFriends) =>
+          prevFriends.map((friend) => ({
+            ...friend,
+            isOnline: friend.email ? data.onlineUsers.includes(friend.email) : false,
+            lastSeen: data.lastSeenTimes && data.lastSeenTimes[friend.email] || friend.lastSeen
+          }))
+        );
+      }
+      // ถ้าข้อมูลเป็น string array (แบบเก่า)
+      else if (Array.isArray(data)) {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => ({
+            ...user,
+            isOnline: data.includes(user.email),
+            lastSeen: user.lastSeen
+          }))
+        );
+        setFriends((prevFriends) =>
+          prevFriends.map((friend) => ({
+            ...friend,
+            isOnline: data.includes(friend.email),
+            lastSeen: friend.lastSeen
+          }))
+        );
+      }
+    });
+
+    // ฟังเมื่อมีผู้ใช้ออฟไลน์
+    socket.on("user-offline", (userData) => {
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.email === userData.email
+            ? { ...user, isOnline: false, lastSeen: userData.lastSeen }
+            : user
+        )
+      );
+      setFriends((prevFriends) =>
+        prevFriends.map((friend) =>
+          friend.email === userData.email
+            ? { ...friend, isOnline: false, lastSeen: userData.lastSeen }
+            : friend
+        )
+      );
+    });
+
+    // ฟังเมื่อมีผู้ใช้ออนไลน์
+    socket.on("user-online", (userData) => {
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.email === userData.email
+            ? { ...user, isOnline: true, lastSeen: null }
+            : user
+        )
+      );
+      setFriends((prevFriends) =>
+        prevFriends.map((friend) =>
+          friend.email === userData.email
+            ? { ...friend, isOnline: true, lastSeen: null }
+            : friend
+        )
+      );
+    });
+
+    // เมื่อเชื่อมต่อกับเซิร์ฟเวอร์ใหม่ (reconnect)
+    socket.on("connect", () => {
+      // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้กลับมาออนไลน์
+      socket.emit("user-online", { displayName, photoURL, email: userEmail });
+    });
+
+    // Cleanup function
+    return () => {
+      // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้ออฟไลน์เมื่อออกจากหน้า chat
+      socket.emit("user-offline", { email: userEmail });
+      socket.off("update-users");
+      socket.off("user-offline");
+      socket.off("user-online");
+      socket.off("connect");
+      clearInterval(pingInterval);
+    };
+  }, [userEmail, displayName, photoURL]);
   useEffect(() => {
     if (userEmail) {
       fetchGmailUser();

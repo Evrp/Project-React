@@ -63,9 +63,6 @@ app.use(bodyParser.json());
 // Serve static files from the uploads directory
 app.use('/uploads', express.static('uploads'));
 
-// Serve static files from the uploads directory
-app.use('/uploads', express.static('uploads'));
-
 // ✅ Connect MongoDB
 mongoose.connect(MONGO_URI);
 const db = mongoose.connection;
@@ -295,26 +292,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// Log API requests for debugging
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
-  next();
-});
-
 app.use("/api", friendRequestRoutes);
 app.use("/api", friendApiRoutes);
-app.use("/api", userPhotoRoutes);
-
-// Fallback route to check if API is working
-app.get("/api-status", (req, res) => {
-  res.json({
-    status: "API is running",
-    routes: {
-      userPhoto: "/api/test-photo-route",
-      uploadPhoto: "/api/upload-user-photo"
-    }
-  });
-});
 app.use("/api", userPhotoRoutes);
 
 // Fallback route to check if API is working
