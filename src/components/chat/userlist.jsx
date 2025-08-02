@@ -19,7 +19,6 @@ const ListUser = ({
   setActiveRoomId, // เพิ่ม prop
   formatOnlineStatus, // เพิ่ม prop สำหรับแสดงสถานะออนไลน์
 }) => {
-  console.log("sortedFriends:", sortedFriends);
   const navigate = useNavigate();
   const userEmail = localStorage.getItem("userEmail");
 

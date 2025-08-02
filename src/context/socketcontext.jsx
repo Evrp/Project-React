@@ -22,7 +22,6 @@ export const SocketProvider = ({ children }) => {
 
     // เมื่อโหลดแอป ส่งข้อมูลว่าผู้ใช้ออนไลน์
     socket.emit("user-online", { displayName, photoURL, email: userEmail });
-    console.log("Socket initialized with user:", userEmail);
 
     // ตั้งค่า ping เพื่อบอกเซิร์ฟเวอร์ว่าผู้ใช้ยังออนไลน์อยู่ ทุก 30 วินาที
     const pingInterval = setInterval(() => {
@@ -33,7 +32,6 @@ export const SocketProvider = ({ children }) => {
 
     // รับข้อมูลการอัปเดตสถานะผู้ใช้จากเซิร์ฟเวอร์
     socket.on("update-users", (data) => {
-      console.log("Received update-users:", data);
       if (Array.isArray(data)) {
         const updatedUsers = {};
         data.forEach(user => {
@@ -77,7 +75,6 @@ export const SocketProvider = ({ children }) => {
     // ฟังเมื่อมีผู้ใช้ออฟไลน์
     socket.on("user-offline", (userData) => {
       if (userData && userData.email) {
-        console.log("User went offline:", userData.email);
         setOnlineUsers(prev => ({
           ...prev,
           [userData.email]: {
@@ -92,7 +89,6 @@ export const SocketProvider = ({ children }) => {
     // ฟังเมื่อมีผู้ใช้ออนไลน์
     socket.on("user-online", (userData) => {
       if (userData && userData.email) {
-        console.log("User came online:", userData.email);
         setOnlineUsers(prev => ({
           ...prev,
           [userData.email]: {
@@ -106,7 +102,6 @@ export const SocketProvider = ({ children }) => {
 
     // เมื่อเชื่อมต่อกับเซิร์ฟเวอร์ใหม่ (reconnect)
     socket.on("connect", () => {
-      console.log("Socket reconnected");
       // แจ้งเซิร์ฟเวอร์ว่าผู้ใช้กลับมาออนไลน์
       socket.emit("user-online", { displayName, photoURL, email: userEmail });
     });

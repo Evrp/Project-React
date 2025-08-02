@@ -7,7 +7,7 @@
 import { io } from "socket.io-client";
 
 // เชื่อมต่อกับเซิร์ฟเวอร์ WebSocket
-const socketURL = "http://localhost:8080"; // ปรับให้ตรงกับพอร์ตของคุณ
+const socketURL = import.meta.env.VITE_APP_API_BASE_URL; // ปรับให้ตรงกับพอร์ตของคุณ
 
 // จำลองผู้ใช้คนที่ 1
 const user1 = {

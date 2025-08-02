@@ -13,7 +13,7 @@ import chalk from 'chalk';     // npm install chalk
 import { performance } from 'perf_hooks';
 
 // Configuration
-const SOCKET_URL = process.env.VITE_APP_API_BASE_URL || 'http://localhost:8080';
+const SOCKET_URL = process.env.VITE_APP_API_BASE_URL;
 const UPDATE_INTERVAL = 500; // อัพเดททุก 500ms
 const TEST_USERS = 3;        // จำนวน users ทดสอบ
 

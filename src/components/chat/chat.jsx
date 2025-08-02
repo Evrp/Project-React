@@ -80,6 +80,9 @@ const Chat = () => {
   const [aiNotificationCount, setAiNotificationCount] = useState(0);
   const [hasNewAiMessage, setHasNewAiMessage] = useState(false);
 
+  // Get user data from localStorage
+  const displayName = localStorage.getItem("userName");
+  const photoURL = localStorage.getItem("userPhoto");
   const defaultProfileImage = userPhoto;
 
   const fetchUsersAndFriends = async () => {
