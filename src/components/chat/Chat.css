@@ -12,11 +12,13 @@
   flex-direction: column;
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
+
 .dark-mode .chat-container {
   background-color: #242526;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
 /* .chat-container-ai {
   width: 40%;
   background-color: #f8f9fa;
@@ -34,6 +36,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+
 /* .header-chat-ai {
   height: 100px;
   width: 100%;
@@ -49,9 +52,11 @@
   font-weight: 600;
   color: #333;
 }
+
 .dark-mode .header-chat-ai h1 {
   color: #e4e6eb;
 }
+
 .bg-chat-con {
   width: 100%;
   height: 100%;
@@ -62,27 +67,34 @@
   gap: 20px;
   padding: 20px;
 }
+
 .show-info {
   width: 100%;
   display: flex;
   flex-direction: row;
   padding: 0 20px;
-  justify-content: space-between; /* Changed from flex-start to space-between */
-  height: 70px; /* Changed from 80px to 70px to match header-chat-ai */
+  justify-content: space-between;
+  /* Changed from flex-start to space-between */
+  height: 70px;
+  /* Changed from 80px to 70px to match header-chat-ai */
   align-items: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  background-color: #f8f9fa; /* Changed from white to light gray */
+  background-color: #f8f9fa;
+  /* Changed from white to light gray */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
 }
+
 .dark-mode .show-info {
   width: 100%;
   display: flex;
   flex-direction: row;
   padding: 0 20px;
-  justify-content: space-between; /* Changed from flex-start to space-between */
-  height: 70px; /* Changed to match header-chat-ai */
+  justify-content: space-between;
+  /* Changed from flex-start to space-between */
+  height: 70px;
+  /* Changed to match header-chat-ai */
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   background-color: #2d2d2d;
@@ -113,11 +125,24 @@
   color: #666;
   transition: background-color 0.2s;
 }
-
-.chat-dropdown-toggle:hover, 
+.con-right{
+  display: flex;
+  justify-content: end;
+  width: 100%;
+}
+.mobilelarge {
+  max-width: 300px;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+.chat-dropdown-toggle:hover,
 .chat-dropdown-toggle.active {
   background-color: rgba(0, 0, 0, 0.05);
   color: #333;
+}
+.ai-chat-float-button {
+  display: none;
 }
 
 /* .chat-dropdown-menu {
@@ -134,8 +159,15 @@
 } */
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ปุ่มติดตาม (Follow Button) สไตล์เรียบหรู */
@@ -151,18 +183,20 @@
   object-fit: cover;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
   border: 2px solid #fff;
-  transition: 
-    transform 0.18s cubic-bezier(0.4,0,0.2,1),
-    box-shadow 0.18s cubic-bezier(0.4,0,0.2,1),
-    border-color 0.18s cubic-bezier(0.4,0,0.2,1);
+  transition:
+    transform 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   background: linear-gradient(135deg, #f8fafc 60%, #e0e7ef 100%);
 }
+
 .chat-profile:hover {
   transform: scale(1.08) translateY(-2px);
-  box-shadow: 0 6px 20px rgba(99,102,241,0.13), 0 1.5px 6px rgba(0,0,0,0.07);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.13), 0 1.5px 6px rgba(0, 0, 0, 0.07);
   border-color: #6366f1;
   background: linear-gradient(135deg, #f0f4ff 60%, #e0e7ef 100%);
 }
+
 .dark-mode .chat-profile {
   border: 2px solid #4d4d4d;
 }
@@ -173,12 +207,14 @@
   margin-bottom: 15px;
   color: #1a1a1a;
 }
+
 .dark-mode .chat-title {
   color: #e4e6eb;
 }
 
 .chat-box {
-  height: calc(100vh - 200px); /* Adjusted for the new height of show-info */
+  height: calc(100vh - 200px);
+  /* Adjusted for the new height of show-info */
   width: 100%;
   margin: 0;
   display: flex;
@@ -190,9 +226,11 @@
   transition: background-color 0.3s ease;
   overflow-y: scroll;
 }
+
 .chat-box::-webkit-scrollbar {
   width: 6px;
 }
+
 .dark-mode .chat-box {
   background-color: #323232;
   scrollbar-color: #555 #323232;
@@ -218,19 +256,23 @@
   justify-content: center;
   align-items: center;
   padding: 15px 20px;
-  height: 70px; /* Changed from 80px to 70px to match header-chat-ai */
+  height: 70px;
+  /* Changed from 80px to 70px to match header-chat-ai */
   border-top: 1px solid rgba(0, 0, 0, 0.1);
-  background-color: #f8f9fa; /* Changed from white to light gray */
+  background-color: #f8f9fa;
+  /* Changed from white to light gray */
   border-bottom-left-radius: 8px;
   border-bottom-right-radius: 8px;
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.03);
 }
+
 .dark-mode .chat-input-container {
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 15px 20px;
-  height: 70px; /* Changed to match header-chat-ai */
+  height: 70px;
+  /* Changed to match header-chat-ai */
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   background-color: #2d2d2d;
   border-bottom-left-radius: 8px;
@@ -251,6 +293,7 @@
   font-size: 15px;
   color: #333;
 }
+
 .dark-mode .chat-input {
   color: #e4e6eb;
 }
@@ -269,6 +312,7 @@
   transition: all 0.3s ease;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
+
 .dark-mode .chat-border {
   border: 1px solid #444;
   background-color: #3a3b3c;
@@ -279,6 +323,7 @@
   border-color: #6366f1;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
 }
+
 .dark-mode .chat-border:focus-within {
   border-color: #6366f1;
   box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
@@ -291,6 +336,7 @@
   color: #94a3b8;
   transition: color 0.2s ease;
 }
+
 .dark-mode .emoji svg {
   color: #e4e6eb;
 }
@@ -306,15 +352,18 @@
   flex-direction: row;
   gap: 12px;
 }
+
 .emoji-right svg {
   inline-size: 40px;
   block-size: 40px;
   padding: 8px;
 }
+
 .emoji-right {
   inline-size: fit-content;
   margin: 2px 0 2px 10px;
 }
+
 .chat-send-button {
   padding: 8px 16px;
   margin-inline-end: 2rem;
@@ -349,6 +398,7 @@
   overflow: hidden;
   transition: all 0.3s ease;
 }
+
 .dark-mode .user-container {
   display: flex;
   flex-direction: column;
@@ -374,6 +424,7 @@
   border-top-left-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
+
 .dark-mode .chat {
   width: 100%;
   display: flex;
@@ -504,6 +555,7 @@
 .other-message .message-bubble {
   background-color: #ffffff;
 }
+
 .dark-mode .my-message .message-bubble {
   background-color: #2a2a2a;
   color: #f5f5f5;
@@ -544,6 +596,7 @@
   max-width: 140px;
   flex-direction: column;
 }
+
 /* .friend-email {
   font-size: 12px;
 } */
@@ -558,6 +611,24 @@
   white-space: normal;
   text-align: start;
 }
+.friend-name-commu {
+  font-size: 15px;
+  color: #555;
+  font-weight: bold;
+  width: 100%;
+  max-inline-size: 100%;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  text-align: start;
+}
+.commu-mobile {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+}
+
 .friend-title {
   font-size: 12px;
   color: #918d8d;
@@ -569,7 +640,18 @@
   white-space: normal;
   text-align: start;
 }
+
 .dark-mode .friend-name {
+  color: #f5f5f5;
+  font-size: 12px;
+  font-weight: bold;
+  max-inline-size: 100%;
+  word-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  text-align: start;
+}
+.dark-mode .friend-name-commu {
   color: #f5f5f5;
   font-size: 12px;
   font-weight: bold;
@@ -702,7 +784,8 @@
   margin: 2px 0;
   transition: all 0.25s ease;
   position: relative;
-  overflow: visible; /* Changed from hidden to visible for dropdown */
+  overflow: visible;
+  /* Changed from hidden to visible for dropdown */
   cursor: pointer;
 }
 
@@ -740,12 +823,15 @@
   overflow-y: auto;
   scroll-behavior: smooth;
 }
+
 .favorite-container-open::-webkit-scrollbar {
   display: none;
 }
+
 .favorite-container {
   inline-size: 100%;
 }
+
 .group-container-open {
   inline-size: 100%;
   /* block-size: calc(100vh - 535px); */
@@ -753,12 +839,15 @@
   overflow-y: auto;
   scroll-behavior: smooth;
 }
+
 .group-container-open::-webkit-scrollbar {
   display: none;
 }
+
 .group-container {
   inline-size: 100%;
 }
+
 .group-container-special {
   inline-size: 100%;
   /* block-size: calc(100vh - 280px); */
@@ -766,9 +855,11 @@
   overflow-y: auto;
   scroll-behavior: smooth;
 }
+
 .group-container-special::-webkit-scrollbar {
   display: none;
 }
+
 .favorite-container-special {
   inline-size: 100%;
   /* block-size: calc(100vh - 300px); */
@@ -776,9 +867,11 @@
   overflow-y: auto;
   scroll-behavior: smooth;
 }
+
 .favorite-container-special::-webkit-scrollbar {
   display: none;
 }
+
 .favorite-toggle {
   margin-inline-start: 1rem;
 }
@@ -796,6 +889,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -812,6 +906,7 @@
   border: 2px solid white;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
 .dark-mode .message-avatar {
   border: 2px solid #3a3b3c;
 }
@@ -876,6 +971,14 @@
   opacity: 0.8;
 }
 
+.back-button-mobile {
+  display: none;
+}
+
+.back-button-mobile.mobile-layout-mode {
+  display: none;
+}
+
 .message-bubble.current .message-time {
   color: rgba(255, 255, 255, 0.8);
 }
@@ -883,6 +986,7 @@
 .message-bubble.other .message-time {
   color: rgba(0, 0, 0, 0.6);
 }
+
 .slide-chat {
   width: 100%;
   height: calc(100vh - 170px);
@@ -891,6 +995,7 @@
   padding: 0 10px;
   scrollbar-width: thin;
 }
+
 .slide-chat::-webkit-scrollbar {
   width: 5px;
 }
@@ -908,6 +1013,7 @@
 .slide-chat::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
+
 .dark-mode .slide-chat::-webkit-scrollbar-track {
   background: #242526;
   border-radius: 8px;
@@ -921,6 +1027,7 @@
 .dark-mode .slide-chat::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
 }
+
 .chat-date-divider {
   text-align: center;
   margin: 20px 0 10px;
@@ -931,6 +1038,7 @@
   color: #555;
   font-weight: bold;
 }
+
 .chat-date-divider {
   text-align: center;
   margin: 20px 0 10px;
@@ -941,11 +1049,13 @@
   color: #8a8d91;
   font-weight: bold;
 }
+
 .colum-message {
   display: flex;
   flex-direction: column;
   text-align: end;
 }
+
 .last-message {
   font-size: 12px;
   color: #555;
@@ -955,6 +1065,7 @@
   text-overflow: ellipsis;
 
 }
+
 .dark-mode .last-message {
   font-size: 12px;
   color: #f5f5f5;
@@ -971,12 +1082,14 @@
   color: #999;
   margin: 4px 0px 0px 1rem;
 }
+
 .row-last-time {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   width: 100%;
 }
+
 .dark-mode .message-time {
   font-size: 10px;
   color: #f5f5f5;
@@ -1000,9 +1113,11 @@
   display: none !important;
   cursor: default !important;
 }
+
 .dark-mode .resizer {
   background: #444;
 }
+
 .dark-mode .resizer:hover,
 .dark-mode .resizer.active {
   background: #0078d4;
@@ -1015,12 +1130,14 @@
   width: 8px;
   background: transparent;
 }
+
 .user-container::-webkit-scrollbar-thumb,
 .chat-container::-webkit-scrollbar-thumb,
 .chat-container-ai::-webkit-scrollbar-thumb {
   background: #bdbdbd;
   border-radius: 8px;
 }
+
 .dark-mode .user-container::-webkit-scrollbar-thumb,
 .dark-mode .chat-container::-webkit-scrollbar-thumb,
 .dark-mode .chat-container-ai::-webkit-scrollbar-thumb {
@@ -1165,117 +1282,679 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
-@media screen and (min-width: 768px) and (max-width: 990px) {
+
+@media screen and (max-width: 990px) {
   .logo-con {
     display: none;
   }
+
   .chat {
     width: 100%;
   }
+  .chat-friend-item {
+    display: flex;
+    justify-content: start;
+    flex-direction: row;
+    width: 100%;
+  }
+  .commu-mobile {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    max-width: 400px;
+  }
+
   .slide-chat {
     width: 100%;
-    height: calc(100vh - 220px); /* เพิ่มพื้นที่สำหรับ bottom navbar */
+    height: calc(100vh - 220px);
+    /* เพิ่มพื้นที่สำหรับ bottom navbar */
     overflow-y: auto;
     scroll-behavior: smooth;
     padding: 0 10px;
     scrollbar-width: thin;
   }
+
   .slide-chat::-webkit-scrollbar {
     width: 5px;
   }
+
   .user-container {
-    height: calc(100vh - 70px); /* ลดความสูงเพื่อไม่ให้ทับ bottom navbar */
+    height: calc(100vh - 70px);
+    /* ลดความสูงเพื่อไม่ให้ทับ bottom navbar */
     width: 100vw;
     min-width: 100vw;
     max-width: 100vw;
     border-radius: 0;
     border-right: none;
     box-shadow: none;
-    margin-bottom: 70px; /* เพิ่ม margin สำหรับ bottom navbar */
+    margin-bottom: 70px;
+    /* เพิ่ม margin สำหรับ bottom navbar */
   }
-  .main-container {
-    height: calc(100vh - 70px); /* ปรับความสูงตาม bottom navbar */
-    max-width: 100%;
-    margin-bottom: 70px; /* เพิ่ม margin สำหรับ bottom navbar */
+
+  .friend-details {
+    margin-left: 20px;
+    max-width: fit-content;
   }
-  .bg-chat-con {
-    display: none;
+
+  .friend-name span {
+    width: 400px;
+    display: inline-block;
+    white-space: normal;
+    word-break: break-word;
   }
-  .mobile-layout-mode .bg-chat-con {
+  .friend-name-commu {
+    width: 400px;
+    margin-left: 20px;
+    display: inline-block;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .friend-photo {
     display: flex;
-    width: 100%;
-    height: calc(100vh - 70px); /* ปรับความสูงตาม bottom navbar */
-    margin-bottom: 70px; /* เพิ่ม margin สำหรับ bottom navbar */
+    align-items: center;
+    margin-right: 0;
   }
-  .mobile-layout-mode .user-container {
+  .con-right{
+    max-width: fit-content;
+    display: flex;
+    justify-content: end;
+    margin-right: 10px;
+  }
+  .row-last-time{
+    display: flex;
+    justify-content: start;
+  }
+
+  .online-status.status-online {
+    max-width: fit-content;
+  }
+
+  .online-status.status-offline {
+    max-width: 200px;
+  }
+
+  .mobilelarge {
+    display: flex;
+    justify-content: start;
+    width: 100%;
+  }
+
+  .main-container {
+    height: calc(100vh - 70px);
+    /* ปรับความสูงตาม bottom navbar */
+    max-width: 100%;
+    margin-bottom: 70px;
+    /* เพิ่ม margin สำหรับ bottom navbar */
+  }
+
+  .chat-friend-item {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .bg-chat-con {
     display: none;
   }
-  
+
+  .bg-chat-con.mobile-layout-mode {
+    display: flex;
+    max-width: 100vw;
+    height: calc(100vh - 70px);
+    /* ปรับความสูงตาม bottom navbar */
+  }
+
+  .user-container.mobile-layout-mode {
+    display: none;
+  }
+
+  .bg-title.mobile-layout-mode {
+    display: none;
+  }
+
+  .chat-container.mobile-layout-mode {
+    height: calc(100vh - 120px);
+    /* ปรับความสูงตาม bottom navbar */
+    width: 100vw;
+    /* ปรับให้เต็มความกว้างของหน้าจอ */
+  }
+
+  .show-info.mobile-layout-mode {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    padding: 0 20px;
+  }
+
+  /* จัดชื่อและรูปให้อยู่กลาง แต่เว้นพื้นที่สำหรับปุ่ม back */
+  .show-info.mobile-layout-mode h2 {
+    margin-left: 40px;
+    /* เว้นพื้นที่สำหรับปุ่ม back */
+    text-align: center;
+    flex: 1;
+    max-width: calc(100% - 80px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .show-info.mobile-layout-mode .chat-profile {
+    margin-left: 15px;
+    /* เว้นระยะจากชื่อ */
+  }
+
   /* ปรับปรุง chat container สำหรับ tablet */
-  .chat-container {
+  .chat-container.bg-title.mobile-layout-mode {
     height: calc(100vh - 70px);
     margin-bottom: 70px;
+    width: 100%;
   }
-  
+
+  .center-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 85%;
+    position: fixed;
+  }
+
+  .back-button-mobile.mobile-layout-mode {
+    display: flex;
+    /* แสดงปุ่มใน mobile mode */
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 20;
+  }
+
+  .chat-title.mobile-layout-mode {
+    display: none
+  }
+
+  .back-button-mobile {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    height: 40px;
+    width: 40px;
+    color: #6366f1;
+    font-size: 24px;
+    display: none;
+    /* ซ่อนใน desktop mode */
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    touch-action: manipulation;
+    /* ปรับปรุงการตอบสนองบน mobile */
+  }
+
+  .back-button-mobile:hover {
+    background-color: rgba(99, 102, 241, 0.1);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .back-button-mobile:active {
+    transform: translateY(-50%) scale(0.95);
+    background-color: rgba(99, 102, 241, 0.2);
+  }
+
+  /* Dark mode support */
+  .dark-mode .back-button-mobile {
+    color: #818cf8;
+  }
+
+  .dark-mode .back-button-mobile:hover {
+    background-color: rgba(129, 140, 248, 0.1);
+  }
+
   .chat-box {
-    height: calc(100vh - 280px); /* ปรับให้เหมาะกับ tablet */
+    height: calc(100vh - 280px);
+    /* ปรับให้เหมาะกับ tablet */
+  }
+
+  /* AI Chat Float Button สำหรับ responsive */
+  .ai-chat-float-button {
+    position: fixed;
+    bottom: 90px;
+    /* เหนือ bottom navbar */
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: white;
+    font-size: 24px;
+  }
+
+  .ai-chat-float-button:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 12px 35px rgba(99, 102, 241, 0.6);
+    background: linear-gradient(135deg, #5b5cf6 0%, #7c3aed 100%);
+  }
+
+  .ai-chat-float-button:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+
+  /* ซ่อนปุ่มเมื่อไม่ใช่ responsive mode */
+  .ai-chat-float-button {
+    display: none;
+  }
+
+  /* แสดงปุ่มใน responsive mode (หน้าจอขนาดเล็กกว่า 990px) */
+  @media screen and (max-width: 990px) {
+    .ai-chat-float-button {
+      display: flex;
+    }
+
+    /* ซ่อน chat-container-ai แบบเดิมใน responsive mode */
+    .chat-container-ai {
+      display: none;
+    }
+  }
+
+  /* AI Chat Modal/Overlay สำหรับ responsive */
+  .ai-chat-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ai-chat-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .ai-chat-modal {
+    width: 100%;
+    max-width: 500px;
+    height: 70vh;
+    max-height: 600px;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ai-chat-overlay.active .ai-chat-modal {
+    transform: scale(1) translateY(0);
+  }
+
+  .dark-mode .ai-chat-modal {
+    background: #242526;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Header สำหรับ AI Chat Modal */
+  .ai-chat-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+  }
+
+  .ai-chat-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .ai-chat-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+  }
+
+  .ai-chat-close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Content Area สำหรับ AI Chat Modal */
+  .ai-chat-modal-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ปรับแต่ง chat-container-ai ใน modal */
+  .ai-chat-modal .chat-container-ai {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ai-chat-modal .header-chat-ai {
+    display: none;
+    /* ซ่อน header เดิมเพราะใช้ modal header แทน */
+  }
+
+  .ai-chat-modal .chat-box-ai {
+    flex: 1;
+    height: auto;
+    padding: 15px;
+    overflow-y: auto;
+  }
+
+  .ai-chat-modal .chat-input-container {
+    height: 80px;
+    padding: 15px 20px;
+    flex-shrink: 0;
+    /* ป้องกันไม่ให้ input area หดเล็ก */
+  }
+
+  /* Badge แจ้งเตือน */
+  .ai-chat-notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    }
+
+    70% {
+      box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+      box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+  }
+
+  /* Animation สำหรับปุ่ม */
+  .ai-chat-float-button.new-message {
+    animation: bounce 1s ease-in-out infinite;
+  }
+
+  @keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+
+    40% {
+      transform: translateY(-10px);
+    }
+
+    60% {
+      transform: translateY(-5px);
+    }
   }
 }
 
-/* เพิ่ม responsive สำหรับหน้าจอเล็กกว่า 990px (รวม mobile) */
-@media screen and (max-width: 990px) {
-  .main-container {
-    padding-bottom: 70px; /* เพิ่ม padding สำหรับ bottom navbar */
+/* Media Queries สำหรับ Mobile Screens */
+@media screen and (max-width: 767px) {
+  .ai-chat-float-button {
+    display: flex;
+    bottom: 80px;
+    /* ปรับตำแหน่งสำหรับ mobile */
+    right: 15px;
+    width: 55px;
+    height: 55px;
+    font-size: 22px;
   }
-  
+
+  .chat-container-ai {
+    display: none;
+    /* ซ่อน AI chat แบบเดิมใน mobile */
+  }
+
+  .ai-chat-modal {
+    width: 95%;
+    height: 80vh;
+    max-height: none;
+    border-radius: 15px;
+  }
+
+  .ai-chat-modal-header {
+    padding: 15px 20px;
+  }
+
+  .ai-chat-modal-title {
+    font-size: 16px;
+  }
+}
+
+@media screen and (min-width: 990px) and (max-width: 1350px) {
+  .chat-container-ai {
+    display: none;
+  }
+
+  .tabright {
+    display: none;
+  }
+
+  .chat-container.mobile-layout-mode {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    box-shadow: none;
+  }
+
   .chat-container {
-    height: calc(100vh - 70px); /* ปรับความสูงตาม bottom navbar */
+    /* height: 100vh; */
+    width: calc(100vw - 550px);
+    margin: 0;
+    box-shadow: none;
   }
-  
-  .user-container {
-    margin-bottom: 70px; /* เพิ่ม margin สำหรับ bottom navbar */
+
+  /* แสดงปุ่ม AI Chat Float Button */
+  .ai-chat-float-button {
+    display: flex !important;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: white;
+    font-size: 24px;
   }
-  
-  .bg-chat-con {
-    height: calc(100vh - 70px);
-    padding-bottom: 70px;
+
+  .ai-chat-float-button:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 12px 35px rgba(99, 102, 241, 0.6);
+    background: linear-gradient(135deg, #5b5cf6 0%, #7c3aed 100%);
   }
-  
-  /* ปรับปรุง chat box เพื่อไม่ให้ทับ bottom navbar */
-  .chat-box {
-    height: calc(100vh - 210px);
-    margin-bottom: 10px;
+
+  .ai-chat-float-button:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
   }
-  
-  .slide-chat {
-    height: calc(100vh - 210px);
-    margin-bottom: 10px;
+
+  .ai-chat-float-button.new-message {
+    animation: bounce 1s ease-in-out infinite;
+  }
+
+  /* AI Chat Modal/Overlay สำหรับ tablet responsive */
+  .ai-chat-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ai-chat-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .ai-chat-modal {
+    width: 100%;
+    max-width: 600px;
+    height: 75vh;
+    max-height: 700px;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ai-chat-overlay.active .ai-chat-modal {
+    transform: scale(1) translateY(0);
+  }
+
+  .dark-mode .ai-chat-modal {
+    background: #242526;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Modal header และ content สำหรับ tablet */
+  .ai-chat-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+  }
+
+  .ai-chat-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .ai-chat-close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+  }
+
+  .ai-chat-close-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .ai-chat-modal-content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+  }
+
+  .ai-chat-modal .chat-container-ai {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ai-chat-modal .header-chat-ai {
+    display: none;
+  }
+
+  .ai-chat-modal .chat-box-ai {
+    flex: 1;
+    height: auto;
+    padding: 15px;
+    overflow-y: auto;
+  }
+
+  .ai-chat-modal .chat-input-container {
+    height: 80px;
+    padding: 15px 20px;
+    flex-shrink: 0;
   }
 }
-
-/* Mobile specific adjustments */
-@media screen and (max-width: 768px) {
-  .user-container {
-    height: calc(100vh - 70px);
-    margin-bottom: 70px;
-  }
-  
-  .main-container {
-    height: calc(100vh - 70px);
-    padding-bottom: 70px;
-  }
-  
-  .chat-container {
-    height: calc(100vh - 70px);
-  }
-  
-  .slide-chat {
-    height: calc(100vh - 200px);
-  }
-  
-  .chat-box {
-    height: calc(100vh - 200px);
-  }
-}
-
-/* Optional: Fade in animation (already exists as fadeIn) */

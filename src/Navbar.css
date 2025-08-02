@@ -93,82 +93,7 @@
   display: none;
 }
 
-@media screen and (max-width: 768px) {
-  .navbar-container {
-    background: rgb(255, 255, 255);
-    display: flex;
-    width: 20vh;
-    flex-direction: column;
-    justify-content: flex-start;
-    min-height: 100vh;
-    align-items: center;
-    border-right: 1px solid #ccc;
-    top: 0;
-    position: relative;
-  }
-  .navbar-con {
-    width: 28%;
-    /* เปลี่ยนขนาด navbar ให้เต็มหน้าจอมือถือ */
-  }
-/* 
-  .mobile-menu {
-    display: block;
-    margin-left: 40%;
 
-    font-size: 1.8rem;
-  } */
-
-  .menu-bar {
-    width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    top: 80px;
-    left: -100%;
-    /* ซ่อนเมนู */
-    transition: left 0.3s ease;
-    align-items: center;
-    background-color: #333;
-    /* เพิ่มพื้นหลังเมนู */
-    z-index: 1;
-  }
-
-  .menu-bar li {
-    padding: 1rem;
-    width: 100%;
-  }
-
-  .menu.active {
-    left: 0;
-    opacity: 1;
-    z-index: 1;
-    transition: left 0.3s ease;
-  }
-
-  .menu-link a,
-  .menu-link .logout-link {
-    text-decoration: none;
-    color: white;
-    font-weight: bold;
-    padding: 10px 20px;
-    display: block;
-    transition: background-color 0.3s ease;
-  }
-
-  .menu-link a:hover,
-  .menu-link .logout-link:hover {
-    background-color: #444;
-    border-radius: 5px;
-  }
-
-  .menu-link svg {
-    color: white;
-    /* เปลี่ยนสีของไอคอน */
-    font-size: 2rem;
-    /* ปรับขนาดไอคอน */
-  }
-}
 
 .menu-link {
   display: flex;
@@ -239,7 +164,7 @@
 } */
 
 /* Tablet และ Mobile Responsive - Bottom Navigation */
-@media screen and (min-width: 768px) and (max-width: 990px) {
+@media screen and (max-width: 990px) {
   .navbar-container {
     position: fixed;
     bottom: 0;
@@ -346,23 +271,6 @@
   .mobile-menu {
     display: none; /* ซ่อน hamburger menu เพราะใช้ bottom nav แล้ว */
   }
-
-  /* ปรับขนาดข้อความสำหรับหน้าจอเล็กมาก */
-  @media screen and (max-width: 480px) {
-    .menu-link a,
-    .menu-link .logout-link {
-      font-size: 8px;
-    }
-
-    .menu-link i {
-      font-size: 18px;
-    }
-
-    .menu-link {
-      padding: 6px 2px;
-      min-height: 45px;
-    }
-  }
 }
 
 /* Desktop Responsive - รักษา navbar แบบเดิม */
@@ -393,4 +301,36 @@
     margin-right: 12px;
     margin-bottom: 0;
   }
+}
+@media screen and (min-width: 990px) and (max-width: 1400px) {
+  .navbar-container {
+    max-width: 150px;
+  }
+}
+@media screen and (max-width: 550px) {
+  .text-nav {
+    font-size: 12px;
+  }
+}
+@media screen and (max-width: 400px) {
+  .navbar-container {
+    width: 100%;
+    height: fit-content;
+    min-height: auto;
+    padding: 8px 0;
+  }
+  .logo-con {
+    margin-left: 10px;
+  }
+  .icon-nav svg {
+    font-size: 18px;
+    margin: 0.5rem;
+  }
+  .menu-bar li a {
+    font-size: 12px;
+  } 
+  .text-nav {
+    font-size: 8px;
+  }
+  
 }

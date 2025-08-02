@@ -15,6 +15,7 @@ const CommunityList = ({
   setIsOpencom,
   selectedTab,
   setSelectedTab,
+  setOpenchat,
   setUserImage,
   setIsGroupChat,
 }) => {
@@ -49,25 +50,27 @@ const CommunityList = ({
                       room.name === name ? (
                         <li
                           key={`room-${room._id || room.name}-${i}-${index}`}
-                          className={`chat-friend-item ${
-                            selectedTab === room.name ? "selected" : ""
-                          }`}
+                          className={`chat-friend-item ${selectedTab === room.name ? "selected" : ""
+                            }`}
                           onClick={() => {
                             setSelectedTab(room.name);
                             setActiveUser(room.name);
                             setRoombar(room.image, room.name);
                             setIsGroupChat(true);
+                            setOpenchat(true);
                             setUserImage(room);
                             handleEnterRoom(room._id);
                           }}
                         >
-                          <img
-                            src={room.image}
-                            alt={room.name}
-                            className="friend-photo"
-                          />
-                          <div className="friend-detailss">
-                            <span className="friend-name">{room.name}</span>
+                          <div className="commu-mobile">
+                            <img
+                              src={room.image}
+                              alt={room.name}
+                              className="friend-photo"
+                            />
+                            <div className="friend-detailss">
+                              <span className="friend-name-commu">{room.name}</span>
+                            </div>
                           </div>
                         </li>
                       ) : null

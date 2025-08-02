@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { db } from "../../firebase/firebase";
 import RequireLogin from "../ui/RequireLogin";
 import { FaSearch } from "react-icons/fa";
+import { RiRobot2Fill } from "react-icons/ri";
+import { MdClose } from "react-icons/md";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useParams } from "react-router-dom";
@@ -72,6 +74,11 @@ const Chat = () => {
   const [initialLoad, setInitialLoad] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [openchat, setOpenchat] = useState(false);
+
+  // AI Chat Modal states
+  const [isAiChatOpen, setIsAiChatOpen] = useState(false);
+  const [aiNotificationCount, setAiNotificationCount] = useState(0);
+  const [hasNewAiMessage, setHasNewAiMessage] = useState(false);
 
   const defaultProfileImage = userPhoto;
 
@@ -167,8 +174,7 @@ const Chat = () => {
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const res = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
+        `${import.meta.env.VITE_APP_API_BASE_URL
         }/api/user-rooms/${encodedEmail}`
       );
       setJoinedRooms(res.data);
@@ -183,8 +189,7 @@ const Chat = () => {
     try {
       const encodedEmail = encodeURIComponent(userEmail);
       const res = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
+        `${import.meta.env.VITE_APP_API_BASE_URL
         }/api/infomatch/user/${encodedEmail}`
       );
       setJoinedRooms(res.data.data);
@@ -219,6 +224,61 @@ const Chat = () => {
       endOfMessagesRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  // AI Chat Modal Functions
+  const openAiChat = () => {
+    setIsAiChatOpen(true);
+    setAiNotificationCount(0);
+    setHasNewAiMessage(false);
+
+    // Haptic feedback
+    if (window.navigator?.vibrate) {
+      window.navigator.vibrate(50);
+    }
+  };
+
+  const closeAiChat = () => {
+    setIsAiChatOpen(false);
+
+    // Haptic feedback
+    if (window.navigator?.vibrate) {
+      window.navigator.vibrate([30, 50, 30]);
+    }
+  };
+
+  // Handle clicking outside modal to close
+  const handleAiModalClick = (e) => {
+    if (e.target.classList.contains('ai-chat-overlay')) {
+      closeAiChat();
+    }
+  };
+
+  // Handle ESC key to close modal
+  useEffect(() => {
+    const handleEscKey = (e) => {
+      if (e.key === 'Escape' && isAiChatOpen) {
+        closeAiChat();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscKey);
+    return () => document.removeEventListener('keydown', handleEscKey);
+  }, [isAiChatOpen]);
+
+  // Simulate new AI message notification (for demo)
+  useEffect(() => {
+    if (!isAiChatOpen) {
+      const interval = setInterval(() => {
+        const shouldShowNotification = Math.random() > 0.8; // 20% chance
+        if (shouldShowNotification) {
+          setAiNotificationCount(prev => prev + 1);
+          setHasNewAiMessage(true);
+        }
+      }, 30000); // Check every 30 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [isAiChatOpen]);
   const handleSend = async () => {
     // ตรวจสอบว่ามีข้อความที่จะส่งหรือไม่
     if (input.trim() === "") return;
@@ -378,16 +438,16 @@ const Chat = () => {
 
       const filteredMessages = isGroupChat
         ? allMessages.filter(
-            (msg) => msg.type === "group" && msg.roomId === roomId
-          )
+          (msg) => msg.type === "group" && msg.roomId === roomId
+        )
         : allMessages.filter((msg) => {
-            const isMyMsg =
-              msg.sender === userEmail && msg.receiver === activeUser;
-            const isTheirMsg =
-              msg.sender === activeUser &&
-              (msg.receiver === userEmail || !msg.receiver);
-            return isMyMsg || isTheirMsg;
-          });
+          const isMyMsg =
+            msg.sender === userEmail && msg.receiver === activeUser;
+          const isTheirMsg =
+            msg.sender === activeUser &&
+            (msg.receiver === userEmail || !msg.receiver);
+          return isMyMsg || isTheirMsg;
+        });
 
       setMessages(filteredMessages);
       scrollToBottom();
@@ -593,6 +653,8 @@ const Chat = () => {
                 allRooms={allRooms}
                 isOpencom={isOpencom}
                 setUserImage={setUserImage}
+                setIsOpen={setIsOpen}
+                 setOpenchat={setOpenchat}
                 setSelectedTab={setSelectedTab}
                 selectedTab={selectedTab}
                 setIsOpencom={setIsOpencom}
@@ -651,18 +713,21 @@ const Chat = () => {
               setFriends={setFriends}
               userImage={userImage}
               sortedFriends={sortedFriends}
+              openchat={openchat}
               setInput={setInput}
               handleSend={handleSend}
+              setOpenchat={setOpenchat}
               endOfMessagesRef={endOfMessagesRef}
               defaultProfileImage={defaultProfileImage}
               formatChatDate={formatChatDate}
             />
             <div className="tabright">
-              <ShowTitle userimage={userImage} />
+              <ShowTitle userimage={userImage} openchat={openchat} />
               <ChatContainerAI
                 loadingMessages={loadingMessages}
                 messages={messages}
                 users={users}
+                openchat={openchat}
                 userEmail={userEmail}
                 defaultProfileImage={defaultProfileImage}
                 formatChatDate={formatChatDate}
@@ -670,6 +735,51 @@ const Chat = () => {
                 input={input}
                 setInput={setInput}
                 handleSend={handleSend}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* AI Chat Float Button สำหรับ responsive */}
+      <button
+        className={`ai-chat-float-button ${hasNewAiMessage ? 'new-message' : ''}`}
+        onClick={openAiChat}
+        title="แชทกับ AI Assistant"
+      >
+        <RiRobot2Fill />
+        {aiNotificationCount > 0 && (
+          <span className="ai-chat-notification-badge">
+            {aiNotificationCount > 9 ? '9+' : aiNotificationCount}
+          </span>
+        )}
+      </button>
+
+      {/* AI Chat Modal/Overlay - ใช้ chat-container-ai แทน */}
+      {isAiChatOpen && (
+        <div
+          className={`ai-chat-overlay ${isAiChatOpen ? 'active' : ''}`}
+          onClick={handleAiModalClick}
+        >
+          <div className="ai-chat-modal">
+            <div className="ai-chat-modal-header">
+              <h3 className="ai-chat-modal-title">
+                <RiRobot2Fill />
+                AI Assistant
+              </h3>
+              <button
+                className="ai-chat-close-btn"
+                onClick={closeAiChat}
+                title="ปิด"
+              >
+                <MdClose />
+              </button>
+            </div>
+            <div className="ai-chat-modal-content">
+              <ChatContainerAI
+                openchat={false}
+                userEmail={userEmail}
+                defaultProfileImage={defaultProfileImage}
               />
             </div>
           </div>

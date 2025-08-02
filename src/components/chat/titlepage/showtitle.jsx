@@ -3,7 +3,7 @@ import axios from "axios";
 import "./showtitle.css"; // ใช้ชื่อไฟล์ที่ถูกต้องเป็นตัวพิมพ์เล็ก
 import { useNavigate } from "react-router-dom";
 
-const ShowTitle = ({ userimage }) => {
+const ShowTitle = ({ userimage, openchat }) => {
   const [userEvents, setUserEvents] = useState([]);
   const [matchedEvent, setMatchedEvent] = useState(null);
   const navigate = useNavigate();
@@ -44,7 +44,8 @@ const ShowTitle = ({ userimage }) => {
 
   return (
     <div>
-      <div className="bg-title">
+      {/* <div className="bg-title"> */}
+      <div className={`bg-title ${openchat ? "mobile-layout-mode" : ""}`}>
         {matchedEvent ? (
           <div className="user-image">
             <h2 className="usertitle">{matchedEvent.title}</h2>
