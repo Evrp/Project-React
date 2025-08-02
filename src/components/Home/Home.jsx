@@ -41,32 +41,50 @@ const Newcommu = () => {
           />
         </header>
         <div className="event-list-co">
-          {/* <h2 className="event-title">Community Recommand</h2> */}
           <div className="bg-event-con">
             <div className="show-commu">
-              {/* ตัวอย่างข้อมูล สามารถดึงจาก API หรือ state ได้ */}
-              <AccordionList
-                items={[
-                  {
-                    title: "กีฬา",
-                    genres: [
-                      { title: "Educational and self-development", tabs: ["Art/Craft Workshops", "Seminars / Short Courses","Talk show/Lecture"] },
-                      { title: "Entertainment and cultural", tabs: ["Art exhibition/Gallery", "Art/Craft Workshops","Film festival/Musical","Talk show/Lecture"] },
-                      { title: "Families and children", tabs: ["Camp", "Kids Fair","Theme park"] },
-                      { title: "Group/Specialized", tabs: ["Carnival/Event", "Volunteer"] },
-                      { title: "Sports and health", tabs: ["Marathon", "Audox Tour","Yoga","Swimming","Cycling","Walking","Running","Fitness","Gym"] },
-                      { title: "Social and community", tabs: ["Annual festival", "Temple fair","Red Cross fair"] },
-                      { title: "Travel and adventure", tabs: ["Camping", "Trip", "School trip", "Scuba diving","Photo trip","Trekking","Adventure","Cafe","Tour"] },
-                    ]
-                  }
-                ]}
-              />
+              <div className="accordion-desktop-only">
+                <AccordionList
+                  items={[
+                    {
+                      title: "กีฬา",
+                      genres: [
+                        { title: "Educational and self-development", tabs: ["Art/Craft Workshops", "Seminars / Short Courses","Talk show/Lecture"] },
+                        { title: "Entertainment and cultural", tabs: ["Art exhibition/Gallery", "Art/Craft Workshops","Film festival/Musical","Talk show/Lecture"] },
+                        { title: "Families and children", tabs: ["Camp", "Kids Fair","Theme park"] },
+                        { title: "Group/Specialized", tabs: ["Carnival/Event", "Volunteer"] },
+                        { title: "Sports and health", tabs: ["Marathon", "Audox Tour","Yoga","Swimming","Cycling","Walking","Running","Fitness","Gym"] },
+                        { title: "Social and community", tabs: ["Annual festival", "Temple fair","Red Cross fair"] },
+                        { title: "Travel and adventure", tabs: ["Camping", "Trip", "School trip", "Scuba diving","Photo trip","Trekking","Adventure","Cafe","Tour"] },
+                      ]
+                    }
+                  ]}
+                />
+              </div>
               <EventList />
             </div>
             <RoomMatch
               isDeleteMode={isDarkMode}
               selectedRooms={selectedRooms}
               setSelectedRooms={setSelectedRooms}
+              accordionComponent={
+                <AccordionList
+                  items={[
+                    {
+                      title: "กีฬา",
+                      genres: [
+                        { title: "Educational and self-development", tabs: ["Art/Craft Workshops", "Seminars / Short Courses","Talk show/Lecture"] },
+                        { title: "Entertainment and cultural", tabs: ["Art exhibition/Gallery", "Art/Craft Workshops","Film festival/Musical","Talk show/Lecture"] },
+                        { title: "Families and children", tabs: ["Camp", "Kids Fair","Theme park"] },
+                        { title: "Group/Specialized", tabs: ["Carnival/Event", "Volunteer"] },
+                        { title: "Sports and health", tabs: ["Marathon", "Audox Tour","Yoga","Swimming","Cycling","Walking","Running","Fitness","Gym"] },
+                        { title: "Social and community", tabs: ["Annual festival", "Temple fair","Red Cross fair"] },
+                        { title: "Travel and adventure", tabs: ["Camping", "Trip", "School trip", "Scuba diving","Photo trip","Trekking","Adventure","Cafe","Tour"] },
+                      ]
+                    }
+                  ]}
+                />
+              }
             />
           </div>
         </div>

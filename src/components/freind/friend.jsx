@@ -1416,8 +1416,8 @@ const Friend = () => {
           </div>
         </div>
         {isModalOpen && selectedUser && (
-          <div className="profile-modal">
-            <div className="modal-content" ref={modalRef}>
+          <div className="friend-profile-modal">
+            <div className="friend-modal-content" ref={modalRef}>
               <div className="profile-info">
                 <img
                   src={selectedUser.photoURL}
