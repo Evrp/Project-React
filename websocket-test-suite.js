@@ -19,7 +19,7 @@ import os from 'os';
 const DEFAULT_USERS = 5;
 const DEFAULT_DELAY = 1000; // 1 วินาที
 const DEFAULT_DURATION = 30000; // 30 วินาที
-const SOCKET_URL = process.env.VITE_APP_API_BASE_URL || 'http://localhost:8080';
+const SOCKET_URL = process.env.VITE_APP_API_BASE_URL;
 
 // รับพารามิเตอร์จาก command line
 // รูปแบบ: node websocket-test-suite.js [จำนวนผู้ใช้] [ดีเลย์ ms] [ระยะเวลาทดสอบ s]
