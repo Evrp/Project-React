@@ -1958,3 +1958,11 @@
     flex-shrink: 0;
   }
 }
+@media screen and (max-width: 400px) {
+  .friend-name {
+    font-size: 10px;
+  }
+  .friend-name-commu {
+    font-size: 10px;
+  }
+  }

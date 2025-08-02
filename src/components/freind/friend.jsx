@@ -14,7 +14,7 @@ import { useSocket } from "../../context/socketcontext";
 
 // แสดงข้อมูลสถานะการเชื่อมต่อ socket อย่างละเอียด
 // socket.on("connect", () => {
- 
+
 //   console.log("Socket connected to URL:", import.meta.env.VITE_APP_API_BASE_URL);
 
 // การจัดการสถานะการเชื่อมต่อของ socket ทั้งหมดถูกย้ายไปที่ socketcontext.jsx แล้ว
@@ -38,7 +38,7 @@ const formatLastSeen = (timestamp) => {
 
 const Friend = () => {
   const { socket, onlineUsers } = useSocket(); // ใช้ socket และ onlineUsers จาก context
-  
+
   // รับ roomId จาก URL ถ้ามี เช่น /friend/:roomId
   const { roomId } = useParams();
 
@@ -73,14 +73,19 @@ const Friend = () => {
   // โหลดการแจ้งเตือนจาก localStorage เมื่อเริ่มต้น
   useEffect(() => {
     if (userEmail) {
-      const savedNotifications = localStorage.getItem(`notifications_${userEmail}`);
+      const savedNotifications = localStorage.getItem(
+        `notifications_${userEmail}`
+      );
       if (savedNotifications) {
         try {
           const parsedNotifications = JSON.parse(savedNotifications);
           console.log("โหลดการแจ้งเตือนจาก localStorage:", parsedNotifications);
           setNotifications(parsedNotifications);
         } catch (error) {
-          console.error("เกิดข้อผิดพลาดในการแปลงข้อมูลแจ้งเตือนจาก localStorage:", error);
+          console.error(
+            "เกิดข้อผิดพลาดในการแปลงข้อมูลแจ้งเตือนจาก localStorage:",
+            error
+          );
         }
       }
     }
@@ -89,7 +94,10 @@ const Friend = () => {
   // บันทึกการแจ้งเตือนลงใน localStorage ทุกครั้งที่มีการเปลี่ยนแปลง
   useEffect(() => {
     if (userEmail && notifications.length > 0) {
-      localStorage.setItem(`notifications_${userEmail}`, JSON.stringify(notifications));
+      localStorage.setItem(
+        `notifications_${userEmail}`,
+        JSON.stringify(notifications)
+      );
       console.log("บันทึกการแจ้งเตือนลงใน localStorage:", notifications);
     }
   }, [notifications, userEmail]);
@@ -214,11 +222,17 @@ const Friend = () => {
       try {
         // ดึงข้อมูลคำขอเพื่อนล่าสุดผ่าน REST API
         const response = await axios.get(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/friend-requests/${userEmail}`
+          `${
+            import.meta.env.VITE_APP_API_BASE_URL
+          }/api/friend-requests/${userEmail}`
         );
 
         // ถ้าไม่มีคำขอเพื่อนใหม่
-        if (!response.data || !response.data.requests || response.data.requests.length === 0) {
+        if (
+          !response.data ||
+          !response.data.requests ||
+          response.data.requests.length === 0
+        ) {
           console.log("ไม่พบคำขอเพื่อนใหม่จาก API");
           return;
         }
@@ -239,26 +253,30 @@ const Friend = () => {
         });
 
         // อัพเดตการแจ้งเตือนใน state
-        setNotifications(prevNotifications => {
+        setNotifications((prevNotifications) => {
           const newNotification = {
             id: requestId,
             type: "friend-request",
             from: latestRequest.from,
             timestamp: latestRequest.timestamp,
-            read: false
+            read: false,
           };
 
           // กรองคำขอเพื่อนที่ซ้ำกันออกไป
-          const filteredNotifications = prevNotifications.filter(n =>
-            n.type !== "friend-request" ||
-            (n.type === "friend-request" && n.from.email !== latestRequest.from.email)
+          const filteredNotifications = prevNotifications.filter(
+            (n) =>
+              n.type !== "friend-request" ||
+              (n.type === "friend-request" &&
+                n.from.email !== latestRequest.from.email)
           );
 
           // สร้างรายการแจ้งเตือนใหม่
           return [newNotification, ...filteredNotifications];
         });
 
-        console.log("💾 การแจ้งเตือนจะถูกบันทึกลงใน localStorage โดยอัตโนมัติผ่าน useEffect");
+        console.log(
+          "💾 การแจ้งเตือนจะถูกบันทึกลงใน localStorage โดยอัตโนมัติผ่าน useEffect"
+        );
 
         // แสดง toast notification
         toast.info(
@@ -291,7 +309,9 @@ const Friend = () => {
 
         // ต้องดึงข้อมูลจาก API เพื่อดูว่าใครยอมรับคำขอเพื่อนเรา
         const response = await axios.get(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/friend-accepts/${userEmail}`
+          `${
+            import.meta.env.VITE_APP_API_BASE_URL
+          }/api/friend-accepts/${userEmail}`
         );
 
         if (response.data && response.data.latestAccept) {
@@ -317,7 +337,10 @@ const Friend = () => {
           );
         }
       } catch (error) {
-        console.error("เกิดข้อผิดพลาดในการดึงข้อมูลการยอมรับคำขอเพื่อน:", error);
+        console.error(
+          "เกิดข้อผิดพลาดในการดึงข้อมูลการยอมรับคำขอเพื่อน:",
+          error
+        );
       }
     });
 
@@ -420,7 +443,7 @@ const Friend = () => {
         // แสดง toast notification
         toast.info(`คุณถูกลบออกจากรายการเพื่อน`, {
           autoClose: 5000,
-          position: "bottom-right"
+          position: "bottom-right",
         });
       }
     });
@@ -440,17 +463,18 @@ const Friend = () => {
 
   // ฟังก์ชันสำหรับการทำเครื่องหมายว่าแจ้งเตือนได้อ่านแล้ว
   const markNotificationAsRead = (notificationId) => {
-
     // หาอินเด็กซ์ของการแจ้งเตือนที่จะทำเครื่องหมายว่าอ่านแล้ว
-    const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+    const notificationElement = document.querySelector(
+      `[data-notification-id="${notificationId}"]`
+    );
     if (notificationElement) {
       // เพิ่มคลาสสำหรับแอนิเมชันการอ่าน
-      notificationElement.classList.add('just-read');
+      notificationElement.classList.add("just-read");
 
       // รอให้แอนิเมชันเสร็จก่อนที่จะอัพเดต state
       setTimeout(() => {
-        setNotifications(prevNotifications => {
-          const updatedNotifications = prevNotifications.map(notification => {
+        setNotifications((prevNotifications) => {
+          const updatedNotifications = prevNotifications.map((notification) => {
             if (notification.id === notificationId) {
               return { ...notification, read: true };
             }
@@ -462,8 +486,8 @@ const Friend = () => {
       }, 500); // รอครึ่งวินาที
     } else {
       // ถ้าไม่พบ element ให้อัพเดต state ทันที
-      setNotifications(prevNotifications => {
-        return prevNotifications.map(notification => {
+      setNotifications((prevNotifications) => {
+        return prevNotifications.map((notification) => {
           if (notification.id === notificationId) {
             return { ...notification, read: true };
           }
@@ -503,7 +527,6 @@ const Friend = () => {
       // ใช้ roomId จาก useParams ถ้ามี ถ้าไม่มีให้ gen ใหม่
       const finalRoomId = roomId || generateRoomId();
 
-
       // สร้าง ID สำหรับคำขอเพื่อน
       const requestId = Date.now();
 
@@ -517,9 +540,8 @@ const Friend = () => {
         to: friendEmail,
         timestamp: new Date().toISOString(),
         type: "friend-request",
-        requestId: requestId
+        requestId: requestId,
       };
-
 
       const response = await axios.post(
         `${import.meta.env.VITE_APP_API_BASE_URL}/api/friend-request`,
@@ -586,17 +608,19 @@ const Friend = () => {
 
       // ลบเพื่อนผ่าน REST API
       await axios.delete(
-        `${import.meta.env.VITE_APP_API_BASE_URL
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
         }/api/users/${userEmail}/friends/${friendEmail}`
       );
       try {
         await axios.delete(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/friend-request-email/${userEmail}/${friendEmail}`
+          `${
+            import.meta.env.VITE_APP_API_BASE_URL
+          }/api/friend-request-email/${userEmail}/${friendEmail}`
         );
       } catch (err) {
         console.error("เกิดข้อผิดพลาดในการลบคำขอเพื่อน:", err);
       }
-
 
       // อัปเดต UI ทันที
       setFriends((prevFriends) =>
@@ -607,7 +631,7 @@ const Friend = () => {
       if (socket.connected) {
         socket.emit("notify-friend-removed", {
           to: friendEmail,
-          from: userEmail
+          from: userEmail,
         });
       }
 
@@ -688,9 +712,11 @@ const Friend = () => {
       return;
     }
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `${import.meta.env.VITE_APP_API_BASE_URL
-      }/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
-      }/${targetEmail}`;
+    const url = `${
+      import.meta.env.VITE_APP_API_BASE_URL
+    }/api/users/${userEmail}/${
+      isFollowing ? "unfollow" : "follow"
+    }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
     try {
       await axios({ method, url });
@@ -784,10 +810,12 @@ const Friend = () => {
   const clearReadNotifications = () => {
     console.log("🧹 กำลังล้างการแจ้งเตือนที่อ่านแล้ว");
 
-    setNotifications(prevNotifications => {
+    setNotifications((prevNotifications) => {
       // กรองเอาเฉพาะการแจ้งเตือนที่ยังไม่ได้อ่าน
-      const unreadNotifications = prevNotifications.filter(n => !n.read);
-      console.log(`✅ เหลือการแจ้งเตือนที่ยังไม่ได้อ่าน ${unreadNotifications.length} รายการ`);
+      const unreadNotifications = prevNotifications.filter((n) => !n.read);
+      console.log(
+        `✅ เหลือการแจ้งเตือนที่ยังไม่ได้อ่าน ${unreadNotifications.length} รายการ`
+      );
       return unreadNotifications;
     });
   };
@@ -795,7 +823,8 @@ const Friend = () => {
   const fetchFollowInfo = async (targetEmail) => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL
+        `${
+          import.meta.env.VITE_APP_API_BASE_URL
         }/api/user/${targetEmail}/follow-info`
       );
       setFollowers(res.data.followers);
@@ -829,7 +858,9 @@ const Friend = () => {
           console.log("timestamp:", new Date().toISOString());
 
           const responseData = await axios.post(
-            `${import.meta.env.VITE_APP_API_BASE_URL}/api/friend-request-response`,
+            `${
+              import.meta.env.VITE_APP_API_BASE_URL
+            }/api/friend-request-response`,
             {
               requestId: requestId,
               userEmail: userEmail,
@@ -842,7 +873,7 @@ const Friend = () => {
                 photoURL: photoURL,
               },
               to: notification.from.email,
-              timestamp: new Date().toISOString()
+              timestamp: new Date().toISOString(),
             },
             {
               headers: {
@@ -889,7 +920,7 @@ const Friend = () => {
           // แต่การอัปเดตข้อมูลจริงอยู่ใน API แล้ว
           if (socket.connected) {
             socket.emit("notify-friend-accept", {
-              to: notification.from.email
+              to: notification.from.email,
             });
           }
 
@@ -933,17 +964,19 @@ const Friend = () => {
         // ลองใช้ endpoint แรก (ด้วย requestId)
 
         await axios.delete(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/friend-request/${requestId}`,
+          `${
+            import.meta.env.VITE_APP_API_BASE_URL
+          }/api/friend-request/${requestId}`,
           {
             headers: {
-              "Content-Type": "application/json"
-            }
+              "Content-Type": "application/json",
+            },
           }
         );
 
         // ลบคำขอที่แสดงอยู่ออกจาก UI
-        setNotifications(prevNotifications =>
-          prevNotifications.filter(notif => notif.id !== requestId)
+        setNotifications((prevNotifications) =>
+          prevNotifications.filter((notif) => notif.id !== requestId)
         );
 
         // แสดงข้อความยืนยัน
@@ -961,15 +994,15 @@ const Friend = () => {
         <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
         <div className="text-xl-font-semibold">
           <div className="friend-header-container">
-           
-
             <div className="profile-section">
               <div className="notification-container">
                 <button
                   ref={bellButtonRef}
                   className="bell-btn-home"
                   aria-label="Notifications"
-                  onClick={() => setShowNotificationDropdown(!showNotificationDropdown)}
+                  onClick={() =>
+                    setShowNotificationDropdown(!showNotificationDropdown)
+                  }
                 >
                   <span className="bell-icon-home">&#128276;</span>
                   {notifications.filter((n) => !n.read).length > 0 && (
@@ -991,7 +1024,9 @@ const Friend = () => {
                       <>
                         <div className="notification-header">
                           <div className="notification-stats">
-                            <p>จำนวนการแจ้งเตือนทั้งหมด: {notifications.length}</p>
+                            <p>
+                              จำนวนการแจ้งเตือนทั้งหมด: {notifications.length}
+                            </p>
                             <p>
                               การแจ้งเตือนคำขอเพื่อน:{" "}
                               {
@@ -1013,10 +1048,14 @@ const Friend = () => {
                             <li
                               key={notif.id}
                               data-notification-id={notif.id}
-                              className={`notification-item ${notif.read ? "read" : "unread"
-                                }`}
+                              className={`notification-item ${
+                                notif.read ? "read" : "unread"
+                              }`}
                             >
-                              <div className="notification-content" onClick={() => markNotificationAsRead(notif.id)}>
+                              <div
+                                className="notification-content"
+                                onClick={() => markNotificationAsRead(notif.id)}
+                              >
                                 <img
                                   src={
                                     notif.from?.photoURL ||
@@ -1030,7 +1069,9 @@ const Friend = () => {
                                     <strong>
                                       {notif.from?.displayName || "ผู้ใช้"}
                                     </strong>{" "}
-                                    {isFriend(notif.from?.email) ? "เป็นเพื่อนกันแล้ว" : "ส่งคำขอเป็นเพื่อน"}
+                                    {isFriend(notif.from?.email)
+                                      ? "เป็นเพื่อนกันแล้ว"
+                                      : "ส่งคำขอเป็นเพื่อน"}
                                   </p>
                                   <span className="notification-time">
                                     {new Date(notif.timestamp).toLocaleString(
@@ -1067,7 +1108,6 @@ const Friend = () => {
                                       >
                                         ปฏิเสธ
                                       </button>
-
                                     </div>
                                   )}
                                 </div>
@@ -1093,12 +1133,11 @@ const Friend = () => {
               </div>
             </div>
           </div>
-
         </div>
         {error && <div className="error-message">{error}</div>}
 
         <div className="search-friend-con">
-           <FaSearch className="search-icon-friend" />
+          <FaSearch className="search-icon-friend" />
           <input
             type="text"
             placeholder="Search Friend"
@@ -1115,37 +1154,40 @@ const Friend = () => {
               filteredFriends.length === filteredUsers.length
                 ? "special-friend-list"
                 : filteredFriends.length > 0
-                  ? "con-friend-list"
-                  : "empty-friend-list"
+                ? "con-friend-list"
+                : "empty-friend-list"
             }
           >
             <ul className="friend-list">
               {filteredFriends.length > 0 ? (
                 filteredFriends.map((friend, index) => (
                   <li key={index} className="button-friend-item">
-                    <img
-                      src={friend.photoURL}
-                      className="friend-photo"
-                      alt={friend.displayName}
-                    />
-                    <div className="friend-detailss">
-                      <span className="friend-name">
-                        {getnickName.find((n) => n.email === friend.email)
-                          ?.nickname || friend.displayName}
-                      </span>
-                      <span className="friend-email">{friend.email}</span>
+                    <div className="mobile-small">
+                      <img
+                        src={friend.photoURL}
+                        className="friend-photo"
+                        alt={friend.displayName}
+                      />
+                      <div className="friend-detail-friend">
+                        <span className="friend-name-friend">
+                          {getnickName.find((n) => n.email === friend.email)
+                            ?.nickname || friend.displayName}
+                        </span>
+                        <span className="friend-email">{friend.email}</span>
+                      </div>
                     </div>
                     <div className="con-right">
                       <span
-                        className={`status ${friend.isOnline ? "online" : "offline"
-                          }`}
+                        className={`status ${
+                          friend.isOnline ? "online" : "offline"
+                        }`}
                         aria-label={friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                       >
                         {friend.isOnline
                           ? "ออนไลน์"
                           : friend.lastSeen
-                            ? `ออฟไลน์ - ${formatLastSeen(friend.lastSeen)}`
-                            : "ออฟไลน์"}
+                          ? `ออฟไลน์ - ${formatLastSeen(friend.lastSeen)}`
+                          : "ออฟไลน์"}
                       </span>
                       <div
                         className="dropdown-wrapper"
@@ -1190,15 +1232,15 @@ const Friend = () => {
                               }}
                               aria-label={
                                 Array.isArray(currentUserfollow?.following) &&
-                                  currentUserfollow.following.includes(
-                                    friend.email
-                                  )
+                                currentUserfollow.following.includes(
+                                  friend.email
+                                )
                                   ? "Following"
                                   : "Follow"
                               }
                             >
                               {Array.isArray(currentUserfollow?.following) &&
-                                currentUserfollow.following.includes(friend.email)
+                              currentUserfollow.following.includes(friend.email)
                                 ? "Following"
                                 : "Follow"}
                             </button>
@@ -1246,23 +1288,23 @@ const Friend = () => {
               ).length > 0 && filteredFriends.length === 0
                 ? "special-friend-recommand"
                 : filteredUsers.filter(
-                  (user) => !isFriend(user.email) && user.isOnline === true
-                ).length === 0
-                  ? "empty-friend-recommand"
-                  : "con-friend-recommand"
+                    (user) => !isFriend(user.email) && user.isOnline === true
+                  ).length === 0
+                ? "empty-friend-recommand"
+                : "con-friend-recommand"
             }
           >
             {filteredUsers.filter(
               (user) => !isFriend(user.email) && user.isOnline === true
             ).length === 0 && (
-                <div className="empty-friend">
-                  <div className="roomlist-empty-loading">
-                    <div className="roomlist-empty-text">
-                      ไม่มีผู้ใช้ที่ออนไลน์อยู่ในขณะนี้
-                    </div>
+              <div className="empty-friend">
+                <div className="roomlist-empty-loading">
+                  <div className="roomlist-empty-text">
+                    ไม่มีผู้ใช้ที่ออนไลน์อยู่ในขณะนี้
                   </div>
                 </div>
-              )}
+              </div>
+            )}
             <ul className="friend-recommend">
               {!loadingCurrentUser &&
                 filteredUsers
@@ -1271,29 +1313,32 @@ const Friend = () => {
                   )
                   .map((user, index) => (
                     <li key={index} className="button-friend-item">
-                      <img
-                        src={user.photoURL}
-                        alt={user.displayName}
-                        className="friend-photo"
-                      />
-                      <div className="friend-detailss">
-                        <span className="friend-name">
-                          {getnickName.find((n) => n.email === user.email)
-                            ?.nickname || user.displayName}
-                        </span>
-                        <span className="friend-email">{user.email}</span>
+                      <div className="mobile-small">
+                        <img
+                          src={user.photoURL}
+                          alt={user.displayName}
+                          className="friend-photo"
+                        />
+                        <div className="friend-detail-friend">
+                          <span className="friend-name-friend">
+                            {getnickName.find((n) => n.email === user.email)
+                              ?.nickname || user.displayName}
+                          </span>
+                          <span className="friend-email">{user.email}</span>
+                        </div>
                       </div>
                       <div className="con-right">
                         <span
-                          className={`status ${user.isOnline ? "online" : "offline"
-                            }`}
+                          className={`status ${
+                            user.isOnline ? "online" : "offline"
+                          }`}
                           aria-label={user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
                         >
                           {user.isOnline
                             ? "ออนไลน์"
                             : user.lastSeen
-                              ? `ออฟไลน์ - ${formatLastSeen(user.lastSeen)}`
-                              : "ออฟไลน์"}
+                            ? `ออฟไลน์ - ${formatLastSeen(user.lastSeen)}`
+                            : "ออฟไลน์"}
                         </span>
                         <button
                           className="add-friend-btn"
@@ -1349,15 +1394,15 @@ const Friend = () => {
                                 }}
                                 aria-label={
                                   Array.isArray(currentUserfollow?.following) &&
-                                    currentUserfollow.following.includes(
-                                      user.email
-                                    )
+                                  currentUserfollow.following.includes(
+                                    user.email
+                                  )
                                     ? "Following"
                                     : "Follow"
                                 }
                               >
                                 {Array.isArray(currentUserfollow?.following) &&
-                                  currentUserfollow.following.includes(user.email)
+                                currentUserfollow.following.includes(user.email)
                                   ? "Following"
                                   : "Follow"}
                               </button>
@@ -1397,10 +1442,10 @@ const Friend = () => {
                   {selectedUser.isOnline
                     ? "ออนไลน์"
                     : selectedUser.lastSeen
-                      ? `ออฟไลน์ - เห็นล่าสุด ${formatLastSeen(
+                    ? `ออฟไลน์ - เห็นล่าสุด ${formatLastSeen(
                         selectedUser.lastSeen
                       )}`
-                      : "ออฟไลน์"}
+                    : "ออฟไลน์"}
                 </p>
                 <button
                   className="close-btn"

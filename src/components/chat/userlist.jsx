@@ -44,7 +44,7 @@ const ListUser = ({
 
   const handleToggle = () => {
     setIsOpen((prev) => !prev);
-  };
+};
 
 
   // ฟังก์ชันสร้าง roomId สำหรับ one-to-one chat (เรียง email เพื่อ unique)
@@ -60,7 +60,7 @@ const ListUser = ({
       <div className="favorite-toggle" onClick={handleToggle}>
         {isOpen ? <FaChevronDown /> : <FaChevronRight />}
         <span>Favorite</span>
-      </div>
+    </div>
       {isOpen && (
         <div className="favorite-container-open">
           <ul className="friend-list-chat">
