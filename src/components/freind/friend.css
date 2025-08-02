@@ -10,6 +10,10 @@
   justify-content: center;
   backdrop-filter: blur(2px);
 }
+.mobile-small {
+  display: flex;
+  flex-direction: row;
+}
 
 .fr-spinner {
   display: flex;
@@ -24,11 +28,18 @@
   background: linear-gradient(135deg, #6c63ff 60%, #554eea 100%);
   animation: fr-bounce 1s infinite alternate;
 }
-.fr-spinner-dot:nth-child(2) { animation-delay: 0.2s; }
-.fr-spinner-dot:nth-child(3) { animation-delay: 0.4s; }
+.fr-spinner-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.fr-spinner-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
 
 @keyframes fr-bounce {
-  to { transform: translateY(-16px); opacity: 0.7; }
+  to {
+    transform: translateY(-16px);
+    opacity: 0.7;
+  }
 }
 
 .fr-loading-text {
@@ -95,7 +106,7 @@
 
 .search-friend-con {
   position: relative;
-  width: 37%;
+  width: 600px;
   max-width: 100%;
   display: flex;
   align-items: center;
@@ -266,12 +277,11 @@
   background-color: #d32f2f;
 }
 
-
-.friend-detailss {
+.friend-detail-friend {
   width: 70%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
 }
 
 .add-friend-btn {
@@ -366,7 +376,6 @@
 .dark-mode .dropdown-item {
   color: #f5f5f5;
   font-weight: bold;
-
 }
 
 .dropdown-toggle {
@@ -380,11 +389,13 @@
   box-shadow: none;
 }
 
-.dropdown-toggle:focus, .dropdown-toggle:hover {
+.dropdown-toggle:focus,
+.dropdown-toggle:hover {
   background: #f0f0f0;
 }
 
-.dark-mode .dropdown-toggle:focus, .dark-mode .dropdown-toggle:hover {
+.dark-mode .dropdown-toggle:focus,
+.dark-mode .dropdown-toggle:hover {
   background: #353a45;
 }
 
@@ -393,11 +404,11 @@
   min-width: 180px;
   background: #fff;
   border: 1px solid #e0e0e0;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.13), 0 1.5px 4px rgba(0,0,0,0.07);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.13), 0 1.5px 4px rgba(0, 0, 0, 0.07);
   border-radius: 14px;
   z-index: 99999; /* เพิ่ม z-index ให้สูงมาก ๆ */
   padding: 8px 0;
-  animation: fadeIn 0.18s cubic-bezier(.4,0,.2,1);
+  animation: fadeIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   transition: box-shadow 0.2s, border 0.2s;
   right: 0;
   top: auto;
@@ -407,7 +418,7 @@
 .dark-mode .dropdown-menu {
   background: #23272f;
   border: 1px solid #444;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25), 0 1.5px 4px rgba(0,0,0,0.13);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), 0 1.5px 4px rgba(0, 0, 0, 0.13);
   z-index: 99999;
 }
 
@@ -430,12 +441,14 @@
   color: #f5f5f5;
 }
 
-.dropdown-menu button:hover, .dropdown-menu button:focus {
+.dropdown-menu button:hover,
+.dropdown-menu button:focus {
   background: #f5f7fa;
   color: #1a73e8;
 }
 
-.dark-mode .dropdown-menu button:hover, .dark-mode .dropdown-menu button:focus {
+.dark-mode .dropdown-menu button:hover,
+.dark-mode .dropdown-menu button:focus {
   background: #353a45;
   color: #90caf9;
 }
@@ -444,12 +457,14 @@
   color: #e53935;
 }
 
-.dropdown-menu button.danger:hover, .dropdown-menu button.danger:focus {
+.dropdown-menu button.danger:hover,
+.dropdown-menu button.danger:focus {
   background: #ffeaea;
   color: #b71c1c;
 }
 
-.dark-mode .dropdown-menu button.danger:hover, .dark-mode .dropdown-menu button.danger:focus {
+.dark-mode .dropdown-menu button.danger:hover,
+.dark-mode .dropdown-menu button.danger:focus {
   background: #4d2323;
   color: #ff8a80;
 }
@@ -599,3 +614,138 @@
 ตัวอย่างใน friend.jsx:
 <div className="dropdown-menu" onMouseLeave={() => setOpenMenuFor(null)}>
 */
+@media screen and (max-width: 640px) {
+  .button-friend-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 400px;
+  }
+  .status.online {
+    display: none;
+  }
+  .status.offline {
+    display: none;
+  }
+
+  .dark-mode .button-friend-item {
+    width: 400px;
+  }
+  .search-friend-con {
+    max-width: 400px;
+  }
+  .friend-list {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .friend-name-friend {
+    font-size: 8px;
+    /* text-align: start; */
+  }
+  .friend-email {
+    font-size: 8px;
+    text-align: start;
+  }
+  .friend-detail-friend {
+    margin-left: 8px;
+    width: 50%;
+  }
+  .status.offline {
+    font-size: 10px;
+    width: fit-content;
+    height: fit-content;
+  }
+  .status.online {
+    font-size: 10px;
+    width: fit-content;
+    height: fit-content;
+  }
+  .con-right {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+}
+@media screen and (max-width: 990px) {
+  .friend-name-friend {
+    font-size: 12px;
+    text-align: start;
+  }
+  .friend-detail-friend {
+    margin-left: 8px;
+  }
+  .friend-email {
+    font-size: 12px;
+    text-align: start;
+  }
+  .search-friend-con {
+    width: 600px;
+  }
+}
+
+@media screen and (max-width: 410px) {
+  .button-friend-item {
+    width: 300px;
+  }
+  .dark-mode .button-friend-item {
+    width: 300px;
+  }
+  .friend-name-friend {
+    font-size: 10px;
+    text-align: start;
+  }
+  .friend-email {
+    font-size: 10px;
+    text-align: start;
+  }
+  .friend-detail-friend {
+    margin-left: 8px;
+  }
+  .search-friend-con {
+    width: 300px;
+  }
+  .status.offline {
+    font-size: 8px;
+    width: fit-content;
+    height: fit-content;
+  }
+  .status.online {
+    font-size: 8px;
+    width: fit-content;
+    height: fit-content;
+  }
+  .dropdown-toggle {
+    padding: 6px;
+    border-radius: 50%;
+    font-size: 14px;
+    width: 20px;
+    height: 20px;
+  }
+  .add-friend-btn {
+    padding: 4px 2px;
+    font-size: 12px;
+    margin-right: 5px;
+    
+  }
+  .remove-friend-btn {
+    padding: 4px 2px;
+    font-size: 12px;
+    margin-left: 5px;
+  }
+  .mobile-small {
+    width: 200px;
+  }
+}
+
+.friend-name-friend {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: start;
+}
