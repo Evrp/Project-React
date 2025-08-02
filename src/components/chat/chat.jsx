@@ -801,6 +801,7 @@ const Chat = () => {
                 allEvents={allEvents}
                 users={users}
                 isOpenMatch={isOpenMatch}
+                setOpenchat={setOpenchat}
                 setSelectedTab={setSelectedTab}
                 selectedTab={selectedTab}
                 setIsOpenMatch={setIsOpenMatch}

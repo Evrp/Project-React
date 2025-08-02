@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { TiMicrophoneOutline } from "react-icons/ti";
 import { MdAttachFile } from "react-icons/md";
 import { IoCameraOutline } from "react-icons/io5";
-import { IoIosArrowBack } from "react-icons/io";
+import { IoIosArrowBack, IoMdSend  } from "react-icons/io";
 import { BsEmojiSmile } from "react-icons/bs";
 import ProfileModal from "./ProfileModal";
 import axios from "axios";
@@ -187,7 +187,7 @@ const ChatPanel = ({
       <div className="chat-input-container">
         <div className="chat-border">
           <div className="emoji-right">
-            <TiMicrophoneOutline />
+            {/* <TiMicrophoneOutline /> */}
           </div>
           <input
             type="text"
@@ -199,8 +199,13 @@ const ChatPanel = ({
           />
           <div className="emoji">
             <MdAttachFile />
-            <IoCameraOutline />
-            <BsEmojiSmile />
+            {/* <IoCameraOutline /> */}
+            {/* <BsEmojiSmile /> */}
+          </div>
+          <div className="emoji-left">
+            <IoMdSend 
+              onClick={handleSend}
+            />
           </div>
         </div>
       </div>

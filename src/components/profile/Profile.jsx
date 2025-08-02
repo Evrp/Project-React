@@ -395,7 +395,7 @@ const Profile = () => {
       <ToastContainer />
       <div className="text-xl-font-semibold">
         <div className="profile-header">
-          <h1>Profile</h1>
+          {/* <h1>Profile</h1> */}
           <HeaderProfile userPhoto={userPhoto} />
         </div>
       </div>

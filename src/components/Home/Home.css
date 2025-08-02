@@ -260,6 +260,9 @@
 /* --- End Home header styles --- */
 /* Responsive Design for Mobile Bottom Navigation */
 @media screen and (max-width: 990px) {
+  .filter-container {
+    margin-top: 100px;
+  }
   .bg-event-con {
     flex-direction: column;
     padding-top: 80px; /* เผื่อพื้นที่สำหรับ logo */
@@ -474,5 +477,16 @@
   .event-title {
     font-size: 2rem;
     padding: 40px 0 0 0;
+  }
+}
+@media screen and (max-width: 430px) {
+  .event-title {
+    font-size: 1.5rem;
+    padding: 20px 0 0 0;
+  }
+  
+  .dark-mode .event-title {
+    font-size: 1.5rem;
+    padding: 20px 0 0 0;
   }
 }

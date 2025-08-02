@@ -41,15 +41,16 @@ const Navbar = () => {
 
   return (
     <div className={`navbar-container ${isDarkMode ? "dark-mode" : ""}`}>
-    {/* // <div className="navbar-con"> */}
-      <div className="logo-con">
-        <Link to="/home">
-          <h3>Find</h3>
-          <h3>Friend</h3>
-        </Link>
-      </div>
+      {/* // <div className="navbar-con"> */}
+
 
       <ul className={click ? "menu active" : "menu-bar"}>
+        <Link to="/home">
+          <div className="logo-con">
+            <h3>Find</h3>
+            <h3>Friend</h3>
+          </div>
+        </Link>
         <Link
           to="/community"
           onClick={closeMobileMenu}

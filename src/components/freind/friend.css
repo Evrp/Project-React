@@ -50,6 +50,400 @@
   letter-spacing: 0.02em;
 }
 
+/* List View Toggle Styles */
+.list-section {
+  width: 80%;
+  margin-right: auto;
+  margin-left: auto;
+  margin-bottom: 20px;
+  position: relative; /* เพิ่ม relative positioning */
+  overflow: visible; /* ให้แน่ใจว่า dropdown สามารถแสดงได้ */
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.list-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.list-header:hover::before {
+  left: 100%;
+}
+
+.list-header:hover {
+  background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.list-header:active {
+  transform: translateY(0px);
+  transition: transform 0.1s ease;
+}
+
+.dark-mode .list-header {
+  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dark-mode .list-header::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+}
+
+.dark-mode .list-header:hover {
+  background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  border-color: rgba(129, 140, 248, 0.3);
+}
+
+.list-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  transition: color 0.3s ease;
+}
+
+.list-header:hover h2 {
+  color: #1e293b;
+}
+
+.dark-mode .list-header h2 {
+  color: #e5e7eb;
+}
+
+.dark-mode .list-header:hover h2 {
+  color: #f9fafb;
+}
+
+.toggle-icon {
+  font-size: 14px;
+  font-weight: bold;
+  color: #64748b;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  transform-origin: center;
+  display: inline-block;
+}
+
+.toggle-icon.open {
+  transform: rotate(180deg) scale(1.1);
+  color: #6366f1;
+}
+
+.dark-mode .toggle-icon {
+  color: #9ca3af;
+}
+
+.dark-mode .toggle-icon.open {
+  color: #818cf8;
+}
+
+/* List content animation */
+.list-content {
+  overflow: visible; /* เปลี่ยนจาก hidden เป็น visible เพื่อให้ dropdown แสดงได้ */
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.list-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none; /* ป้องกันการคลิกเมื่อซ่อน */
+}
+
+.list-content.expanded {
+  max-height: 2000px;
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto; /* อนุญาตการคลิกเมื่อแสดง */
+}
+
+/* Friend item animations */
+.button-friend-item {
+  animation: slideInUp 0.4s ease-out;
+  animation-fill-mode: both;
+}
+
+.button-friend-item:nth-child(1) { animation-delay: 0.1s; }
+.button-friend-item:nth-child(2) { animation-delay: 0.15s; }
+.button-friend-item:nth-child(3) { animation-delay: 0.2s; }
+.button-friend-item:nth-child(4) { animation-delay: 0.25s; }
+.button-friend-item:nth-child(5) { animation-delay: 0.3s; }
+.button-friend-item:nth-child(n+6) { animation-delay: 0.35s; }
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Loading animation for empty states */
+.empty-friend {
+  animation: fadeInScale 0.6s ease-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Pulse effect for count numbers */
+.list-header h2::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 40px;
+  width: 6px;
+  height: 6px;
+  background: #22c55e;
+  border-radius: 50%;
+  transform: translateY(-50%);
+  animation: pulse 2s infinite;
+  opacity: 0;
+}
+
+.list-header:hover h2::after {
+  opacity: 1;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+/* Smooth border animation */
+.list-header {
+  position: relative;
+}
+
+.list-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.list-header:hover::after {
+  width: 80%;
+}
+
+.dark-mode .list-header::after {
+  background: linear-gradient(90deg, #818cf8, #a78bfa);
+}
+
+/* Enhanced button-friend-item hover animations */
+.button-friend-item {
+  position: relative;
+  overflow: visible; /* เปลี่ยนจาก hidden เป็น visible เพื่อให้ dropdown แสดงได้ */
+}
+
+.button-friend-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+  transition: left 0.6s ease;
+  z-index: 1;
+}
+
+.button-friend-item:hover::before {
+  left: 100%;
+}
+
+.button-friend-item:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-left: 4px solid #6366f1;
+}
+
+.dark-mode .button-friend-item:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  border-left: 4px solid #818cf8;
+}
+
+/* Search animation */
+.search-friend-con {
+  position: relative;
+  overflow: hidden;
+}
+
+.search-friend-con::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.search-friend-con:focus-within::after {
+  width: 100%;
+}
+
+/* Status indicator animations */
+.status.online {
+  position: relative;
+}
+
+.status.online::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: #22c55e;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+/* Profile photo hover effect */
+.friend-photo {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.friend-photo:hover {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  border: 2px solid #6366f1;
+}
+
+/* Add friend button enhanced animation */
+.add-friend-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.add-friend-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.3s ease;
+}
+
+.add-friend-btn:hover::before {
+  width: 200px;
+  height: 200px;
+}
+
+.add-friend-btn:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* Notification bell animation */
+.bell-btn-home {
+  transition: all 0.3s ease;
+}
+
+.bell-btn-home:hover {
+  transform: rotate(20deg) scale(1.1);
+  color: #6366f1;
+}
+
+.notifications-badge {
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+  60% {
+    transform: translateY(-1px);
+  }
+}
+
+/* Loading spinner enhancement */
+.roomlist-empty-spinner {
+  position: relative;
+}
+
+.roomlist-empty-bar {
+  animation: wave 1.2s ease-in-out infinite;
+}
+
+.roomlist-empty-bar:nth-child(1) { animation-delay: 0s; }
+.roomlist-empty-bar:nth-child(2) { animation-delay: 0.1s; }
+.roomlist-empty-bar:nth-child(3) { animation-delay: 0.2s; }
+.roomlist-empty-bar:nth-child(4) { animation-delay: 0.3s; }
+
+@keyframes wave {
+  0%, 40%, 100% {
+    transform: scaleY(0.4);
+    opacity: 0.7;
+  }
+  20% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
 /* --- End loading overlay spinner --- */
 
 .fr-container {
@@ -313,11 +707,7 @@
   color: #ccc;
 }
 
-.tabs {
-  display: flex;
-  gap: 20px;
-  margin: 15px 0;
-}
+
 
 .followers, .following {
   list-style: none;
@@ -380,7 +770,9 @@
 }
 
 .button-friend-item {
-  width: 600px;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
   height: fit-content;
   padding: 20px;
   display: flex;
@@ -391,6 +783,14 @@
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
   transition: transform 0.2s, box-shadow 0.2s;
+  position: relative; /* เพิ่ม relative positioning */
+  overflow: visible; /* เปลี่ยนจาก overflow hidden เป็น visible */
+  z-index: 1; /* z-index พื้นฐาน */
+}
+
+/* เมื่อมี dropdown เปิดอยู่ ให้ z-index สูงขึ้น */
+.button-friend-item.dropdown-active {
+  z-index: 1000;
 }
 
 .dark-mode .button-friend-item {
@@ -405,6 +805,14 @@
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   margin-bottom: 1rem;
   transition: transform 0.2s, box-shadow 0.2s;
+  position: relative; /* เพิ่ม relative positioning */
+  overflow: visible; /* เปลี่ยนจาก overflow hidden เป็น visible */
+  z-index: 1; /* z-index พื้นฐาน */
+}
+
+/* เมื่อมี dropdown เปิดอยู่ ให้ z-index สูงขึ้น สำหรับ dark mode */
+.dark-mode .button-friend-item.dropdown-active {
+  z-index: 1000;
 }
 
 .button-friend-item:hover {
@@ -436,22 +844,29 @@
   width: 150px;
 }
 
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .dropdown-wrapper {
   position: relative;
   display: inline-block;
-  z-index: 100;
+  z-index: 1000; /* เพิ่ม z-index ให้สูงขึ้นอีก */
 }
 
-.dropdown-item {
-  color: #4d4d4d;
-  font-weight: bold;
+/* เมื่อ dropdown เปิดอยู่ ให้ z-index สูงสุด */
+.dropdown-wrapper.active {
+  z-index: 9999;
 }
 
-.dark-mode .dropdown-item {
-  color: #f5f5f5;
-  font-weight: bold;
-}
-
+/* ปรับการจัดตำแหน่งปุ่ม dropdown */
 .dropdown-toggle {
   padding: 8px;
   border: none;
@@ -461,6 +876,11 @@
   transition: background 0.18s;
   outline: none;
   box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative; /* เพิ่ม relative positioning */
+  z-index: 1001; /* เพิ่ม z-index */
 }
 
 .dropdown-toggle:focus,
@@ -473,6 +893,16 @@
   background: #353a45;
 }
 
+.dropdown-item {
+  color: #4d4d4d;
+  font-weight: bold;
+}
+
+.dark-mode .dropdown-item {
+  color: #f5f5f5;
+  font-weight: bold;
+}
+
 .dropdown-menu {
   position: absolute;
   min-width: 180px;
@@ -480,13 +910,27 @@
   border: 1px solid #e0e0e0;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.13), 0 1.5px 4px rgba(0, 0, 0, 0.07);
   border-radius: 14px;
-  z-index: 99999; /* เพิ่ม z-index ให้สูงมาก ๆ */
+  z-index: 999999; /* z-index สูงมากๆ */
   padding: 8px 0;
   animation: fadeIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   transition: box-shadow 0.2s, border 0.2s;
-  right: 10px;
-  top: auto;
-  margin-top: 8px;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  transform-origin: top right;
+}
+
+/* เพิ่ม box-shadow ให้เข้มขึ้นเพื่อให้เด่นขึ้น */
+.dropdown-menu:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* ป้องกัน dropdown เกินขอบจอ */
+@media (max-width: 480px) {
+  .dropdown-menu {
+    min-width: 160px;
+    right: -10px; /* ปรับเพื่อไม่ให้เกินขอบจอ */
+  }
 }
 
 .dark-mode .dropdown-menu {
@@ -552,6 +996,35 @@
   position: relative;
   display: inline-block;
   z-index: 100;
+}
+
+/* Smart positioning - ถ้า dropdown อยู่ใกล้ขอบล่าง ให้เปิดขึ้นด้านบน */
+.dropdown-menu.dropdown-up {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 4px;
+  transform-origin: bottom right;
+}
+
+/* Smart positioning - ถ้า dropdown อยู่ใกล้ขอบขวา ให้เปิดไปทางซ้าย */
+.dropdown-menu.dropdown-left {
+  right: auto;
+  left: 0;
+  transform-origin: top left;
+}
+
+/* เพิ่ม backdrop เบลอเมื่อ dropdown เปิด */
+.dropdown-active::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 999;
+  pointer-events: none;
 }
 
 /* เพิ่มคลาสสำหรับ error/loading message ให้เด่นขึ้น */
@@ -682,8 +1155,10 @@
   flex-direction: column;
   text-align: center;
   overflow-y: auto;
+  overflow-x: visible; /* เพิ่มเพื่อให้ dropdown สามารถแสดงได้ */
   scroll-behavior: smooth;
   height: calc(100vh - 200px);
+  position: relative; /* เพิ่ม relative positioning */
   /* height: fit-content; */
 }
 
@@ -744,6 +1219,22 @@
     display: flex;
     justify-content: center;
     width: 100%;
+    position: relative; /* เพิ่ม relative positioning */
+  }
+
+  /* Dropdown positioning for mobile */
+  .dropdown-wrapper {
+    position: relative;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: auto;
+    margin-top: 4px;
+    min-width: 160px;
+    max-width: 200px;
   }
 
   /* Modal responsive for mobile */
@@ -805,7 +1296,7 @@
   }
 }
 
-@media screen and (max-width: 410px) {
+@media screen and (max-width: 500px) {
   .button-friend-item {
     width: 300px;
   }

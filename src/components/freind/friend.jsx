@@ -69,6 +69,10 @@ const Friend = () => {
   const [newFriendRequest, setNewFriendRequest] = useState(null);
   const [showNotificationDropdown, setShowNotificationDropdown] =
     useState(false);
+  
+  // States for list view toggle
+  const [showFriendList, setShowFriendList] = useState(false);
+  const [showOnlineUsersList, setShowOnlineUsersList] = useState(false);
 
   // โหลดการแจ้งเตือนจาก localStorage เมื่อเริ่มต้น
   useEffect(() => {
@@ -222,8 +226,7 @@ const Friend = () => {
       try {
         // ดึงข้อมูลคำขอเพื่อนล่าสุดผ่าน REST API
         const response = await axios.get(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
+          `${import.meta.env.VITE_APP_API_BASE_URL
           }/api/friend-requests/${userEmail}`
         );
 
@@ -309,8 +312,7 @@ const Friend = () => {
 
         // ต้องดึงข้อมูลจาก API เพื่อดูว่าใครยอมรับคำขอเพื่อนเรา
         const response = await axios.get(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
+          `${import.meta.env.VITE_APP_API_BASE_URL
           }/api/friend-accepts/${userEmail}`
         );
 
@@ -608,14 +610,12 @@ const Friend = () => {
 
       // ลบเพื่อนผ่าน REST API
       await axios.delete(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
+        `${import.meta.env.VITE_APP_API_BASE_URL
         }/api/users/${userEmail}/friends/${friendEmail}`
       );
       try {
         await axios.delete(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
+          `${import.meta.env.VITE_APP_API_BASE_URL
           }/api/friend-request-email/${userEmail}/${friendEmail}`
         );
       } catch (err) {
@@ -712,11 +712,9 @@ const Friend = () => {
       return;
     }
     const isFollowing = currentUserfollow.following.includes(targetEmail);
-    const url = `${
-      import.meta.env.VITE_APP_API_BASE_URL
-    }/api/users/${userEmail}/${
-      isFollowing ? "unfollow" : "follow"
-    }/${targetEmail}`;
+    const url = `${import.meta.env.VITE_APP_API_BASE_URL
+      }/api/users/${userEmail}/${isFollowing ? "unfollow" : "follow"
+      }/${targetEmail}`;
     const method = isFollowing ? "DELETE" : "POST";
     try {
       await axios({ method, url });
@@ -823,8 +821,7 @@ const Friend = () => {
   const fetchFollowInfo = async (targetEmail) => {
     try {
       const res = await axios.get(
-        `${
-          import.meta.env.VITE_APP_API_BASE_URL
+        `${import.meta.env.VITE_APP_API_BASE_URL
         }/api/user/${targetEmail}/follow-info`
       );
       setFollowers(res.data.followers);
@@ -858,8 +855,7 @@ const Friend = () => {
           console.log("timestamp:", new Date().toISOString());
 
           const responseData = await axios.post(
-            `${
-              import.meta.env.VITE_APP_API_BASE_URL
+            `${import.meta.env.VITE_APP_API_BASE_URL
             }/api/friend-request-response`,
             {
               requestId: requestId,
@@ -964,8 +960,7 @@ const Friend = () => {
         // ลองใช้ endpoint แรก (ด้วย requestId)
 
         await axios.delete(
-          `${
-            import.meta.env.VITE_APP_API_BASE_URL
+          `${import.meta.env.VITE_APP_API_BASE_URL
           }/api/friend-request/${requestId}`,
           {
             headers: {
@@ -986,6 +981,25 @@ const Friend = () => {
       console.error("เกิดข้อผิดพลาดในการลบคำขอเพื่อน:", error);
       toast.error("ไม่สามารถลบคำขอเพื่อนได้");
     }
+  };
+
+  // ฟังก์ชันสำหรับแปลงเวลา lastSeen
+  const formatLastSeen = (lastSeen) => {
+    if (!lastSeen) return "ไม่ทราบ";
+    
+    const now = new Date();
+    const lastSeenDate = new Date(lastSeen);
+    const diffMs = now - lastSeenDate;
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffMinutes < 1) return "เมื่อสักครู่";
+    if (diffMinutes < 60) return `${diffMinutes} นาทีที่แล้ว`;
+    if (diffHours < 24) return `${diffHours} ชั่วโมงที่แล้ว`;
+    if (diffDays < 7) return `${diffDays} วันที่แล้ว`;
+    
+    return lastSeenDate.toLocaleDateString("th-TH");
   };
 
   return (
@@ -1048,9 +1062,8 @@ const Friend = () => {
                             <li
                               key={notif.id}
                               data-notification-id={notif.id}
-                              className={`notification-item ${
-                                notif.read ? "read" : "unread"
-                              }`}
+                              className={`notification-item ${notif.read ? "read" : "unread"
+                                }`}
                             >
                               <div
                                 className="notification-content"
@@ -1124,13 +1137,12 @@ const Friend = () => {
               </div>
 
               <span className="divider-home">|</span>
-              <div className="profile-img-wrapper-home">
-                <img
-                  src={photoURL}
-                  alt="Profile"
-                  className="profile-image-home"
-                />
-              </div>
+              <img
+                src={photoURL}
+                alt="Profile"
+                className="profile-image-home"
+              />
+
             </div>
           </div>
         </div>
@@ -1148,271 +1160,286 @@ const Friend = () => {
           />
         </div>
         <div className="slide-con">
-          <h2>Favorite</h2>
-          <div
-            className={
-              filteredFriends.length === filteredUsers.length
-                ? "special-friend-list"
-                : filteredFriends.length > 0
-                ? "con-friend-list"
-                : "empty-friend-list"
-            }
-          >
-            <ul className="friend-list">
-              {filteredFriends.length > 0 ? (
-                filteredFriends.map((friend, index) => (
-                  <li key={index} className="button-friend-item">
-                    <div className="mobile-small">
-                      <img
-                        src={friend.photoURL}
-                        className="friend-photo"
-                        alt={friend.displayName}
-                      />
-                      <div className="friend-detail-friend">
-                        <span className="friend-name-friend">
-                          {getnickName.find((n) => n.email === friend.email)
-                            ?.nickname || friend.displayName}
-                        </span>
-                        <span className="friend-email">{friend.email}</span>
-                      </div>
-                    </div>
-                    <div className="con-right">
-                      <span
-                        className={`status ${
-                          friend.isOnline ? "online" : "offline"
-                        }`}
-                        aria-label={friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
-                      >
-                        {friend.isOnline
-                          ? "ออนไลน์"
-                          : friend.lastSeen
-                          ? `ออฟไลน์ - ${formatLastSeen(friend.lastSeen)}`
-                          : "ออฟไลน์"}
-                      </span>
-                      <div
-                        className="dropdown-wrapper"
-                        ref={(el) => (dropdownRefs.current[friend.email] = el)}
-                      >
-                        <button
-                          onClick={() =>
-                            setOpenMenuFor((prev) =>
-                              prev === friend.email ? null : friend.email
-                            )
-                          }
-                          className="dropdown-toggle"
-                          aria-label="เมนูเพื่อน"
-                        >
-                          <BsThreeDots size={20} />
-                        </button>
-                        {openMenuFor === friend.email && (
-                          <div
-                            className="dropdown-menu"
-                            onMouseLeave={() => setOpenMenuFor(null)}
-                          >
-                            <button
-                              className="dropdown-item"
-                              onClick={() => {
-                                handleProfileClick(friend);
-                                fetchFollowInfo(friend.email);
-                                setOpenMenuFor(null);
-                              }}
-                              aria-label="ดูโปรไฟล์"
-                            >
-                              Profile
-                            </button>
-                            <button
-                              className="dropdown-item"
-                              onClick={() => {
-                                if (
-                                  !currentUserfollow ||
-                                  !Array.isArray(currentUserfollow.following)
-                                )
-                                  return;
-                                handleFollow(friend.email);
-                              }}
-                              aria-label={
-                                Array.isArray(currentUserfollow?.following) &&
-                                currentUserfollow.following.includes(
-                                  friend.email
-                                )
-                                  ? "Following"
-                                  : "Follow"
-                              }
-                            >
-                              {Array.isArray(currentUserfollow?.following) &&
-                              currentUserfollow.following.includes(friend.email)
-                                ? "Following"
-                                : "Follow"}
-                            </button>
-                            <button
-                              className="dropdown-item danger"
-                              onClick={() => {
-                                handleRemoveFriend(friend.email);
-                                setOpenMenuFor(null);
-                              }}
-                              disabled={loadingFriendEmail === friend.email}
-                              aria-label="ลบเพื่อน"
-                            >
-                              {loadingFriendEmail === friend.email
-                                ? "Deleting..."
-                                : "Delete Friend"}
-                            </button>
+          <div className="list-section">
+            <div className="list-header" onClick={() => setShowFriendList(!showFriendList)}>
+              <h2>Favorite ({filteredFriends.length})</h2>
+              <span className={`toggle-icon ${showFriendList ? 'open' : ''}`}>▼</span>
+            </div>
+            <div className={`list-content ${showFriendList ? 'expanded' : 'collapsed'}`}>
+              <div
+                className={
+                  filteredFriends.length === filteredUsers.length
+                    ? "special-friend-list"
+                    : filteredFriends.length > 0
+                      ? "con-friend-list"
+                      : "empty-friend-list"
+                }
+              >
+                <ul className="friend-list">
+                  {filteredFriends.length > 0 ? (
+                    filteredFriends.map((friend, index) => (
+                      <li key={index} className={`button-friend-item ${openMenuFor === friend.email ? 'dropdown-active' : ''}`}>
+                        <div className="mobile-small">
+                          <img
+                            src={friend.photoURL}
+                            className="friend-photo"
+                            alt={friend.displayName}
+                          />
+                          <div className="friend-detail-friend">
+                            <span className="friend-name-friend">
+                              {getnickName.find((n) => n.email === friend.email)
+                                ?.nickname || friend.displayName}
+                            </span>
+                            <span className="friend-email">{friend.email}</span>
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  </li>
-                ))
-              ) : (
-                <div className="empty-friend">
-                  <div className="roomlist-empty-loading">
-                    <div className="roomlist-empty-spinner">
-                      <div className="roomlist-empty-bar"></div>
-                      <div className="roomlist-empty-bar"></div>
-                      <div className="roomlist-empty-bar"></div>
-                      <div className="roomlist-empty-bar"></div>
-                    </div>
-                    <div className="roomlist-empty-text">
-                      ยังไม่มีเพื่อนในรายการโปรด
-                    </div>
-                  </div>
-                </div>
-              )}
-            </ul>
-          </div>
-          <h2>Online Users</h2>
-          <div
-            className={
-              filteredUsers.filter(
-                (user) => !isFriend(user.email) && user.isOnline === true
-              ).length > 0 && filteredFriends.length === 0
-                ? "special-friend-recommand"
-                : filteredUsers.filter(
-                    (user) => !isFriend(user.email) && user.isOnline === true
-                  ).length === 0
-                ? "empty-friend-recommand"
-                : "con-friend-recommand"
-            }
-          >
-            {filteredUsers.filter(
-              (user) => !isFriend(user.email) && user.isOnline === true
-            ).length === 0 && (
-              <div className="empty-friend">
-                <div className="roomlist-empty-loading">
-                  <div className="roomlist-empty-text">
-                    ไม่มีผู้ใช้ที่ออนไลน์อยู่ในขณะนี้
-                  </div>
-                </div>
-              </div>
-            )}
-            <ul className="friend-recommend">
-              {!loadingCurrentUser &&
-                filteredUsers
-                  .filter(
-                    (user) => !isFriend(user.email) && user.isOnline === true
-                  )
-                  .map((user, index) => (
-                    <li key={index} className="button-friend-item">
-                      <div className="mobile-small">
-                        <img
-                          src={user.photoURL}
-                          alt={user.displayName}
-                          className="friend-photo"
-                        />
-                        <div className="friend-detail-friend">
-                          <span className="friend-name-friend">
-                            {getnickName.find((n) => n.email === user.email)
-                              ?.nickname || user.displayName}
+                        </div>
+                        <div className="con-right">
+                          <span
+                            className={`status ${friend.isOnline ? "online" : "offline"
+                              }`}
+                            aria-label={friend.isOnline ? "ออนไลน์" : "ออฟไลน์"}
+                          >
+                            {friend.isOnline
+                              ? "ออนไลน์"
+                              : friend.lastSeen
+                                ? `ออฟไลน์ - ${formatLastSeen(friend.lastSeen)}`
+                                : "ออฟไลน์"}
                           </span>
-                          <span className="friend-email">{user.email}</span>
+                          <div
+                            className={`dropdown-wrapper ${openMenuFor === friend.email ? 'active' : ''}`}
+                            ref={(el) => (dropdownRefs.current[friend.email] = el)}
+                          >
+                            <button
+                              onClick={() =>
+                                setOpenMenuFor((prev) =>
+                                  prev === friend.email ? null : friend.email
+                                )
+                              }
+                              className="dropdown-toggle"
+                              aria-label="เมนูเพื่อน"
+                            >
+                              <BsThreeDots size={20} />
+                            </button>
+                            {openMenuFor === friend.email && (
+                              <div
+                                className="dropdown-menu"
+                                onMouseLeave={() => setOpenMenuFor(null)}
+                              >
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => {
+                                    handleProfileClick(friend);
+                                    fetchFollowInfo(friend.email);
+                                    setOpenMenuFor(null);
+                                  }}
+                                  aria-label="ดูโปรไฟล์"
+                                >
+                                  Profile
+                                </button>
+                                <button
+                                  className="dropdown-item"
+                                  onClick={() => {
+                                    if (
+                                      !currentUserfollow ||
+                                      !Array.isArray(currentUserfollow.following)
+                                    )
+                                      return;
+                                    handleFollow(friend.email);
+                                  }}
+                                  aria-label={
+                                    Array.isArray(currentUserfollow?.following) &&
+                                      currentUserfollow.following.includes(
+                                        friend.email
+                                      )
+                                      ? "Following"
+                                      : "Follow"
+                                  }
+                                >
+                                  {Array.isArray(currentUserfollow?.following) &&
+                                    currentUserfollow.following.includes(friend.email)
+                                    ? "Following"
+                                    : "Follow"}
+                                </button>
+                                <button
+                                  className="dropdown-item danger"
+                                  onClick={() => {
+                                    handleRemoveFriend(friend.email);
+                                    setOpenMenuFor(null);
+                                  }}
+                                  disabled={loadingFriendEmail === friend.email}
+                                  aria-label="ลบเพื่อน"
+                                >
+                                  {loadingFriendEmail === friend.email
+                                    ? "Deleting..."
+                                    : "Delete Friend"}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </li>
+                    ))
+                  ) : (
+                    <div className="empty-friend">
+                      <div className="roomlist-empty-loading">
+                        <div className="roomlist-empty-spinner">
+                          <div className="roomlist-empty-bar"></div>
+                          <div className="roomlist-empty-bar"></div>
+                          <div className="roomlist-empty-bar"></div>
+                          <div className="roomlist-empty-bar"></div>
+                        </div>
+                        <div className="roomlist-empty-text">
+                          ยังไม่มีเพื่อนในรายการโปรด
                         </div>
                       </div>
-                      <div className="con-right">
-                        <span
-                          className={`status ${
-                            user.isOnline ? "online" : "offline"
-                          }`}
-                          aria-label={user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
-                        >
-                          {user.isOnline
-                            ? "ออนไลน์"
-                            : user.lastSeen
-                            ? `ออฟไลน์ - ${formatLastSeen(user.lastSeen)}`
-                            : "ออฟไลน์"}
-                        </span>
-                        <button
-                          className="add-friend-btn"
-                          onClick={() => handleAddFriend(user.email)}
-                          disabled={loadingFriendEmail === user.email}
-                          aria-label="เพิ่มเพื่อน"
-                        >
-                          {loadingFriendEmail === user.email ? (
-                            "กำลังเพิ่ม..."
-                          ) : (
-                            <IoMdPersonAdd />
-                          )}
-                        </button>
-                        <div
-                          className="dropdown-wrapper"
-                          ref={(el) => (dropdownRefs.current[user.email] = el)}
-                        >
-                          <button
-                            onClick={() =>
-                              setOpenMenuFor((prev) =>
-                                prev === user.email ? null : user.email
-                              )
-                            }
-                            className="dropdown-toggle"
-                            aria-label="เมนูผู้ใช้"
-                          >
-                            <BsThreeDots size={20} />
-                          </button>
-                          {openMenuFor === user.email && (
+                    </div>
+                  )}
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div className="list-section">
+            <div className="list-header" onClick={() => setShowOnlineUsersList(!showOnlineUsersList)}>
+              <h2>Online Users ({filteredUsers.filter(
+                (user) => !isFriend(user.email) && user.isOnline === true
+              ).length})</h2>
+              <span className={`toggle-icon ${showOnlineUsersList ? 'open' : ''}`}>▼</span>
+            </div>
+            <div className={`list-content ${showOnlineUsersList ? 'expanded' : 'collapsed'}`}>
+              <div
+                className={
+                  filteredUsers.filter(
+                    (user) => !isFriend(user.email) && user.isOnline === true
+                  ).length > 0 && filteredFriends.length === 0
+                    ? "special-friend-recommand"
+                    : filteredUsers.filter(
+                      (user) => !isFriend(user.email) && user.isOnline === true
+                    ).length === 0
+                      ? "empty-friend-recommand"
+                      : "con-friend-recommand"
+                }
+              >
+                {filteredUsers.filter(
+                  (user) => !isFriend(user.email) && user.isOnline === true
+                ).length === 0 && (
+                    <div className="empty-friend">
+                      <div className="roomlist-empty-loading">
+                        <div className="roomlist-empty-text">
+                          ไม่มีผู้ใช้ที่ออนไลน์อยู่ในขณะนี้
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                <ul className="friend-recommend">
+                  {!loadingCurrentUser &&
+                    filteredUsers
+                      .filter(
+                        (user) => !isFriend(user.email) && user.isOnline === true
+                      )
+                      .map((user, index) => (
+                        <li key={index} className={`button-friend-item ${openMenuFor === user.email ? 'dropdown-active' : ''}`}>
+                          <div className="mobile-small">
+                            <img
+                              src={user.photoURL}
+                              alt={user.displayName}
+                              className="friend-photo"
+                            />
+                            <div className="friend-detail-friend">
+                              <span className="friend-name-friend">
+                                {getnickName.find((n) => n.email === user.email)
+                                  ?.nickname || user.displayName}
+                              </span>
+                              <span className="friend-email">{user.email}</span>
+                            </div>
+                          </div>
+                          <div className="con-right">
+                            <span
+                              className={`status ${user.isOnline ? "online" : "offline"
+                                }`}
+                              aria-label={user.isOnline ? "ออนไลน์" : "ออฟไลน์"}
+                            >
+                              {user.isOnline
+                                ? "ออนไลน์"
+                                : user.lastSeen
+                                  ? `ออฟไลน์ - ${formatLastSeen(user.lastSeen)}`
+                                  : "ออฟไลน์"}
+                            </span>
+                            <button
+                              className="add-friend-btn"
+                              onClick={() => handleAddFriend(user.email)}
+                              disabled={loadingFriendEmail === user.email}
+                              aria-label="เพิ่มเพื่อน"
+                            >
+                              {loadingFriendEmail === user.email ? (
+                                "กำลังเพิ่ม..."
+                              ) : (
+                                <IoMdPersonAdd />
+                              )}
+                            </button>
                             <div
-                              className="dropdown-menu"
-                              onMouseLeave={() => setOpenMenuFor(null)}
+                              className={`dropdown-wrapper ${openMenuFor === user.email ? 'active' : ''}`}
+                              ref={(el) => (dropdownRefs.current[user.email] = el)}
                             >
                               <button
-                                className="dropdown-item"
-                                onClick={() => {
-                                  handleProfileClick(user);
-                                  setOpenMenuFor(null);
-                                }}
-                                aria-label="ดูโปรไฟล์"
-                              >
-                                Profile
-                              </button>
-                              <button
-                                className="dropdown-item"
-                                onClick={() => {
-                                  if (
-                                    !currentUserfollow ||
-                                    !Array.isArray(currentUserfollow.following)
+                                onClick={() =>
+                                  setOpenMenuFor((prev) =>
+                                    prev === user.email ? null : user.email
                                   )
-                                    return;
-                                  handleFollow(user.email);
-                                }}
-                                aria-label={
-                                  Array.isArray(currentUserfollow?.following) &&
-                                  currentUserfollow.following.includes(
-                                    user.email
-                                  )
-                                    ? "Following"
-                                    : "Follow"
                                 }
+                                className="dropdown-toggle"
+                                aria-label="เมนูผู้ใช้"
                               >
-                                {Array.isArray(currentUserfollow?.following) &&
-                                currentUserfollow.following.includes(user.email)
-                                  ? "Following"
-                                  : "Follow"}
+                                <BsThreeDots size={20} />
                               </button>
+                              {openMenuFor === user.email && (
+                                <div
+                                  className="dropdown-menu"
+                                  onMouseLeave={() => setOpenMenuFor(null)}
+                                >
+                                  <button
+                                    className="dropdown-item"
+                                    onClick={() => {
+                                      handleProfileClick(user);
+                                      setOpenMenuFor(null);
+                                    }}
+                                    aria-label="ดูโปรไฟล์"
+                                  >
+                                    Profile
+                                  </button>
+                                  <button
+                                    className="dropdown-item"
+                                    onClick={() => {
+                                      if (
+                                        !currentUserfollow ||
+                                        !Array.isArray(currentUserfollow.following)
+                                      )
+                                        return;
+                                      handleFollow(user.email);
+                                    }}
+                                    aria-label={
+                                      Array.isArray(currentUserfollow?.following) &&
+                                        currentUserfollow.following.includes(
+                                          user.email
+                                        )
+                                        ? "Following"
+                                        : "Follow"
+                                    }
+                                  >
+                                    {Array.isArray(currentUserfollow?.following) &&
+                                      currentUserfollow.following.includes(user.email)
+                                      ? "Following"
+                                      : "Follow"}
+                                  </button>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-            </ul>
+                          </div>
+                        </li>
+                      ))}
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
         {isModalOpen && selectedUser && (
@@ -1442,18 +1469,12 @@ const Friend = () => {
                   {selectedUser.isOnline
                     ? "ออนไลน์"
                     : selectedUser.lastSeen
-                    ? `ออฟไลน์ - เห็นล่าสุด ${formatLastSeen(
+                      ? `ออฟไลน์ - เห็นล่าสุด ${formatLastSeen(
                         selectedUser.lastSeen
                       )}`
-                    : "ออฟไลน์"}
+                      : "ออฟไลน์"}
                 </p>
-                <button
-                  className="close-btn"
-                  onClick={handleCloseModal}
-                  aria-label="ปิดโปรไฟล์"
-                >
-                  ปิด
-                </button>
+                
               </div>
             </div>
           </div>

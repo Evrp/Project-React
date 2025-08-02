@@ -1,5 +1,6 @@
 import express from "express";
 import { EventMatch } from "../src/model/eventmatch.js";
+import { InfoMatch } from "../src/model/infomatch.js";
 const router = express.Router();
 
 router.post("/events-match", async (req, res) => {
@@ -11,7 +12,7 @@ router.post("/events-match", async (req, res) => {
       return res.status(400).json({ error: "Title, email, roomId, chance and usermatch are required." });
     }
 
-    const newEvent = new EventMatch({
+    const newEvent = new InfoMatch({
       title,
       email,
       roomId,

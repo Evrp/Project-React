@@ -545,7 +545,7 @@
 
 @media screen and (max-width: 480px) {
   .room-match-container {
-    padding: 80px 8px 100px 8px;
+    padding: 0px 8px 0px 8px;
   }
 
   .card-stack {
@@ -576,6 +576,9 @@
   .button-group {
     gap: 1rem;
     margin-top: 12px;
+    position: absolute;
+    top: auto;
+    bottom: 90px;
   }
 
   .skip-button, .join-button {
@@ -606,16 +609,26 @@
     width: 12px;
     height: 12px;
   }
-}
-
-@media screen and (max-width: 320px) {
-  .room-match-container {
-    padding: 80px 6px 100px 6px;
+  .roommatch-tindercard-loading {
+    width: 200px;
+    height: 100px;
+  }
+  .roommatch-tindercard-loading-text {
+    font-size: 10px;
+    padding: 8px 16px;
+  }
+  .roommatch-tindercard-loading {
+    width: 200px;
+    height: 100px;
+  }
+  .roommatch-tindercard-loading-text {
+    font-size: 10px;
+    padding: 0px 10px;
   }
 
   .card-stack {
     max-width: 240px;
-    height: 360px;
+    height: 300px;
   }
 
   .room-match-info h4 {

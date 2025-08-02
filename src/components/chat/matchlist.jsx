@@ -14,6 +14,7 @@ const MatchList = ({
   isOpenMatch,
   setIsOpenMatch,
   setSelectedTab,
+  setOpenchat,
   handleProfileClick,
   loadingFriendRooms,
   selectedTab,
@@ -80,9 +81,10 @@ const MatchList = ({
                       return room.title === name ? (
                         <li
                           key={liKey}
-                          className={`chat-friend-item ${selectedTab === room.roomId ? 'selected' : ''}`}
+                          className={`chat-match-item ${selectedTab === room.roomId ? 'selected' : ''}`}
                           onClick={() => {
                             handleEnterRoom(room.roomId);
+                            setOpenchat(true);
                             setUserImage(room);
                             setSelectedTab(room.roomId);
                             // ตรวจสอบให้แน่ใจว่า room.usermatch เป็น email (string) เสมอ
@@ -116,7 +118,7 @@ const MatchList = ({
                             alt={room.title}
                             className="friend-photo"
                           />
-                          <div className="friend-detailss">
+                          <div className="match-detail">
                             <span className="friend-name">
                               {(() => {
                                 const user = users.find(
