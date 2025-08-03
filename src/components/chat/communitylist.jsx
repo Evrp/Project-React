@@ -1,10 +1,5 @@
-import { useEffect, useState } from "react";
 import { FaChevronDown, FaChevronRight } from "react-icons/fa";
-import { BsThreeDots } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { toast } from "react-toastify";
-import { v4 as uuidv4 } from "uuid";
 
 const CommunityList = ({
   joinedRooms,

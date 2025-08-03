@@ -47,6 +47,21 @@ const Newcommu = () => {
     fetchGmailUser(); // ดึงข้อมูล Gmail user จาก backend
   }, []);
 
+  // ปิด Google Analytics ใน development environment
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      // ปิด gtag tracking ใน development
+      window.gtag = function() {
+        console.log('Google Analytics disabled in development mode');
+      };
+      
+      // ป้องกัน analytics requests
+      if (window.dataLayer) {
+        window.dataLayer = [];
+      }
+    }
+  }, []);
+
   const handleNewRoom = (room) => {
     setRooms((prev) => [...prev, room]);
   };
@@ -316,7 +331,7 @@ const Newcommu = () => {
     const getNickNameF = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/get-all-nicknames`
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/get-all-info`
         );
         getNickName(res.data);
       } catch (err) {

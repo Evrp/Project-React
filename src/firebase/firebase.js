@@ -24,7 +24,16 @@ const provider = new GoogleAuthProvider(); // ใช้ GoogleAuthProvider ส�
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// ใช้ analytics หากต้องการ
-const analytics = getAnalytics(app);
+// ใช้ analytics เฉพาะใน production environment
+let analytics = null;
+if (import.meta.env.PROD) {
+  try {
+    analytics = getAnalytics(app);
+  } catch (error) {
+    console.warn('Analytics initialization failed:', error);
+  }
+} else {
+  analytics = null;
+}
 
 export { auth, provider, signInWithPopup, db, storage, analytics };  // ส่งออกสิ่งที่ใช้จาก Firebase

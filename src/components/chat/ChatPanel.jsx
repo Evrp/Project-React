@@ -222,6 +222,7 @@ const ChatPanel = ({
         followers={followers}
         setJoinedRooms={setJoinedRooms}
         following={following}
+        users={users}
       />
     </div>
   );

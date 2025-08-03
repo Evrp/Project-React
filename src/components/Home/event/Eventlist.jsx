@@ -84,7 +84,7 @@ const EventList = () => {
     const fetchEvents = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/events?email=${
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/events/${
             user.email
           }`
         );

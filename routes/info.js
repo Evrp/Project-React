@@ -54,7 +54,7 @@ router.get("/user-rooms/:email", async (req, res) => {
 
 // ดึงข้อมูลผู้ใช้ทั้งหมด (nicknames)
 // ใช้สำหรับแสดงรายชื่อผู้ใช้ในหน้าเพื่อน
-router.get("/get-all-nicknames", async (req, res) => {
+router.get("/get-all-info", async (req, res) => {
   try {
     const users = await Info.find();
     res.json(users);

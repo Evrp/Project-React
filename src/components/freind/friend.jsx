@@ -83,7 +83,6 @@ const Friend = () => {
       if (savedNotifications) {
         try {
           const parsedNotifications = JSON.parse(savedNotifications);
-          console.log("โหลดการแจ้งเตือนจาก localStorage:", parsedNotifications);
           setNotifications(parsedNotifications);
         } catch (error) {
           console.error(
@@ -102,7 +101,6 @@ const Friend = () => {
         `notifications_${userEmail}`,
         JSON.stringify(notifications)
       );
-      console.log("บันทึกการแจ้งเตือนลงใน localStorage:", notifications);
     }
   }, [notifications, userEmail]);
 
@@ -938,7 +936,7 @@ const Friend = () => {
     const getNickNameF = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/get-all-nicknames`
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/get-all-info`
         );
         getNickName(res.data);
       } catch (err) {

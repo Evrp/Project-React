@@ -4,10 +4,21 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 
 
-const ProfileModal = ({ isOpen, onClose, user, userImage, setFriends, followers, setJoinedRooms,following, isCom }) => {
+const ProfileModal = ({ isOpen, onClose, user, userImage, setFriends, followers, setJoinedRooms, following, isCom, users }) => {
     const userEmail = localStorage.getItem("userEmail");
     const [currentUserfollow, setCurrentUserfollow] = useState(null);
     if (!isOpen || !user) return null;
+
+    // หา user ที่ตรงกับ email หรือ usermatch ใน userImage
+    const getMatchedUser = () => {
+        if (!users || !userImage) return null;
+        
+        // หาคู่แมตช์ที่ไม่ใช่เรา
+        const partnerEmail = userImage.email === userEmail ? userImage.usermatch : userImage.email;
+        return users.find(u => u.email === partnerEmail);
+    };
+
+    const matchedUser = getMatchedUser();
 
 
 
@@ -31,10 +42,10 @@ const ProfileModal = ({ isOpen, onClose, user, userImage, setFriends, followers,
         console.log("Deleting user:", user, "from room:", roomId, "with name:", roomName, "and id:", roomid);
         try {
             // ลบผู้ใช้จากเซิร์ฟเวอร์
-            if (roomId) {
+            if (roomid) {
                 await fetch(
                     `${import.meta.env.VITE_APP_API_BASE_URL
-                    }/api/delete-event-match/${roomId}`,
+                    }/api/infomatch/${roomid}`,
                     {
                         method: "DELETE",
                     }
@@ -113,15 +124,15 @@ const ProfileModal = ({ isOpen, onClose, user, userImage, setFriends, followers,
                     <div className="profile-modal-user">
                         <img
                             src={getHighResPhoto(
-                                user.photoURL || userImage?.photoURL || userImage.image
+                                matchedUser?.photoURL || user.photoURL || userImage?.photoURL || userImage.image
                             )}
-                            alt={userImage?.displayName || "ผู้ใช้" || userImage.name || "ไม่มีชื่อ"}
+                            alt={matchedUser?.displayName || userImage?.displayName || "ผู้ใช้" || userImage.name || "ไม่มีชื่อ"}
                             className="profile-modal-avatar"
                         />
                         <div className="profile-modal-name">
-                            {userImage?.displayName || userImage?.name || "ไม่มีชื่อ"}
+                            {matchedUser?.displayName || userImage?.displayName || userImage?.name || "ไม่มีชื่อ"}
                         </div>
-                        <div className="profile-modal-email">{userImage?.email || ""}</div>
+                        <div className="profile-modal-email">{userImage.email === userEmail ? userImage.usermatch : userImage.email}</div>
                     </div>
                     <div className="profile-modal-follow-info">
                         {isCom ? (

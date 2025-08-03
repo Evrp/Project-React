@@ -75,6 +75,12 @@ const Chat = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [openchat, setOpenchat] = useState(false);
 
+
+  //Data for community and match lists
+  const [communityData, setCommunityData] = useState([]);
+  const [userMatchData, setUserMatchData] = useState([]);
+  const [infos, setInfos] = useState([]); 
+
   // AI Chat Modal states
   const [isAiChatOpen, setIsAiChatOpen] = useState(false);
   const [aiNotificationCount, setAiNotificationCount] = useState(0);
@@ -172,56 +178,6 @@ const Chat = () => {
     setIsModalOpen(true);
   };
 
-  const fetchJoinedRooms = async () => {
-    setLoadingRooms(true);
-    try {
-      const encodedEmail = encodeURIComponent(userEmail);
-      const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL
-        }/api/user-rooms/${encodedEmail}`
-      );
-      setJoinedRooms(res.data);
-    } catch (err) {
-      console.error("Error fetching joined rooms:", err);
-    } finally {
-      setLoadingRooms(false);
-    }
-  };
-  const fetchMatchRooms = async () => {
-    setLoadingRooms(true);
-    try {
-      const encodedEmail = encodeURIComponent(userEmail);
-      const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL
-        }/api/infomatch/user/${encodedEmail}`
-      );
-      setJoinedRooms(res.data.data);
-    } catch (err) {
-      console.error("Error fetching joined rooms:", err);
-    } finally {
-      setLoadingRooms(false);
-    }
-  };
-  const getallRooms = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/allrooms`
-      );
-      setRooms(res.data);
-    } catch (err) {
-      console.error("Error joining room:", err);
-    }
-  };
-  const getallEvents = async () => {
-    try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/api/events-match/${userEmail}`
-      );
-      setEvents(res.data);
-    } catch (err) {
-      console.error("Error joining room:", err);
-    }
-  };
   const scrollToBottom = () => {
     if (endOfMessagesRef.current) {
       endOfMessagesRef.current.scrollIntoView({ behavior: "smooth" });
@@ -414,7 +370,6 @@ const Chat = () => {
     // รับข้อมูลการอัปเดตสถานะผู้ใช้จากเซิร์ฟเวอร์
     socket.on("update-users", (data) => {
       // เช็คว่า data เป็น array หรือ object
-      console.log("ข้อมูลที่ได้จาก update-users:", data);
 
       // ถ้าข้อมูลเป็น array ใช้ตามเดิม
       if (Array.isArray(data)) {
@@ -530,16 +485,35 @@ const Chat = () => {
 
   // Optimize room and event fetching - immediate load when opened
   useEffect(() => {
-    if (!userEmail) return;
+    const fetchRoomAndEventData = async () => {
+      if (!userEmail) return;
+      setLoadingRooms(true);
+      try {
+        const encodedEmail = encodeURIComponent(userEmail);
+        const [CommunityData, UserMatchData, AllRoomData, AllEventData, AllInfoData, AllJoinedRoomData] = await Promise.all([
+          axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/user-rooms/${encodedEmail}`),
+          axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/all`),
+          axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/allrooms`),
+          axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/events/${encodedEmail}`),
+          axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/get-all-info`),
+          axios.get(`${import.meta.env.VITE_APP_API_BASE_URL}/api/user-rooms/${encodedEmail}`),
+        ]);
+        setCommunityData(CommunityData.data);
+        setUserMatchData(UserMatchData.data.data);
+        setRooms(AllRoomData.data);
+        setJoinedRooms(AllJoinedRoomData.data)
+        setEvents(AllEventData.data); 
+        setInfos(AllInfoData.data);
+        getNickName(AllInfoData.data);
+      } catch (error) {
+        console.error("Error fetching user rooms:", error);
+      } finally {
+        setLoadingRooms(false);
+      }
+    };
 
-    if (isOpencom && !isOpenMatch) {
-      fetchJoinedRooms();
-      getallRooms();
-    } else if (isOpenMatch && !isOpencom) {
-      fetchMatchRooms();
-      getallEvents();
-    }
-  }, [isOpencom, isOpenMatch, userEmail]);
+    fetchRoomAndEventData();
+  }, [userEmail]);
   /////////Chat One To One//////////
   useEffect(() => {
     if (!roomId) return;
@@ -613,24 +587,6 @@ const Chat = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  // Load nicknames immediately when user is available
-  useEffect(() => {
-    const getNickNameF = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/get-all-nicknames`
-        );
-        getNickName(res.data);
-      } catch (err) {
-        console.error("โหลด nickname ล้มเหลว:", err);
-      }
-    };
-
-    if (userEmail) {
-      getNickNameF();
-    }
-  }, [userEmail]);
 
   /////////////เรียงข้อความตามเวลา - Optimized///////////////
   useEffect(() => {
@@ -772,12 +728,13 @@ const Chat = () => {
               />
 
               <CommunityList
-                joinedRooms={joinedRooms}
+                communityData={communityData}
                 allRooms={allRooms}
                 isOpencom={isOpencom}
                 setUserImage={setUserImage}
                 setIsOpen={setIsOpen}
-                 setOpenchat={setOpenchat}
+                joinedRooms={joinedRooms}
+                setOpenchat={setOpenchat}
                 setSelectedTab={setSelectedTab}
                 selectedTab={selectedTab}
                 setIsOpencom={setIsOpencom}
@@ -792,12 +749,11 @@ const Chat = () => {
                 setRoombar={setRoombar}
                 loadingFriendRooms={loadingFriendRooms}
                 openMenuFor={openMenuFor}
-                setJoinedRooms={setJoinedRooms}
                 setOpenMenuFor={setOpenMenuFor}
               />
 
               <MatchList
-                joinedRooms={joinedRooms}
+                userMatchData={userMatchData}
                 allEvents={allEvents}
                 users={users}
                 isOpenMatch={isOpenMatch}
@@ -806,6 +762,7 @@ const Chat = () => {
                 selectedTab={selectedTab}
                 setIsOpenMatch={setIsOpenMatch}
                 setActiveUser={setActiveUser}
+                infos={infos}
                 handleProfileClick={handleProfileClick}
                 setRoombar={setRoombar}
                 setIsGroupChat={setIsGroupChat}

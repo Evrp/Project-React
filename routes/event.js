@@ -67,8 +67,8 @@ router.get("/filters/:email", async (req, res) => {
 });
 
 // Get events by user
-router.get("/events", async (req, res) => {
-    const email = req.query.email;
+router.get("/events/:email", async (req, res) => {
+    const email = req.params.email;
     try {
         const events = await Event.find({ email }).sort({ date: 1 });
         res.json(events);
