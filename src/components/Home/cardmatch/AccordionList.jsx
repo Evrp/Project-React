@@ -314,32 +314,32 @@ const AccordionList = ({ items }) => {
                             );
 
                             // เรียก webhook เฉพาะ label ที่เพิ่งเลือกล่าสุด
-                            if (selectedLabels.length > 0) {
-                                const lastLabel = selectedLabels[selectedLabels.length - 1];
-                                // หา genre ที่ตรงกับ label นี้
-                                let genreTitle = null;
-                                if (lastLabel) {
-                                    const [itemIdx, genreIdx] = lastLabel.key.split("-");
-                                    if (items[itemIdx] && items[itemIdx].genres && items[itemIdx].genres[genreIdx]) {
-                                        genreTitle = items[itemIdx].genres[genreIdx].title;
-                                    } else if (items[itemIdx] && items[itemIdx].title) {
-                                        genreTitle = items[itemIdx].title;
-                                    }
-                                }
-                                if (genreTitle) {
-                                    await fetch(`${import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_URL}`,
-                                        {
-                                            method: "POST",
-                                            headers: { "Content-Type": "application/json" },
-                                            body: JSON.stringify({
-                                                email,
-                                                genre: genreTitle,
-                                                subGenre: lastLabel.label
-                                            })
-                                        }
-                                    );
-                                }
-                            }
+                            // if (selectedLabels.length > 0) {
+                            //     const lastLabel = selectedLabels[selectedLabels.length - 1];
+                            //     // หา genre ที่ตรงกับ label นี้
+                            //     let genreTitle = null;
+                            //     if (lastLabel) {
+                            //         const [itemIdx, genreIdx] = lastLabel.key.split("-");
+                            //         if (items[itemIdx] && items[itemIdx].genres && items[itemIdx].genres[genreIdx]) {
+                            //             genreTitle = items[itemIdx].genres[genreIdx].title;
+                            //         } else if (items[itemIdx] && items[itemIdx].title) {
+                            //             genreTitle = items[itemIdx].title;
+                            //         }
+                            //     }
+                            //     if (genreTitle) {
+                            //         await fetch(`${import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_URL}`,
+                            //             {
+                            //                 method: "POST",
+                            //                 headers: { "Content-Type": "application/json" },
+                            //                 body: JSON.stringify({
+                            //                     email,
+                            //                     genre: genreTitle,
+                            //                     subGenre: lastLabel.label
+                            //                 })
+                            //             }
+                            //         );
+                            //     }
+                            // }
 
                             if (response.ok) {
                                 toast.success("บันทึกการเลือกสำเร็จ");

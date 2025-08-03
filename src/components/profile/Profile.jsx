@@ -132,7 +132,7 @@ const Profile = () => {
         
         // ส่งข้อมูลไปยัง Make.com webhook
         try {
-          await fetch(import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_ABOUT_URL, {
+          const webhookResponse = await fetch(import.meta.env.VITE_APP_MAKE_WEBHOOK_MATCH_ABOUT_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -140,6 +140,9 @@ const Profile = () => {
               userEmail: email
             }),
           });
+          if (!webhookResponse.ok) {
+            toast.error("ไม่สามารถส่งข้อมูลไปยัง Make.com ได้");
+          }
         } catch (webhookError) {
           console.error("เกิดข้อผิดพลาดในการส่งข้อมูลไปยัง webhook:", webhookError);
         }

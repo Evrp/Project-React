@@ -1,21 +1,20 @@
 import express from "express";
 import { EventMatch } from "../src/model/eventmatch.js";
-import { InfoMatch } from "../src/model/infomatch.js";
 const router = express.Router();
 
 router.post("/events-match", async (req, res) => {
-  const { title, email, roomId, usermatch, chance } =
-    req.body;
+  const { title, email, usermatch, chance, usermatchjoined, emailjoined } = req.body;
 
   try {
-    if (!title || !email || !roomId || !usermatch || !chance) {
-      return res.status(400).json({ error: "Title, email, roomId, chance and usermatch are required." });
+    if (!title || !email || !usermatch || !chance || usermatchjoined === undefined || emailjoined === undefined) {
+      return res.status(400).json({ error: "Title, email, usermatch, chance, usermatchjoined, emailjoined are required." });
     }
 
-    const newEvent = new InfoMatch({
+    const newEvent = new EventMatch({
       title,
       email,
-      roomId,
+      usermatchjoined,
+      emailjoined, // Assuming this is false by default
       chance,
       usermatch, // Assuming this is a string field for user match
     });
@@ -61,5 +60,15 @@ router.delete("/delete-event-match/:roomId", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+router.delete("/delete-event-match-all", async (req, res) => {
+  try {
+    await EventMatch.deleteMany({});
+    res.status(200).json({ message: "ลบ event match ทั้งหมดเรียบร้อยแล้ว" });
+  } catch (error) {
+    console.error("❌ Error deleting event match:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 export default router;

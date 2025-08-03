@@ -4,43 +4,7 @@ import { EventMatch } from "../src/model/eventmatch.js";
 import { Filter } from "../src/model/filter.js";
 import { Gmail } from "../src/model/gmail.js";
 import { ImageGenre } from "../src/model/image.js";
-import axios from "axios";
 const router = express.Router();
-
-// const MAKE_WEBHOOK_URL = process.env.MAKE_WEBHOOK_URL;
-
-// // Update genres
-// router.post("/update-genres", async (req, res) => {
-//     const { email, genres, subGenres, updatedAt } = req.body;
-//     if (!email || !genres || !subGenres) {
-//         return res.status(400).json({ message: "Missing email, genres, or subGenres" });
-//     }
-//     try {
-//         const user = await Filter.findOneAndUpdate(
-//             { email },
-//             { genres, subGenres: subGenres || {} },
-//             { new: true, upsert: true }
-//         );
-//         // ✅ ส่งข้อมูลไปยัง Make.com เฉพาะกรณีที่ genres/subGenres มีข้อมูล
-//         const hasGenres = Array.isArray(genres) ? genres.length > 0 : false;
-//         const hasSubGenres = subGenres && typeof subGenres === "object" && Object.values(subGenres).some(arr => Array.isArray(arr) ? arr.length > 0 : false);
-//         if (hasGenres && hasSubGenres) {
-//             await axios.post(MAKE_WEBHOOK_URL, {
-//                 type: "update-genres",
-//                 filter_info: {
-//                     email: user.email,
-//                     genres: user.genres,
-//                     subGenres: user.subGenres,
-//                     updatedAt: updatedAt || new Date().toISOString(),
-//                 },
-//             });
-//         }
-
-//         res.status(200).json({ message: "Genres updated", user });
-//     } catch (error) {
-//         res.status(500).json({ message: "Server error" });
-//     }
-// });
 
 // Save event
 router.post("/save-event", async (req, res) => {

@@ -128,7 +128,7 @@ const Newcommu = () => {
   const fetchMatches = async () => {
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_APP_API_BASE_URL}/matches/${loggedInEmail}`
+        `${import.meta.env.VITE_APP_API_BASE_URL}/api/matches/${loggedInEmail}`
       );
       const data = await res.json();
       setMatches(data);

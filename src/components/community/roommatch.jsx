@@ -31,22 +31,23 @@ const RoomMatch = ({ accordionComponent }) => {
       setIsMobile(window.innerWidth <= 990);
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
   useEffect(() => {
     const fetchRooms = async () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_APP_API_BASE_URL
+          `${
+            import.meta.env.VITE_APP_API_BASE_URL
           }/api/events-match/${userEmail}`
         );
         const filterjoinedRooms = await axios.get(
           `${import.meta.env.VITE_APP_API_BASE_URL}/api/user-rooms/${userEmail}`
         );
         const matchInfo = await axios.get(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/${userEmail}`
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/all`
         );
 
         // แปลง roomIds เป็น string ทั้งหมด
@@ -67,25 +68,27 @@ const RoomMatch = ({ accordionComponent }) => {
       setLoading(false);
     };
     fetchRooms();
-
   }, [userEmail]);
-  const filteredRooms = Array.isArray(rooms) ? rooms.filter((room) => {
-    // เช็คว่า email ของเราอยู่ใน usermatch หรือ email
-    const isUserInRoom = room.usermatch === userEmail || room.email === userEmail;
-    if (!isUserInRoom) return false;
+  const filteredRooms = Array.isArray(rooms)
+    ? rooms.filter((room) => {
+        // เช็คว่า email ของเราอยู่ใน usermatch หรือ email
+        const isUserInRoom =
+          room.usermatch === userEmail || room.email === userEmail;
+        if (!isUserInRoom) return false;
 
-    // ถ้าเราอยู่ใน usermatch ให้เช็ค usermatchjoined ต้องเป็น false
-    if (room.usermatch === userEmail && room.usermatchjoined === true) {
-      return false;
-    }
+        // ถ้าเราอยู่ใน usermatch ให้เช็ค usermatchjoined ต้องเป็น false
+        if (room.usermatch === userEmail && room.usermatchjoined === true) {
+          return false;
+        }
 
-    // ถ้าเราอยู่ใน email ให้เช็ค emailjoined ต้องเป็น false
-    if (room.email === userEmail && room.emailjoined === true) {
-      return false;
-    }
+        // ถ้าเราอยู่ใน email ให้เช็ค emailjoined ต้องเป็น false
+        if (room.email === userEmail && room.emailjoined === true) {
+          return false;
+        }
 
-    return true;
-  }) : [];
+        return true;
+      })
+    : [];
 
   useEffect(() => {
     const fetchGmails = async () => {
@@ -130,10 +133,18 @@ const RoomMatch = ({ accordionComponent }) => {
         }
 
         await axios.put(
-          `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/${currentRoom._id}`,
+          `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/${
+            currentRoom._id
+          }`,
           updateData
         );
       }
+
+      // ลบห้องที่ไลค์แล้วออกจาก state และไปห้องต่อไป
+      setRooms((prevRooms) =>
+        prevRooms.filter((_, index) => index !== currentIndex)
+      );
+      setCurrentIndex((prev) => Math.max(0, prev - 1));
 
       toast.success("คุณกดไลค์แล้ว!");
     } catch (error) {
@@ -149,29 +160,25 @@ const RoomMatch = ({ accordionComponent }) => {
       const currentRoom = filteredRooms[currentIndex];
       console.log("Swiped left - deleting room:", currentRoom._id);
 
-      if (currentRoom && currentRoom.roomId) {
-        try {
-          await fetch(
-            `${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-event-match/${currentRoom.roomId}`,
-            { method: "DELETE" }
-          );
-        } catch (error) {
-          console.error("Error deleting event match:", error);
-        }
-      }
-
       if (currentRoom && currentRoom._id) {
         try {
           await fetch(
-            `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/${currentRoom._id}`,
+            `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/${
+              currentRoom._id
+            }`,
             { method: "DELETE" }
           );
+
+          // ลบออกจาก state
+          setRooms((prevRooms) =>
+            prevRooms.filter((_, roomIndex) => roomIndex !== currentIndex)
+          );
+          setCurrentIndex((prev) => Math.max(0, prev - 1));
         } catch (error) {
           console.error("Error deleting info match:", error);
         }
       }
     }
-    setCurrentIndex((prev) => prev - 1);
   };
 
   const swipe = async (dir) => {
@@ -179,7 +186,7 @@ const RoomMatch = ({ accordionComponent }) => {
       await childRefs.current[currentIndex]?.current?.swipe(dir);
     }
   };
-  
+
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -189,8 +196,6 @@ const RoomMatch = ({ accordionComponent }) => {
       closeModal();
     }
   };
-
-
 
   // Modal Wrapper Component
   const ModalWrapper = ({ children }) => {
@@ -202,28 +207,25 @@ const RoomMatch = ({ accordionComponent }) => {
       <>
         {/* <MobileToggleButton /> */}
         <div
-          className={`roommatch-modal-overlay ${isModalOpen ? 'active' : ''}`}
+          className={`roommatch-modal-overlay ${isModalOpen ? "active" : ""}`}
           onClick={handleOverlayClick}
         >
-          <div className={`roommatch-modal-sheet ${isModalOpen ? 'active' : ''}`}>
+          <div
+            className={`roommatch-modal-sheet ${isModalOpen ? "active" : ""}`}
+          >
             <div className="roommatch-modal-header">
               <div className="roommatch-modal-handle"></div>
-              <button 
-                className="roommatch-modal-close"
-                onClick={closeModal}
-              >
+              <button className="roommatch-modal-close" onClick={closeModal}>
                 <FiX />
               </button>
             </div>
-            <div className="roommatch-modal-content">
-              {children}
-            </div>
+            <div className="roommatch-modal-content">{children}</div>
           </div>
         </div>
       </>
     );
   };
-  
+
   const getHighResPhoto = (url) => {
     if (!url) return url;
     // รองรับทั้ง ...=s96-c และ ...=s96-c&... หรือ ...=s96-c?... (กรณีมี query string ต่อท้าย)
@@ -231,14 +233,16 @@ const RoomMatch = ({ accordionComponent }) => {
   };
   return (
     <ModalWrapper>
-      <div className={`room-match-container ${isDarkMode ? "dark-mode" : ""} ${isModalOpen ? 'modal-active' : ''}`}>
+      <div
+        className={`room-match-container ${isDarkMode ? "dark-mode" : ""} ${
+          isModalOpen ? "modal-active" : ""
+        }`}
+      >
         {/* Show AccordionList on mobile only */}
         {isMobile && accordionComponent && (
-          <div className="roommatch-accordion-mobile">
-            {accordionComponent}
-          </div>
+          <div className="roommatch-accordion-mobile">{accordionComponent}</div>
         )}
-        
+
         {loading && (
           <div className="roommatch-loading-overlay">
             <div className="roommatch-spinner">
@@ -279,10 +283,14 @@ const RoomMatch = ({ accordionComponent }) => {
                   className="tinder-card"
                 >
                   <div className="room-card-match">
-                    <div className="room-chance-badge">โอกาสแมช {room.chance}</div>
+                    <div className="room-chance-badge">
+                      โอกาสแมช {room.chance}
+                    </div>
                     {/* หา user ที่ email ตรงกับ room.email เพื่อเอารูป */}
                     {(() => {
-                      const user = users.find((u) => u.email === room.usermatch);
+                      const user = users.find(
+                        (u) => (room.email !== userEmail ? u.email === room.email : u.email === room.usermatch)
+                      );
                       if (user && user.photoURL) {
                         return (
                           <img
@@ -307,12 +315,14 @@ const RoomMatch = ({ accordionComponent }) => {
                     })()}
                     <div className="room-match-info">
                       {/* <h4>{room.title}</h4> */}
-                      <p>{room.usermatch !== userEmail && room.email !== userEmail}</p>
-                      <p>คุณมีสิ่งที่คล้ายกัน: {room.title || room.detail}</p>
+                      <h5>{room.email !== userEmail ? room.email : room.usermatch}</h5>
+                      <p>
+                        มีความสนใจในเรื่อง {room.title || room.detail} เหมือนคุณ
+                      </p>
                     </div>
                   </div>
-                </TinderCard></div>
-
+                </TinderCard>
+              </div>
             ))}
         </div>
 
@@ -323,21 +333,28 @@ const RoomMatch = ({ accordionComponent }) => {
               if (currentIndex >= 0 && currentIndex < filteredRooms.length) {
                 const currentRoom = filteredRooms[currentIndex];
                 console.log("Current room to delete:", currentRoom._id);
-                if (currentRoom && currentRoom.roomId) {
-                  await fetch(
-                    `${import.meta.env.VITE_APP_API_BASE_URL}/api/delete-event-match/${currentRoom.roomId}`,
-                    { method: "DELETE" }
-                  );
-                }
-                if (currentRoom && currentRoom._id) {
 
-                  await fetch(
-                    `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/${currentRoom._id}`,
-                    { method: "DELETE" }
-                  );
+                if (currentRoom && currentRoom._id) {
+                  try {
+                    await fetch(
+                      `${import.meta.env.VITE_APP_API_BASE_URL}/api/infomatch/${
+                        currentRoom._id
+                      }`,
+                      { method: "DELETE" }
+                    );
+
+                    // ลบออกจาก state
+                    setRooms((prevRooms) =>
+                      prevRooms.filter(
+                        (_, roomIndex) => roomIndex !== currentIndex
+                      )
+                    );
+                    setCurrentIndex((prev) => Math.max(0, prev - 1));
+                  } catch (error) {
+                    console.error("Error deleting info match:", error);
+                  }
                 }
               }
-              swipe("left");
             }}
             className="skip-button"
             disabled={loading}
@@ -346,9 +363,7 @@ const RoomMatch = ({ accordionComponent }) => {
           </button>
           <button
             onClick={() =>
-              currentIndex >= 0 &&
-              handleEnterRoom(rooms[currentIndex]._id, rooms[currentIndex].title) ||
-              handleEnterRoom(rooms[currentIndex]._id, rooms[currentIndex].title)
+              currentIndex >= 0 && handleEnterRoom(rooms[currentIndex]._id)
             }
             className="join-button"
             disabled={loading}

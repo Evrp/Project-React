@@ -19,13 +19,20 @@ router.post("/infomatch/create", async (req, res) => {
     const newInfoMatch = new InfoMatch({
       detail,
       email,
-      emailjoined,
+      emailjoined, // กำหนดค่าเริ่มต้นเป็น false หากไม่ได้ระบุ
       usermatchjoined,
-      chance: chance || 0,
+      chance,
       usermatch
     });
 
     const savedInfoMatch = await newInfoMatch.save();
+
+    if (!savedInfoMatch) {
+      return res.status(404).json({
+        success: false,
+        message: "ไม่สามารถสร้าง InfoMatch ได้"
+      });
+    }
 
     res.status(201).json({
       success: true,
