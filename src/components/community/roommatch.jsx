@@ -159,7 +159,7 @@ const RoomMatch = ({ accordionComponent }) => {
         setCurrentIndex((prev) => Math.max(0, prev - 1));
       }
 
-      toast.success("คุณกดไลค์แล้ว!");
+      toast.success("คุณกดไลแล้ว!");
     } catch (error) {
       console.error("Error adding friend:", error);
       toast.error("ไม่สามารถเพิ่มเพื่อนได้");
