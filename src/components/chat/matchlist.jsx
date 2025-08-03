@@ -104,6 +104,7 @@ const MatchList = ({
                 // หา email ของคู่แมตช์ (คนที่ไม่ใช่เรา)
                 const partnerEmail = matchData.email === userEmail ? matchData.usermatch : matchData.email;
                 const user = users.find((u) => u.email === partnerEmail);
+                // console.log("asdasd", user.photoURL)
                 return (
                   <li
                     key={`${matchData._id}-${index}`}
@@ -124,8 +125,8 @@ const MatchList = ({
                       setActiveUser(partnerEmail); // ส่ง email ของคู่แมตช์เป็น activeUser
 
                       // หา user object สำหรับ setRoombar
-                      const partnerUser = users.find(u => u.email === partnerEmail);
-                      setRoombar(partnerUser?.photoURL || matchingRoom.image, matchingRoom.title);
+                      // const partnerUser = users.find(u => u.email === partnerEmail);
+                      setRoombar(user);
                       setIsGroupChat(false);
 
                       // หา user object จาก users array เพื่อส่งให้ handleProfileClick

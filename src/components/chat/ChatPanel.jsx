@@ -53,6 +53,7 @@ const ChatPanel = ({
     }
   };
   useEffect(() => {
+    console.log("RoomsBar", RoomsBar);
     if (!userImage) return;
     if (userImage.name) { setIscom(true); return; }
     if (userImage.usermatch) { setIscom(true); return; }
@@ -80,9 +81,10 @@ const ChatPanel = ({
         <div className="center-mobile">
           <img
             src={
-              userImage && users && (
+              userImage && users && RoomsBar && (
                 users.find((u) => u.email === userImage?.usermatch)?.photoURL ||
                 users.find((u) => u.email === userImage?.email)?.photoURL ||
+                RoomsBar?.photoURL ||
                 userImage?.image ||
                 defaultProfileImage
               )
